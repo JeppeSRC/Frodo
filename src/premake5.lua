@@ -42,7 +42,6 @@ function setupX86Platform()
     removebuildoptions "/arch:AVX2"
 end
 
-
 workspace("Frodo")
     location "../solution/"
     language "c++"
@@ -62,7 +61,7 @@ workspace("Frodo")
 
     floatingpoint "Fast"
 
-    if _ARGS[1] == "Windows" then
+    if _TARGET_OS == "windows" then
         removedefines "FD_LINUX"
         defines { 
             "FD_WINDOWS",
@@ -124,7 +123,6 @@ project("Frodo-core")
     
     files {
         "Frodo-core/**.cpp",
-        "Frodo-core/**.c",
         "Frodo-core/**.h"
     }
 
@@ -136,6 +134,29 @@ project("Frodo-core")
         "Frodo-core/"
     }
 
+    filter {"Release-VK or Debug-VK", "files:Frodo-core/**dx*.cpp"}
+        flags "ExcludeFromBuild"
+
+    filter("Release-VK or Debug-VK")
+        excludes "Frodo-core/**dx*.*"
+
+    filter {"Release-DX or Debug-DX", "files:Frodo-core/**vk*.cpp"}
+        flags "ExcludeFromBuild"
+
+    if _TARGET_OS == "linux" then
+        removefiles {
+            "Frodo-core/platforms/windows/**.*",
+            "Frodo-core/**dx*.*"
+        }
+
+        removeincludedirs "Frodo-core/platforms/windows/"
+
+    elseif _TARGET_OS == "windows" then
+    filter {"system:windows"}
+        removefiles "Frodo-core/platforms/linux/**.*"
+        removeincludedirs "Frodo-core/platforms/linux/"
+    end
+
 project("Sandbox")
     kind("ConsoleApp")
     location "../solution/Sandbox"
@@ -143,10 +164,16 @@ project("Sandbox")
 
     files {
         "Sandbox/**.cpp",
-        "Sandbox/**.c",
         "Sandbox/**.h"
     }
 
     includedirs {"Frodo-core/", "Sandbox/"}
 
     links {"Frodo-core"}
+
+    if _TARGET_OS == "linux" then
+        --excludedirs "Frodo-core/platforms/windows/"
+
+    elseif _TARGET_OS == "windows" then
+        --excludedirs "Frodo-core/platforms/linux/"
+    end
