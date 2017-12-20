@@ -149,12 +149,9 @@ project("Frodo-core")
             "Frodo-core/**dx*.*"
         }
 
-        removeincludedirs "Frodo-core/platforms/windows/"
-
     elseif _TARGET_OS == "windows" then
     filter {"system:windows"}
         removefiles "Frodo-core/platforms/linux/**.*"
-        removeincludedirs "Frodo-core/platforms/linux/"
     end
 
 project("Sandbox")
@@ -170,10 +167,3 @@ project("Sandbox")
     includedirs {"Frodo-core/", "Sandbox/"}
 
     links {"Frodo-core"}
-
-    if _TARGET_OS == "linux" then
-        --excludedirs "Frodo-core/platforms/windows/"
-
-    elseif _TARGET_OS == "windows" then
-        --excludedirs "Frodo-core/platforms/linux/"
-    end
