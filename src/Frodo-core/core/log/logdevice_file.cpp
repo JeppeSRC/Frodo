@@ -1,5 +1,6 @@
 #include "logdevice_file.h"
 #include <ctime>
+#include <core/types.h>
 
 namespace fd {
 namespace core {

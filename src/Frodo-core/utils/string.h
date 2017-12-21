@@ -1,74 +1,63 @@
 #pragma once
-#include <core/types.h>
-#include <stdio.h>
 
-namespace fd { namespace utils {
+#include <string>
+#include <core/types.h>
+
+namespace fd {
+namespace util {
 
 class String {
 private:
-	template<typename T>
-	friend class List;
-public:
-	char* str;
-	uint_t length;
+	std::string str;
 
-	bool noDelete;
-
+	uint_t Find(const char* const string, uint_t length, uint_t offset) const;
 public:
-	String() { str = nullptr; length = 0; }
-	String(const char* string);
-	String(const wchar_t* string);
-	String(char* string, uint_t length, bool noCopy = false);
+	String();
+	String(const char* const string);
+	String(const std::string& string);
 	String(const String& string);
-	String(const String* string);
-	String(String&& string);
-	~String();
 
-	String& operator=(const String& string);
-	String& operator=(String&& string);
-
-	String& Append(const char character);
+	String& Append(const char* const string);
+	String& Append(const std::string& string);
 	String& Append(const String& string);
-	__forceinline String& operator<<(const String& string) { return Append(string); }
-	__forceinline String& operator<<(const char character) { return Append(character); }
 
+	inline void operator+=(const char* const string) { Append(string); }
+	inline void operator+=(const std::string& string) { Append(string); }
+	inline void operator+=(const String& string) { Append(string); }
+
+	uint_t Find(const char c, uint_t offset = 0) const;
+	uint_t Find(const char* const string, uint_t offset = 0) const;
+	uint_t Find(const std::string& string, uint_t offset = 0) const;
+	uint_t Find(const String& string, uint_t offset = 0) const;
+
+	inline String operator+(const char* const string) const { return String(*this).Append(string); }
+	inline String operator+(const std::string& string) const { return String(*this).Append(string); }
+	inline String operator+(const String& string) const { return String(*this).Append(string); }
+
+	inline void operator=(const char* const string) { str = string; }
+	inline void operator=(const std::string& string) { str = string; }
+	inline void operator=(const String& string) { str = string.str; }
+
+	String& RemoveChars(const char* const chars, bool iterate);
+	String& RemoveChars(const char* const chars, uint_t length, bool iterate);
+	String& RemoveChars(const std::string& chars, bool iterate);
 	String& RemoveChars(const String& chars, bool iterate);
 	String& Remove(const String& string);
 	String& Remove(uint_t start, uint_t end);
 	String& RemoveBlankspace();
 
-	String  SubString(uint_t start, uint_t end) const;
+	String SubString(uint_t start, uint_t end) const;
 
+	uint_t Count(const char* const string, uint_t offset = 0) const;
+	uint_t Count(const char* const string, uint_t length, uint_t offset = 0) const;
+	uint_t Count(const std::string& string, uint_t offset = 0) const;
 	uint_t Count(const String& string, uint_t offset = 0) const;
 
-	inline bool IsNull() const { return (str == nullptr || length == 0); }
+	char operator[](uint_t i) const { return str.c_str()[i]; }
 
-	char operator[](uint_t index) const;
+	inline uint_t GetLength() const { return (uint_t)str.length(); }
 
-	bool operator==(const String& string) const;
-	bool operator!=(const String& string) const;
-	String operator+(const String& string) const;
-	__forceinline void operator+=(const String& string) { Append(string); }
-	__forceinline void operator+=(const char character) { Append(character); }
-
-	bool StartsWith(const String& string) const;
-	bool EndsWith(const String& string) const;
-	uint_t Find(const String& string, uint_t offset = 0) const;
-	uint_t Find(const char c, uint_t offset = 0) const;
-
-	List<String*> Split(const char delimiter) const;
-	void Split(const char delimiter, List<String*>& list) const;
-
-	inline char* operator*() const { return str; }
-
-	inline void SetNoDelete(bool nodelete) { this->noDelete = nodelete; }
-
-	inline wchar_t* GetWCHAR() const {
-		wchar_t* tmp = new wchar_t[length + 1];
-		swprintf_s(tmp, length + 1, L"%S", str);
-		tmp[length] = '\0';
-		return tmp;
-	}
+	inline const char* operator*() const { return str.c_str(); }
 };
 
 }}
