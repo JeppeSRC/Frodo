@@ -5,7 +5,21 @@ namespace fd {
 namespace core {
 
 LogDeviceFile::LogDeviceFile(const char* const filename) : LogDevice(LogDeviceType::File) {
-	file = fopen(filename, "w");
+	if (filename) {
+		file = fopen(filename, "w");
+	} else {
+		time_t time = std::time(0);
+		struct tm* now = localtime(&time);
+
+		uint16 year = now->tm_year + 1900;
+		uint8 month = now->tm_mon + 1;
+		uint8 day = now->tm_wday;
+
+		char str[128];
+		sprintf(str, "log-%u-%u-%u.txt\0", year, month, day);
+
+		file = fopen(str, "w");
+	}
 }
 
 LogDeviceFile::~LogDeviceFile() {
@@ -16,9 +30,6 @@ void LogDeviceFile::Log(LogLevel logLevel, const char* const message, va_list li
 	time_t time = std::time(0);
 	struct tm* now = localtime(&time);
 
-	uint16 year = now->tm_year + 1900;
-	uint8 month = now->tm_mon + 1;
-	uint8 day = now->tm_wday;
 	uint8 hour = now->tm_hour;
 	uint8 min = now->tm_min;
 	uint8 sec = now->tm_sec;

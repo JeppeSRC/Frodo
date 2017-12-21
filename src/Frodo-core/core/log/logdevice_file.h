@@ -12,7 +12,7 @@ private:
 	FILE* file;
 
 public:
-	LogDeviceFile(const char* const filename);
+	LogDeviceFile(const char* const filename = nullptr);
 	~LogDeviceFile();
 
 	void Log(LogLevel logLevel, const char* const message, va_list list) override;
