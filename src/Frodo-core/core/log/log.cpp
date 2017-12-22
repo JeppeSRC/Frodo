@@ -8,25 +8,23 @@
 namespace fd {
 namespace core {
 
-std::vector<LogDevice*> Log::devices;
+util::List<LogDevice*> Log::devices;
 
 void Log::AddDevice(LogDevice* device) {
-	devices.push_back(device);
+	devices.Push_back(device);
 }
 
 void Log::RemoveDevice(LogDevice* device) {
-	for (uint_t i = 0; i < devices.size(); i++) {
-		if (devices[i] == device) {
-			devices.erase(devices.begin() + i);
-		}
-	}
+	devices.Remove(device);
+	std::vector<int> shit;
+	
 }
 
 void Log::Info(const char* const message...) {
 	va_list list;
 	va_start(list, message);
 
-	uint_t size = devices.size();
+	uint_t size = devices.GetSize();
 
 	for (uint_t i = 0; i < size; i++) {
 		devices[i]->Log(LogLevel::Info, message, list);
@@ -39,7 +37,7 @@ void Log::Debug(const char* const message...) {
 	va_list list;
 	va_start(list, message);
 
-	uint_t size = devices.size();
+	uint_t size = devices.GetSize();
 
 	for (uint_t i = 0; i < size; i++) {
 		devices[i]->Log(LogLevel::Debug, message, list);
@@ -52,7 +50,7 @@ void Log::Warning(const char* const message...) {
 	va_list list;
 	va_start(list, message);
 
-	uint_t size = devices.size();
+	uint_t size = devices.GetSize();
 
 	for (uint_t i = 0; i < size; i++) {
 		devices[i]->Log(LogLevel::Warning, message, list);
@@ -65,7 +63,7 @@ void Log::Fatal(const char* const message...) {
 	va_list list;
 	va_start(list, message);
 
-	uint_t size = devices.size();
+	uint_t size = devices.GetSize();
 
 	for (uint_t i = 0; i < size; i++) {
 		devices[i]->Log(LogLevel::Fatal, message, list);

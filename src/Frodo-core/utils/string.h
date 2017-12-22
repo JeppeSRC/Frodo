@@ -6,9 +6,8 @@
 namespace fd {
 namespace util {
 
-class String {
+class String : private std::string {
 private:
-	std::string str;
 
 	uint_t Find(const char* const string, uint_t length, uint_t offset) const;
 public:
@@ -34,9 +33,9 @@ public:
 	inline String operator+(const std::string& string) const { return String(*this).Append(string); }
 	inline String operator+(const String& string) const { return String(*this).Append(string); }
 
-	inline void operator=(const char* const string) { str = string; }
-	inline void operator=(const std::string& string) { str = string; }
-	inline void operator=(const String& string) { str = string.str; }
+	inline void operator=(const char* const string) { std::string::operator=(string); }
+	inline void operator=(const std::string& string) { std::string::operator=(string); }
+	inline void operator=(const String& string) { std::string::operator=(string); }
 
 	String& RemoveChars(const char* const chars, bool iterate);
 	String& RemoveChars(const char* const chars, uint_t length, bool iterate);
@@ -53,11 +52,11 @@ public:
 	uint_t Count(const std::string& string, uint_t offset = 0) const;
 	uint_t Count(const String& string, uint_t offset = 0) const;
 
-	char operator[](uint_t i) const { return str.c_str()[i]; }
+	char operator[](uint_t i) const { return c_str()[i]; }
 
-	inline uint_t GetLength() const { return (uint_t)str.length(); }
+	inline uint_t GetLength() const { return (uint_t)length(); }
 
-	inline const char* operator*() const { return str.c_str(); }
+	inline const char* operator*() const { return c_str(); }
 };
 
 }}

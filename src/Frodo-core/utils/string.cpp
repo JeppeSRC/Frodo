@@ -3,46 +3,46 @@
 namespace fd {
 namespace util {
 
-String::String() : str() {
+String::String() {
 
 }
 
-String::String(const char* const string) : str(string) {
+String::String(const char* const string) : std::string(string) {
 
 }
 
-String::String(const std::string& string) : str(string) {
+String::String(const std::string& string) : std::string(string) {
 
 }
 
-String::String(const String& string) : str(string.str) {
+String::String(const String& string) : std::string(string) {
 	
 }
 
 String& String::Append(const char* const string) {
-	str.append(string);
+	append(string);
 
 	return *this;
 }
 
 String& String::Append(const std::string& string) {
-	str.append(string);
+	append(string);
 
 	return *this;
 }
 
 String& String::Append(const String& string) {
-	str.append(string.str);
+	append(string);
 
 	return *this;
 }
 
-uint_t String::Find(const char* const string, uint_t length, uint_t offset) const {
-	const char* tmpstr = str.c_str();
+uint_t String::Find(const char* const string, uint_t len, uint_t offset) const {
+	const char* tmpstr = c_str();
 
-	for (uint_t i = offset; i < str.length() - length + 1; i++) {
+	for (uint_t i = offset; i < length() - len + 1; i++) {
 		bool match = true;
-		for (uint_t j = 0; j < length; j++) {
+		for (uint_t j = 0; j < len; j++) {
 			if (tmpstr[i] != string[j]) {
 				match = false;
 				break;
@@ -58,9 +58,9 @@ uint_t String::Find(const char* const string, uint_t length, uint_t offset) cons
 }
 
 uint_t String::Find(const char c, uint_t offset) const {
-	const char* tmpstr = str.c_str();
+	const char* tmpstr = c_str();
 
-	for (uint_t i = offset; i < str.length(); i++) {
+	for (uint_t i = offset; i < length(); i++) {
 		if (tmpstr[i] == c) return i;
 	}
 
@@ -72,11 +72,11 @@ uint_t String::Find(const char* const string, uint_t offset) const {
 }
 
 uint_t String::Find(const std::string& string, uint_t offset) const {
-	return Find(str.c_str(), string.length(), offset);
+	return Find(string.c_str(), string.length(), offset);
 }
 
 uint_t String::Find(const String& string, uint_t offset) const {
-	return Find(string.str, offset);
+	return Find((std::string)string, offset);
 }
 
 String& String::RemoveChars(const char* const chars, bool iterate) {
@@ -98,11 +98,11 @@ String& String::RemoveChars(const char* const chars, uint_t length, bool iterate
 }
 
 String& String::RemoveChars(const std::string& chars, bool iterate) {
-	return RemoveChars(str.c_str(), chars.length(), iterate);
+	return RemoveChars(chars.c_str(), chars.length(), iterate);
 }
 
 String& String::RemoveChars(const String& chars, bool iterate) {
-	return RemoveChars(chars.str, iterate);
+	return RemoveChars((std::string)chars, iterate);
 }
 
 String& String::Remove(const String& string) {
@@ -112,7 +112,7 @@ String& String::Remove(const String& string) {
 }
 
 String& String::Remove(uint_t start, uint_t end) {
-	str.erase(str.begin() + start, str.begin() + end);
+	erase(begin() + start, begin() + end);
 	return *this;
 }
 
@@ -146,21 +146,21 @@ String& String::RemoveBlankspace() {
 }
 
 String String::SubString(uint_t start, uint_t end) const {
-	return str.substr(start, end - start);
+	return substr(start, end - start);
 }
 
 uint_t String::Count(const char* const string, uint_t offset) const {
 	return Count(string, strlen(string), offset);
 }
 
-uint_t String::Count(const char* const string, uint_t length, uint_t offset) const {
-	const char* tmpstr = str.c_str();
+uint_t String::Count(const char* const string, uint_t len, uint_t offset) const {
+	const char* tmpstr = c_str();
 
 	uint_t count = 0;
 
-	for (uint_t i = offset; i < str.length() - length; i++) {
+	for (uint_t i = offset; i < length() - len; i++) {
 		bool match = true;
-		for (uint_t j = 0; j < length; j++) {
+		for (uint_t j = 0; j < len; j++) {
 			if (tmpstr[i] != string[j]) {
 				match = false;
 				break;
@@ -180,7 +180,7 @@ uint_t String::Count(const std::string& string, uint_t offset) const {
 }
 
 uint_t String::Count(const String& string, uint_t offset) const {
-	return Count(string.str, offset);
+	return Count((std::string)string, offset);
 }
 
 }}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <utils/list.h>
 
 #define FD_INFO(msg, ...) Log::Info(msg, __VA_ARGS__)
 #define FD_DBG(msg, ...) Log::Debug(msg, __VA_ARGS__)
@@ -21,7 +21,7 @@ class LogDevice;
 
 class Log {
 private:
-	static std::vector<LogDevice*> devices;
+	static util::List<LogDevice*> devices;
 
 public:
 	static void AddDevice(LogDevice* device);
@@ -32,7 +32,7 @@ public:
 	static void Warning(const char* const message...);
 	static void Fatal(const char* const message...);
 
-	static std::vector<LogDevice*>& GetDevices() { return devices; }
+	static util::List<LogDevice*>& GetDevices() { return devices; }
 };
 
 }}
