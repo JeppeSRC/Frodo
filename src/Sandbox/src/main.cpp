@@ -1,15 +1,15 @@
 #include <core/math/vec2.h>
 #include <core/math/vec3.h>
 #include <core/math/vec4.h>
+#include <core/math/mat4.h>
 #include <stdio.h>
 using namespace fd::core::math;
 
 int main() {
 
-	vec4 test(2, 60, 21, 128);
-	vec4 test2(1, 30, 21, 64);
+	vec3 test(1, 2, 3);
 
-	test.Div(test2);
+	test = mat4::Translate(vec3(1, 0, 0)) * test;
 
-	printf("%f %f %f %f\n", test.x, test.y, test.z, test.w);
+	printf("%f %f %f\n", test.x, test.y, test.z);
 }

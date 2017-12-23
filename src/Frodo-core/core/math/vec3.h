@@ -1,3 +1,4 @@
+#pragma once
 #include "mathcommon.h"
 
 namespace fd {
