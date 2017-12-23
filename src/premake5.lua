@@ -1,10 +1,9 @@
 function setupReleaseConfiguration()
     buildoptions {
         "/GL",
-        "/SDL-",
+        "/sdl-",
         "/Ot",
         "/GS-",
-        "/arch:SSE2",
         "/arch:AVX2"
     }
 
@@ -18,10 +17,10 @@ end
 
 function setupDebugConfiguration() 
     buildoptions {
-        "/SDL",
+        "/sdl",
         "/Zl",
         "/Gm",
-        "/arch:IA32"
+        "/arch:AVX2"
     }
 
     optimize "Off"
@@ -31,21 +30,12 @@ end
 function setupX64Platform()
     architecture "x86_64"
     defines "FD_PLATFORM_X64"
-    removebuildoptions "/arch:SSE2"
 
     callingconvention "FastCall"
 end
 
-function setupX86Platform()
-    architecture "x86"
-    defines "FD_PLATFORM_X86"
-    removebuildoptions "/arch:AVX2"
-end
-
 workspace("Frodo")
     location "../solution/"
-    language "c++"
-    cppdialect "c++14"
  
     configurations {
         "Release-VK",
@@ -53,13 +43,13 @@ workspace("Frodo")
     }
 
     platforms {
-        "x86",
         "x64"
     }
 
     defines "FD_LINUX"
 
     floatingpoint "Fast"
+    intrinsics "on"
 
     if _TARGET_OS == "windows" then
         removedefines "FD_LINUX"
@@ -110,9 +100,6 @@ workspace("Frodo")
         links {
             "vulkan-1"
         }
-
-    filter("platforms:x86")
-        setupX86Platform()
 
     filter("platforms:x64")
         setupX64Platform()
