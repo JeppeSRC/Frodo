@@ -7,9 +7,9 @@ using namespace fd::core::math;
 
 int main() {
 
-	vec3 test(1, 2, 3);
+	vec3d test(1, 0, 0);
 
-	test = mat4::Translate(vec3(1, 0, 0)) * test;
+	test = test.Cross(vec3d(0, 1, 0));
 
 	printf("%f %f %f\n", test.x, test.y, test.z);
 }

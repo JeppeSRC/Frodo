@@ -23,6 +23,13 @@ public:
 	vec3& Mul(float32 v);
 	vec3& Div(const vec3& v);
 	vec3& Div(float32 v);
+
+	float32 Length() const;
+	vec3& Normalize();
+	vec3 Cross(const vec3& v) const;
+	float32 Dot(const vec3& v) const;
+
+
 };
 
 class vec3d {
@@ -43,6 +50,11 @@ public:
 	vec3d& Mul(float64 v);
 	vec3d& Div(const vec3d& v);
 	vec3d& Div(float64 v);
+
+	float64 Length() const;
+	vec3d& Normalize();
+	vec3d Cross(const vec3d& v) const;
+	float64 Dot(const vec3d& v) const;
 };
 
 class vec3i {

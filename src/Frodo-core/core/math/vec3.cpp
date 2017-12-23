@@ -126,6 +126,34 @@ vec3& vec3::Div(float32 v) {
 	return *this;
 }
 
+float32 vec3::Length() const {
+	return sqrtf(x * x + y * y + z * z);
+}
+
+vec3& vec3::Normalize() {
+	return Mul(1.0f / Length());
+}
+
+vec3 vec3::Cross(const vec3& v) const {
+	__m128 xmm0 = _mm_set_ps(0, x, z, y);
+	__m128 vxmm0 = _mm_set_ps(0, v.y, v.x, v.z);
+
+	__m128 xmm1 = _mm_set_ps(0, y, x, z);
+	__m128 vxmm1 = _mm_set_ps(0, v.x, v.z, v.y);
+
+	xmm0 = _mm_mul_ps(xmm0, vxmm0);
+	xmm1 = _mm_mul_ps(xmm1, vxmm1);
+
+	xmm0 = _mm_sub_ps(xmm0, xmm1);
+
+	return vec3(xmm0.m128_f32[0], xmm0.m128_f32[1], xmm0.m128_f32[2]);
+}
+
+float32 vec3::Dot(const vec3& v) const {
+	__m128 xmm = _mm_set_ps(0, v.z, v.y, v.x);
+	xmm = _mm_mul_ps(xmm, _mm_set_ps(0, y, z, x));
+	return xmm.m128_f32[0] + xmm.m128_f32[1] + xmm.m128_f32[2];
+}
 
 #pragma endregion
 

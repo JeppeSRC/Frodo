@@ -52,7 +52,7 @@ mat4 mat4::Translate(const vec3& v) {
 }
 
 mat4 mat4::Rotate(const vec3& v) {
-
+	return mat4();
 }
 
 mat4 mat4::Perspective(float32 aspect, float32 fov, float32 zNear, float32 zFar) {
