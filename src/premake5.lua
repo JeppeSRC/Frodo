@@ -18,8 +18,6 @@ end
 function setupDebugConfiguration() 
     buildoptions {
         "/sdl",
-        "/Zl",
-        "/Gm",
         "/arch:AVX2"
     }
 
@@ -37,6 +35,8 @@ end
 workspace("Frodo")
     location "../solution/"
  
+    startproject "Sandbox"
+
     configurations {
         "Release-VK",
         "Debug-VK"
@@ -72,18 +72,14 @@ workspace("Frodo")
             defines {"FD_RELEASE", "FD_DX" }
             setupReleaseConfiguration()
             links {
-                "DXGI",
-                "D3D11",
-                "D3D10"
+                "D3D11"
             }
 
         filter("configurations:Debug-DX")
             defines {"FD_DEBUG", "FD_DX" }
             setupDebugConfiguration()
             links {
-                "DXGI",
-                "D3D11",
-                "D3D10"
+                "D3D11"
             }
     end
 

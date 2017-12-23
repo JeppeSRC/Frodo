@@ -52,10 +52,10 @@ template<> vec2_t<int32>& vec2_t<int32>::Add(const vec2_t<int32>& v) {
 template<> vec2_t<int64>& vec2_t<int64>::Add(const vec2_t<int64>& v) {
 	__int64 a = v.x;
 	__int64 b = v.y;
-	__m128i vxmm = _mm_set_epi64x(a, b);
+	__m128i vxmm = _mm_set_epi64x(b, a);
 	a = x;
 	b = y;
-	__m128i xmm = _mm_set_epi64x(a, b);
+	__m128i xmm = _mm_set_epi64x(b, a);
 	xmm = _mm_add_epi64(xmm, vxmm);
 
 	x = xmm.m128i_i64[0];
@@ -104,10 +104,10 @@ template<> vec2_t<int32>& vec2_t<int32>::Sub(const vec2_t<int32>& v) {
 template<> vec2_t<int64>& vec2_t<int64>::Sub(const vec2_t<int64>& v) {
 	__int64 a = v.x;
 	__int64 b = v.y;
-	__m128i vxmm = _mm_set_epi64x(a, b);
+	__m128i vxmm = _mm_set_epi64x(b, a);
 	a = x;
 	b = y;
-	__m128i xmm = _mm_set_epi64x(a, b);
+	__m128i xmm = _mm_set_epi64x(b, a);
 	xmm = _mm_sub_epi64(xmm, vxmm);
 
 	x = xmm.m128i_i64[0];
@@ -143,8 +143,8 @@ template<> vec2_t<float64>& vec2_t<float64>::Mul(const vec2_t<float64>& v) {
 
 //int32
 template<> vec2_t<int32>& vec2_t<int32>::Mul(const vec2_t<int32>& v) {
-	__m128i vxmm = _mm_set_epi32(0, 0, v.y, v.x);
-	__m128i xmm = _mm_set_epi32(0, 0, y, x);
+	__m128i vxmm = _mm_set_epi32(0, v.y, 0, v.x);
+	__m128i xmm = _mm_set_epi32(0, y, 0, x);
 	xmm = _mm_mul_epi32(xmm, vxmm);
 
 	x = xmm.m128i_i32[0];
@@ -246,10 +246,10 @@ template<> vec2_t<int32>& vec2_t<int32>::Add(int32 v) {
 template<> vec2_t<int64>& vec2_t<int64>::Add(int64 v) {
 	__int64 a = v;
 	__int64 b = v;
-	__m128i vxmm = _mm_set_epi64x(a, b);
+	__m128i vxmm = _mm_set_epi64x(b, a);
 	a = x;
 	b = y;
-	__m128i xmm = _mm_set_epi64x(a, b);
+	__m128i xmm = _mm_set_epi64x(b, a);
 	xmm = _mm_add_epi64(xmm, vxmm);
 
 	x = xmm.m128i_i64[0];
@@ -299,10 +299,10 @@ template<> vec2_t<int32>& vec2_t<int32>::Sub(int32 v) {
 template<> vec2_t<int64>& vec2_t<int64>::Sub(int64 v) {
 	__int64 a = v;
 	__int64 b = v;
-	__m128i vxmm = _mm_set_epi64x(a, b);
+	__m128i vxmm = _mm_set_epi64x(b, a);
 	a = x;
 	b = y;
-	__m128i xmm = _mm_set_epi64x(a, b);
+	__m128i xmm = _mm_set_epi64x(b, a);
 	xmm = _mm_sub_epi64(xmm, vxmm);
 
 	x = xmm.m128i_i64[0];
@@ -338,8 +338,8 @@ template<> vec2_t<float64>& vec2_t<float64>::Mul(float64 v) {
 
 //int32
 template<> vec2_t<int32>& vec2_t<int32>::Mul(int32 v) {
-	__m128i vxmm = _mm_set_epi32(0, 0, v, v);
-	__m128i xmm = _mm_set_epi32(0, 0, y, x);
+	__m128i vxmm = _mm_set_epi32(0, v, 0, v);
+	__m128i xmm = _mm_set_epi32(0, y, 0, x);
 	xmm = _mm_mul_epi32(xmm, vxmm);
 
 	x = xmm.m128i_i32[0];
