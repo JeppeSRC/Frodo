@@ -8,7 +8,7 @@
 namespace fd {
 namespace core {
 
-util::List<LogDevice*> Log::devices;
+utils::List<LogDevice*> Log::devices;
 
 void Log::AddDevice(LogDevice* device) {
 	devices.Push_back(device);

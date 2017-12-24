@@ -32,9 +32,20 @@ function setupX64Platform()
     callingconvention "FastCall"
 end
 
+vk_path = os.getenv("VULKAN_SDK");
+
+if (vk_path == nil) then
+    vk_path = os.getenv("VK_SDK_PATH")
+end
+
+if (vk_path == nil) then
+    print("No vulkan sdk path. Set environment variable VULKAN_SDK or VK_SDK_PATH to the vulkan sdk directory")
+    os.exit()
+ end
+
 workspace("Frodo")
     location "../solution/"
- 
+   
     startproject "Sandbox"
 
     configurations {
@@ -114,16 +125,20 @@ project("Frodo-core")
   
 
     includedirs {
-        "Frodo-core/"
+        "Frodo-core/",
     }
 
-    filter {"Release-VK or Debug-VK", "files:Frodo-core/**dx*.cpp"}
+    filter("Release-VK or Debug-VK")
+        includedirs { vk_path .. "/include/vulkan" }
+        libdirs { vk_path ..  "/Bin" }
+
+    filter {"Release-VK or Debug-VK", "files:Frodo-core/**DX*.cpp"}
         flags "ExcludeFromBuild"
 
     filter("Release-VK or Debug-VK")
         excludes "Frodo-core/**dx*.*"
 
-    filter {"Release-DX or Debug-DX", "files:Frodo-core/**vk*.cpp"}
+    filter {"Release-DX or Debug-DX", "files:Frodo-core/**VK*.cpp"}
         flags "ExcludeFromBuild"
 
     if _TARGET_OS == "linux" then
@@ -146,6 +161,9 @@ project("Sandbox")
         "Sandbox/**.cpp",
         "Sandbox/**.h"
     }
+
+    filter("Release-VK or Debug-VK")
+        libdirs { vk_path ..  "/Bin" }
 
     includedirs {"Frodo-core/", "Sandbox/"}
 

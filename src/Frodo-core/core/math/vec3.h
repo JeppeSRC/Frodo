@@ -77,10 +77,10 @@ public:
 	inline void operator-=(const vec3d& right) { Sub(right); }
 	inline void operator*=(const vec3d& right) { Mul(right); }
 	inline void operator/=(const vec3d& right) { Div(right); }
-	inline void operator+=(const float32 right) { Add(right); }
-	inline void operator-=(const float32 right) { Sub(right); }
-	inline void operator*=(const float32 right) { Mul(right); }
-	inline void operator/=(const float32 right) { Div(right); }
+	inline void operator+=(const float64 right) { Add(right); }
+	inline void operator-=(const float64 right) { Sub(right); }
+	inline void operator*=(const float64 right) { Mul(right); }
+	inline void operator/=(const float64 right) { Div(right); }
 
 	inline vec3d operator+(const vec3d& right) const { return vec3d(*this).Add(right); }
 	inline vec3d operator-(const vec3d& right) const { return vec3d(*this).Sub(right); }
@@ -115,10 +115,10 @@ public:
 	inline void operator-=(const vec3i& right) { Sub(right); }
 	inline void operator*=(const vec3i& right) { Mul(right); }
 	inline void operator/=(const vec3i& right) { Div(right); }
-	inline void operator+=(const float32 right) { Add(right); }
-	inline void operator-=(const float32 right) { Sub(right); }
-	inline void operator*=(const float32 right) { Mul(right); }
-	inline void operator/=(const float32 right) { Div(right); }
+	inline void operator+=(const int32 right) { Add(right); }
+	inline void operator-=(const int32 right) { Sub(right); }
+	inline void operator*=(const int32 right) { Mul(right); }
+	inline void operator/=(const int32 right) { Div(right); }
 
 	inline vec3i operator+(const vec3i& right) const { return vec3i(*this).Add(right); }
 	inline vec3i operator-(const vec3i& right) const { return vec3i(*this).Sub(right); }
@@ -153,10 +153,10 @@ public:
 	inline void operator-=(const vec3l& right) { Sub(right); }
 	inline void operator*=(const vec3l& right) { Mul(right); }
 	inline void operator/=(const vec3l& right) { Div(right); }
-	inline void operator+=(const float32 right) { Add(right); }
-	inline void operator-=(const float32 right) { Sub(right); }
-	inline void operator*=(const float32 right) { Mul(right); }
-	inline void operator/=(const float32 right) { Div(right); }
+	inline void operator+=(const int64 right) { Add(right); }
+	inline void operator-=(const int64 right) { Sub(right); }
+	inline void operator*=(const int64 right) { Mul(right); }
+	inline void operator/=(const int64 right) { Div(right); }
 
 	inline vec3l operator+(const vec3l& right) const { return vec3l(*this).Add(right); }
 	inline vec3l operator-(const vec3l& right) const { return vec3l(*this).Sub(right); }
