@@ -4,7 +4,7 @@
 #include <core/types.h>
 
 namespace fd {
-namespace util {
+namespace utils {
 
 class String : private std::string {
 private:
@@ -13,6 +13,7 @@ private:
 public:
 	String();
 	String(const char* const string);
+	String(const wchar_t* string);
 	String(const std::string& string);
 	String(const String& string);
 

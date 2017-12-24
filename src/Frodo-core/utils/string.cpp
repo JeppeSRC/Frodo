@@ -1,7 +1,7 @@
 #include "string.h"
 
 namespace fd {
-namespace util {
+namespace utils {
 
 String::String() {
 
@@ -17,6 +17,24 @@ String::String(const std::string& string) : std::string(string) {
 
 String::String(const String& string) : std::string(string) {
 	
+}
+
+String::String(const wchar_t* string) {
+	if (!string) {
+		return;
+	}
+
+	uint_t len = wcslen(string);
+
+	char* str = new char[len + 1];
+
+	sprintf(str, "%S", string);
+
+	str[len] = '\0';
+
+	operator=(str);
+
+	delete[] str;
 }
 
 String& String::Append(const char* const string) {
