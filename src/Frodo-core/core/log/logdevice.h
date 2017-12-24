@@ -4,12 +4,6 @@
 namespace fd { 
 namespace core { 
 
-enum class LogDeviceType {
-	Console,
-	File,
-	Custom
-};
-
 class LogDevice {
 protected:
 	LogDeviceType type;

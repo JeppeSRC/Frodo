@@ -1,13 +1,9 @@
 #pragma once
 
 #include "logdevice.h"
-
-#ifdef FD_WINDOWS
-#include <Windows.h>
 #include <stdio.h>
-#else
 
-#endif
+#include <platforms/platform.h>
 
 namespace fd { 
 namespace core {

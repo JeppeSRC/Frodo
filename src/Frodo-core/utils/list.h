@@ -4,7 +4,7 @@
 #include <core/types.h>
 
 namespace fd {
-namespace util {
+namespace utils {
 
 template<typename T>
 class List : private std::vector<T> {
