@@ -29,6 +29,8 @@ public:
 	Output(IDXGIOutput* output);
 	~Output();
 
+	DXGI_MODE_DESC FindBestMatchingMode(uint32 width, uint32 height, uint32 refreshRate) const;
+
 	inline IDXGIOutput* GetOutput() const { return output; }
 	inline utils::String GetName() const { return name; }
 	inline DXGI_MODE_DESC GetBestMode() const { return modes[modes.GetSize() - 1]; }
@@ -36,6 +38,7 @@ public:
 	inline DXGI_MODE_DESC GetCurrentMode() const { return currentMode; }
 	inline bool IsAttachedToDesktop() const { return attachedToDesktop; }
 	inline FD_MONITOR_ORIENTATION GetOrientation() const { return orientation; }
+	inline RECT GetDesktopCoordinates() const { return desktopCoordinates; }
 	inline HMONITOR GetHMONITOR() const { return monitor; }
 
 	inline void SetMode(DXGI_MODE_DESC desc) { this->currentMode = desc; }

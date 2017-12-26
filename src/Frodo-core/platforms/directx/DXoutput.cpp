@@ -39,23 +39,41 @@ Output::Output(IDXGIOutput* output) : output(output) {
 
 	if (numModes == 0) {
 		FD_WARN("[Output] No display modes available on output \"%s\"", *name);
+		memset(&currentMode, 0, sizeof(DXGI_MODE_DESC));
+		return;
 	}
 
-	DXGI_MODE_DESC* descs = new DXGI_MODE_DESC[numModes];
+	modes.Resize(numModes);
 
-	output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, 0, &numModes, descs);
-
-	for (uint32 i = 0; i < numModes; i++) {
-		modes.Push_back(descs[i]);
-	}
-
-	delete[] descs;
+	output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, 0, &numModes, modes.GetData());
 
 	currentMode = GetBestMode();
 }
 
 Output::~Output() {
 	output->Release();
+}
+
+DXGI_MODE_DESC Output::FindBestMatchingMode(uint32 width, uint32 height, uint32 refreshRate) const {
+	if (width == 0 || height == 0) {
+		return GetBestMode();
+	}
+
+	DXGI_MODE_DESC desc = { 0 };
+
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.Width = width;
+	desc.Height = height;
+	desc.RefreshRate.Numerator = refreshRate;
+	desc.RefreshRate.Denominator = 1;
+	
+	DXGI_MODE_DESC bestMode;
+
+	output->FindClosestMatchingMode(&desc, &bestMode, nullptr);
+	
+
+	return bestMode;
+
 }
 
 } } }

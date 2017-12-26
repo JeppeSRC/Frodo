@@ -82,31 +82,19 @@ workspace("Frodo")
         filter("configurations:Release-DX")
             defines {"FD_RELEASE", "FD_DX" }
             setupReleaseConfiguration()
-            links {
-                "D3D11"
-            }
 
         filter("configurations:Debug-DX")
             defines {"FD_DEBUG", "FD_DX" }
             setupDebugConfiguration()
-            links {
-                "D3D11"
-            }
     end
 
     filter("configurations:Release-VK")
         defines {"FD_RELEASE", "FD_VK" }
         setupReleaseConfiguration()
-        links {
-            "vulkan-1"
-        }
 
     filter("configurations:Debug-VK")
         defines {"FD_DEBUG", "FD_VK" }
         setupDebugConfiguration()
-        links {
-            "vulkan-1"
-        }
 
     filter("platforms:x64")
         setupX64Platform()
@@ -165,6 +153,33 @@ project("Sandbox")
     filter("Release-VK or Debug-VK")
         libdirs { vk_path ..  "/Bin" }
 
+    filter {}
+
     includedirs {"Frodo-core/", "Sandbox/"}
 
     links {"Frodo-core"}
+
+    if _TARGET_OS == "windows" then
+   
+        filter("configurations:Release-DX")
+            links {
+                "D3D11",
+                "DXGI"
+            }
+
+        filter("configurations:Debug-DX")
+            links {
+               "D3D11",
+               "DXGI"
+            }
+    end
+
+    filter("configurations:Release-VK")
+        links {
+            "vulkan-1"
+        }
+
+    filter("configurations:Debug-VK")
+        links {
+            "vulkan-1"
+        }

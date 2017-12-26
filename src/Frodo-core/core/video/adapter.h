@@ -35,9 +35,10 @@ public:
 	inline IDXGIAdapter* GetAdapater() const { return adapter; }
 	inline uint32 GetSubSystemID() const { return subSytemID; }
 	inline uint32 GetRevision() const { return revision; }
-	inline uint32 GetDedicatedVideoMemory() const { return vmem; }
-	inline uint32 GetDedicatedSystemMemory() const { return smem; }
-	inline uint32 GetSharedSystemMemory() const { return sharedsmem; }
+	inline uint_t GetDedicatedVideoMemory() const { return vmem; }
+	inline uint_t GetDedicatedSystemMemory() const { return smem; }
+	inline uint_t GetSharedSystemMemory() const { return sharedsmem; }
+	inline utils::String GetName() const { return name; }
 	inline Output* GetFirstOutput() const { return outputs[0]; }
 	inline const utils::List<Output*>& GetOutputs() const { return outputs; }
 };

@@ -31,19 +31,19 @@ void LogDeviceConsole::Log(LogLevel logLevel, const char* const message, va_list
 			break;
 		case LogLevel::Debug:
 			SetConsoleTextAttribute(consoleHandle, FD_LOG_COLOR_DEBUG);
-			printf("INFO: ");
+			printf("DEBUG: ");
 			vprintf(message, list);
 			printf("\n");
 			break;
 		case LogLevel::Warning:
 			SetConsoleTextAttribute(consoleHandle, FD_LOG_COLOR_WARNING);
-			printf("INFO: ");
+			printf("WARNING: ");
 			vprintf(message, list);
 			printf("\n");
 			break;
 		case LogLevel::Fatal:
 			SetConsoleTextAttribute(consoleHandle, FD_LOG_COLOR_FATAL);
-			printf("INFO: ");
+			printf("FATAL: ");
 			vprintf(message, list);
 			printf("\n");
 			break;

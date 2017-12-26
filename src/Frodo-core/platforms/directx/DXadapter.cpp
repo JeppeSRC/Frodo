@@ -32,7 +32,6 @@ Adapter::Adapter(IDXGIAdapter* adapter) : adapter(adapter) {
 
 	if (outputs.GetSize() == 0) {
 		FD_WARN("[Adapter] no outputs connnected to adpater \"%s\"", *name);
-		outputs.Push_back(nullptr);
 	}
 }
 

@@ -18,7 +18,7 @@ public:
 	inline void RemoveIndex(uint_t index) { erase(begin() + index); }
 
 	inline void Reserve(uint_t count) { reserve(count); }
-	inline void Resize(uint_t count) { resize(count();) }
+	inline void Resize(uint_t count) { resize(count); }
 
 	inline uint_t Find(const T& item) const {
 		for (uint_t i = 0; i < size(); i++) {
@@ -42,7 +42,7 @@ public:
 
 	inline uint_t GetSize() const { return size(); }
 	inline uint_t GetSizeInBytes() const { return size() * sizeof(T); }
-	inline T*	  GetData() const { return  data(); }
+	inline T*	  GetData() { return  data(); }
 };
 
 }}
