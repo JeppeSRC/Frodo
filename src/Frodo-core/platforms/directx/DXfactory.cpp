@@ -6,6 +6,7 @@ namespace core {
 namespace video {
 
 using namespace utils;
+using namespace log;
 
 IDXGIFactory* Factory::factory = nullptr;
 List<Adapter*> Factory::adapters;

@@ -10,6 +10,7 @@ using namespace fd::core::math;
 using namespace fd::core::video;
 using namespace fd::utils;
 using namespace fd::core;
+using namespace fd::core::log;
 
 int main() {
 

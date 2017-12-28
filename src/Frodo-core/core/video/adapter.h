@@ -43,6 +43,58 @@ public:
 	inline const utils::List<Output*>& GetOutputs() const { return outputs; }
 };
 
+#else
+
+#ifdef FD_WINDOWS
+typedef VkBool32(VKAPI_CALL *PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32 queueFamilyIndex);
+typedef VkResult(VKAPI_CALL *PFN_vkCreateWin32SurfaceKHR)(VkInstance instance, const vkWin32SurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
+
+#endif
+class Window;
+
+class Adapter {
+private:
+	static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR vkGetPhysicalDeviceWin32PresentationSupportKHR;
+	static PFN_vkCreateWin32SurfaceKHR vkCreateWin32SurfaceKHR;
+	static bool intialized;
+	
+public:
+	static void InitFunctions();
+
+private:
+	VkPhysicalDevice device;
+
+	VkPhysicalDeviceProperties prop;
+	VkPhysicalDeviceMemoryProperties mem;
+
+	utils::List<Output*> outputs;
+	utils::List<VkQueueFamilyProperties> queueProperties;
+	utils::List<VkSurfaceFormatKHR> surfaceFormats;
+	utils::List<const char*> deviceExtensions;
+public:
+	Adapter(VkPhysicalDevice device);
+	~Adapter();
+
+	bool SupportsPresenting(uint32 queue) const;
+	uint32 GetQueue(VkQueueFlags flag, bool supportsPresenting = false) const;
+	VkSurfaceKHR CreateSurface(const Window* window);
+
+	inline VkPhysicalDevice GetPhysicalDevice() const { return device; }
+	inline uint32 GetAPIVersion() const { return prop.apiVersion; }
+	inline uint32 GetDriverVersion() const { return prop.driverVersion; }
+	inline uint32 GetVendorID() const { return prop.vendorID; }
+	inline uint32 GetDeviceID() const { return prop.deviceID; }
+	inline VkPhysicalDeviceType GetDeviceType() const { return prop.deviceType; }
+	inline utils::String GetName() const { return utils::String(prop.deviceName); }
+	inline VkPhysicalDeviceLimits GetDeviceLimits() const { return prop.limits; }
+	inline VkPhysicalDeviceSparseProperties GetDeviceSparesProperties() const { return prop.sparseProperties; }
+	inline VkPhysicalDeviceMemoryProperties GetMemoryProperties() const { return mem; }
+	inline const utils::List<Output*>& GetOutputs() const { return outputs; }
+	inline const utils::List<VkQueueFamilyProperties>& GetQueueProperties() const { return queueProperties; }
+	inline const utils::List<VkSurfaceFormatKHR>& GetSurfaceFormats() const { return surfaceFormats; }
+	inline const utils::List<const char*>& GetDeviceExtensions() const { return deviceExtensions; }
+};
+
 #endif
 
 

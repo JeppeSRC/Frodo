@@ -6,6 +6,7 @@
 
 namespace fd {
 namespace core {
+namespace log {
 
 class LogDeviceFile : public LogDevice {
 private:
@@ -19,3 +20,4 @@ public:
 };
 
 }}
+}

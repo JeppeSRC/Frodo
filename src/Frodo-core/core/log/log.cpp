@@ -7,6 +7,7 @@
 
 namespace fd {
 namespace core {
+namespace log {
 
 utils::List<LogDevice*> Log::devices;
 
@@ -74,3 +75,4 @@ void Log::Fatal(const char* const message...) {
 
 
 }}
+}

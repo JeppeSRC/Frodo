@@ -12,6 +12,7 @@
 
 namespace fd { 
 namespace core {
+namespace log {
 
 class LogDevice;
 
@@ -32,3 +33,4 @@ public:
 };
 
 }}
+}

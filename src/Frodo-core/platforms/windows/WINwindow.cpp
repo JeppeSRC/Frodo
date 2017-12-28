@@ -6,6 +6,8 @@ namespace fd {
 namespace core {
 namespace video {
 
+using namespace log;
+
 std::unordered_map<HWND, Window*> Window::windowHandles;
 
 LRESULT Window::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
@@ -43,16 +45,19 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 		info->outputWindow = Factory::GetOutputs()[0];
 	}
 
+	RECT coord = { 0, 0, 0, 0 };
+
 #ifdef FD_DX
 	DXGI_MODE_DESC mode = info->outputWindow->FindBestMatchingMode(info->width, info->height, info->refreshRate);
 	info->outputWindow->SetMode(mode);
-#endif
 
 	info->width = mode.Width;
 	info->height = mode.Height;
 	info->refreshRate = (uint32)((float32)mode.RefreshRate.Numerator / mode.RefreshRate.Denominator);
+	
+	coord = info->outputWindow->GetDesktopCoordinates();
+#endif
 
-	RECT coord = info->outputWindow->GetDesktopCoordinates();
 
 	uint32 monitorWidth = coord.right - coord.left;
 	uint32 monitorHeight = coord.bottom - coord.top;
@@ -71,10 +76,10 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 		return;
 	}
 
-	if (!Context::Init(this)) {
+/*	if (!Context::Init(this)) {
 		DestroyWindow(hwnd);
 		exit(1);
-	}
+	}*/
 
 	SetVisible(true);
 

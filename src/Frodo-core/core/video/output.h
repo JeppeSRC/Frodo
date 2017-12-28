@@ -44,6 +44,25 @@ public:
 	inline void SetMode(DXGI_MODE_DESC desc) { this->currentMode = desc; }
 };
 
+#else
+
+class Adapter;
+
+class Output {
+private:
+	VkDisplayPropertiesKHR prop;
+
+	utils::List<VkDisplayModePropertiesKHR> modes;
+
+	Adapter* adapter;
+public:
+	Output(VkDisplayPropertiesKHR prop, Adapter* adapter);
+	~Output();
+
+	inline VkDisplayKHR GetDisplay() const { return prop.display; }
+	inline utils::String GetName() const { return utils::String(prop.displayName); }
+};
+
 #endif
 
 }

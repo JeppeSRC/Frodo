@@ -6,6 +6,7 @@ namespace core {
 namespace video {
 
 using namespace utils;
+using namespace log;
 
 Adapter::Adapter(IDXGIAdapter* adapter) : adapter(adapter) {
 
@@ -31,7 +32,7 @@ Adapter::Adapter(IDXGIAdapter* adapter) : adapter(adapter) {
 	}
 
 	if (outputs.GetSize() == 0) {
-		FD_WARN("[Adapter] no outputs connnected to adpater \"%s\"", *name);
+		FD_WARN("[Adapter] No outputs connnected to adpater \"%s\"", *name);
 	}
 }
 

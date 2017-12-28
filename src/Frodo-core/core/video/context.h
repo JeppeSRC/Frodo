@@ -41,6 +41,22 @@ public:
 	__forceinline static Output* GetOutput() { return output; }
 };
 
+#else
+
+class Context {
+private:
+	friend class Window;
+
+private:
+
+	static Window* window;
+	static Adapter* adapter;
+	static Output* output;
+
+public:
+	static bool Init(Window* window);
+};
+
 #endif
 
 } } }

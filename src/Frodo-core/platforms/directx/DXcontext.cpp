@@ -6,6 +6,8 @@ namespace fd {
 namespace core {
 namespace video {
 
+using namespace log;
+
 ID3D11Device* Context::device = nullptr;
 ID3D11DeviceContext* Context::deviceContext = nullptr;
 ID3D11RenderTargetView* Context::targetView = nullptr;

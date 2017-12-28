@@ -5,6 +5,8 @@ namespace fd {
 namespace core {
 namespace video {
 
+using namespace log;
+
 Output::Output(IDXGIOutput* output) : output(output) {
 	DXGI_OUTPUT_DESC desc;
 

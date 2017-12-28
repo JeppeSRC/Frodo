@@ -7,6 +7,7 @@
 
 namespace fd {
 namespace core {
+namespace log {
 
 LogDeviceConsole::LogDeviceConsole() : LogDevice(LogDeviceType::Console) {
 	consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -54,3 +55,4 @@ void LogDeviceConsole::Log(LogLevel logLevel, const char* const message, va_list
 }
 
 }}
+}

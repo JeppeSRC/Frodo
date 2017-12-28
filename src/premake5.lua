@@ -152,6 +152,7 @@ project("Sandbox")
 
     filter("Release-VK or Debug-VK")
         libdirs { vk_path ..  "/Bin" }
+        includedirs { vk_path .. "/include/vulkan" }
 
     filter {}
 

@@ -4,6 +4,7 @@
 
 namespace fd {
 namespace core {
+namespace log {
 
 LogDeviceFile::LogDeviceFile(const char* const filename) : LogDevice(LogDeviceType::File) {
 	if (filename) {
@@ -56,3 +57,4 @@ void LogDeviceFile::Log(LogLevel logLevel, const char* const message, va_list li
 }
 
 }}
+}
