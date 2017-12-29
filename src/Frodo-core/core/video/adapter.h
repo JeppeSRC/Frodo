@@ -78,6 +78,8 @@ public:
 	bool SupportsPresenting(uint32 queue) const;
 	uint32 GetQueue(VkQueueFlags flag, bool supportsPresenting = false) const;
 	VkSurfaceKHR CreateSurface(const Window* window);
+	bool IsExtensionSupported(const char* name) const;
+	uint32 IsExtensionsSupported(const char** names, uint32 num) const;
 
 	inline VkPhysicalDevice GetPhysicalDevice() const { return device; }
 	inline uint32 GetAPIVersion() const { return prop.apiVersion; }

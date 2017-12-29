@@ -139,6 +139,24 @@ VkSurfaceKHR Adapter::CreateSurface(const Window* window) {
 	return surface;
 }
 
+bool Adapter::IsExtensionSupported(const char* name) const {
+	for (uint_t i = 0; i < deviceExtensions.GetSize(); i++) {
+		if (strcmp(name, deviceExtensions[i]) == 0) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+uint32 Adapter::IsExtensionsSupported(const char** names, uint32 num) const {
+	for (uint32 i = 0; i < num; i++) {
+		if (!IsExtensionSupported(names[i])) return i;
+	}
+
+	return ~0;
+}
+
 }
 }
 }

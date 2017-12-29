@@ -70,7 +70,7 @@ void Factory::CreateFactory() {
 #endif
 	};
 
-	if (!IsExtensionsSupported(requiredExtensions, 2)) {
+	if (IsExtensionsSupported(requiredExtensions, 2)) {
 		FD_FATAL("[Factory] Required extensions are not supported. (VK_KHR_surface, %s)", requiredExtensions[1]);
 	}
 
@@ -146,12 +146,12 @@ bool Factory::IsExtensionSupported(const char* name) {
 	return false;
 }
 
-bool Factory::IsExtensionsSupported(const char** names, uint_t num) {
-	for (uint_t i = 0; i < num; i++) {
-		if (!IsExtensionSupported(names[i])) return false;
+uint32 Factory::IsExtensionsSupported(const char** names, uint32 num) {
+	for (uint32 i = 0; i < num; i++) {
+		if (!IsExtensionSupported(names[i])) return i;
 	}
 
-	return true;
+	return ~0;
 }
 
 } } }

@@ -47,7 +47,7 @@ public:
 	static void Release();
 
 	static bool IsExtensionSupported(const char* name);
-	static bool IsExtensionsSupported(const char** names, uint_t num);
+	static uint32 IsExtensionsSupported(const char** names, uint32 num);
 
 	static inline VkInstance GetInstance() { return instance; }
 	static inline const utils::List<Adapter*> GetAdapters() { return adapters; }
