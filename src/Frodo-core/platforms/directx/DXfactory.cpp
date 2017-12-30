@@ -16,7 +16,7 @@ List<Output*> Factory::outputs;
 void Factory::CreateFactory() {
 	CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 
-	FD_ASSERT(factory == nullptr);
+	FD_ASSERT(factory != nullptr);
 
 	uint32 index = 0;
 	IDXGIAdapter* adapter;
@@ -25,7 +25,7 @@ void Factory::CreateFactory() {
 		adapters.Push_back(new Adapter(adapter));
 	}
 
-	FD_ASSERT(adapters.GetSize() == 0);
+	FD_ASSERT(adapters.GetSize() != 0);
 
 	for (uint_t i = 0; i < adapters.GetSize(); i++) {
 		Adapter* adapter = adapters[i];

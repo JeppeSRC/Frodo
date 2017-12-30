@@ -109,6 +109,14 @@ uint32 Adapter::GetQueue(VkQueueFlags flag, bool supportsPresenting) const {
 		}
 	}
 
+	if (!flag) {
+		for (uint_t i = 0; queueProperties.GetSize(); i++) {
+			VkQueueFamilyProperties p = queueProperties[i];
+			
+			if (p.queueCount > 0 && SupportsPresenting((uint32)i)) return (uint32)i;
+		}
+	}
+
 	return ~0;
 }
 
@@ -123,18 +131,28 @@ VkSurfaceKHR Adapter::CreateSurface(const Window* window) {
 	info.instance = 0;
 	info.hwnd = window->GetHandle();
 
-	vkCreateWin32SurfaceKHR(Factory::GetInstance(), &info, nullptr, &surface);
+	if (vkCreateWin32SurfaceKHR(Factory::GetInstance(), &info, nullptr, &surface) != VK_SUCCESS) {
+		FD_FATAL("[Adapter] Failed to create surface on device \"%s\"", *GetName());
+	}
 
 #else
 
 
 #endif
 
-	uint32 numFormats = 0;
+	surfaceFormats.Clear();
 
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &numFormats, nullptr);
-	surfaceFormats.Resize(numFormats);
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &numFormats, surfaceFormats.GetData());
+	uint32 num = 0;
+
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &num, nullptr);
+	surfaceFormats.Resize(num);
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &num, surfaceFormats.GetData());
+
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &num, nullptr);
+	presentModes.Resize(num);
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &num, presentModes.GetData());
+
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &surfaceCababilities);
 
 	return surface;
 }

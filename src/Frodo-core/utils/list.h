@@ -40,9 +40,12 @@ public:
 	inline T& operator[](uint_t index) { return at(index); }
 	inline const T& operator[](uint_t index) const { return at(index); }
 
+	inline void Clear() { clear(); }
+
 	inline uint_t GetSize() const { return size(); }
 	inline uint_t GetSizeInBytes() const { return size() * sizeof(T); }
 	inline T*	  GetData() { return  data(); }
+	inline T*	  GetData() const { return (T*)&at(0); }
 };
 
 }}

@@ -8,7 +8,7 @@
 #define FD_WARN(msg, ...) Log::Warning(msg, ##__VA_ARGS__)
 #define FD_FATAL(msg, ...) Log::Fatal(msg, ##__VA_ARGS__)
 
-#define  FD_ASSERT(x) if (x) { FD_FATAL("Assertion failed \"%s\" FILE=\"%s\" LINE=%u FUNC=\"%s\"", #x, __FILE__, __LINE__, __FUNCSIG__); int32* abcdefghijklmnopqrstuvwxyz = nullptr; *abcdefghijklmnopqrstuvwxyz = 1;}
+#define  FD_ASSERT(x) if (!x) { FD_FATAL("Assertion failed \"%s\" FILE=\"%s\" LINE=%u FUNC=\"%s\"", #x, __FILE__, __LINE__, __FUNCSIG__); int32* abcdefghijklmnopqrstuvwxyz = nullptr; *abcdefghijklmnopqrstuvwxyz = 1;}
 
 namespace fd { 
 namespace core {

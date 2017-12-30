@@ -48,13 +48,29 @@ private:
 	friend class Window;
 
 private:
+	static VkSwapchainKHR swapChain;
+	static VkDevice device;
+	static VkSurfaceKHR surface;
 
+	static VkFormat swapchainFormat;
+	static VkExtent2D swapchainExtent;
+
+	static uint32 graphicsQueueIndex;
+	static uint32 presentQueueIndex;
+
+	static VkQueue graphicsQueue;
+	static VkQueue presentQueue;
+
+	static utils::List<VkImage> swapchainImages;
+	static utils::List<VkImageView> swapchainViews;
+	
 	static Window* window;
 	static Adapter* adapter;
 	static Output* output;
 
 public:
 	static bool Init(Window* window);
+	static void Dispose();
 };
 
 #endif

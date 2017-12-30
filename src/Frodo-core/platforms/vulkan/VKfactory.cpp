@@ -70,7 +70,7 @@ void Factory::CreateFactory() {
 #endif
 	};
 
-	if (IsExtensionsSupported(requiredExtensions, 2)) {
+	if (IsExtensionsSupported(requiredExtensions, 2) != ~0) {
 		FD_FATAL("[Factory] Required extensions are not supported. (VK_KHR_surface, %s)", requiredExtensions[1]);
 	}
 
@@ -102,11 +102,15 @@ void Factory::CreateFactory() {
 
 	for (uint32 i = 0; i < numDevices; i++) {
 		adapters.Push_back(new Adapter(devices[i]));
+		const List<Output*>& tmp = adapters[i]->GetOutputs();
+		for (uint_t i = 0; i < tmp.GetSize(); i++) {
+			outputs.Push_back(tmp[i]);
+		}
 	}
 
 	delete[] devices;
 
-	if (IsExtensionSupported("VK_KHR_debug_report")) {
+	if (IsExtensionSupported("VK_EXT_debug_report")) {
 		Factory::vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT");
 		Factory::vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT");
 
@@ -127,6 +131,7 @@ void Factory::CreateFactory() {
 	} else {
 		FD_WARN("[Factory] No debug reporting supported!");
 	}
+
 
 
 }

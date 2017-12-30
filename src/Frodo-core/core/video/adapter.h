@@ -67,9 +67,12 @@ private:
 	VkPhysicalDeviceProperties prop;
 	VkPhysicalDeviceMemoryProperties mem;
 
+	VkSurfaceCapabilitiesKHR surfaceCababilities;
+
 	utils::List<Output*> outputs;
 	utils::List<VkQueueFamilyProperties> queueProperties;
 	utils::List<VkSurfaceFormatKHR> surfaceFormats;
+	utils::List<VkPresentModeKHR> presentModes;
 	utils::List<const char*> deviceExtensions;
 public:
 	Adapter(VkPhysicalDevice device);
@@ -91,10 +94,12 @@ public:
 	inline VkPhysicalDeviceLimits GetDeviceLimits() const { return prop.limits; }
 	inline VkPhysicalDeviceSparseProperties GetDeviceSparesProperties() const { return prop.sparseProperties; }
 	inline VkPhysicalDeviceMemoryProperties GetMemoryProperties() const { return mem; }
+	inline VkSurfaceCapabilitiesKHR GetSurfaceCapabilities() const { return surfaceCababilities; }
 	inline const utils::List<Output*>& GetOutputs() const { return outputs; }
 	inline const utils::List<VkQueueFamilyProperties>& GetQueueProperties() const { return queueProperties; }
 	inline const utils::List<VkSurfaceFormatKHR>& GetSurfaceFormats() const { return surfaceFormats; }
-	inline const utils::List<const char*>& GetDeviceExtensions() const { return deviceExtensions; }
+	inline const utils::List<VkPresentModeKHR>& GetPresentModes() const { return presentModes; }
+	inline const utils::List<const char*>& GetDeviceExtensions()  { return deviceExtensions; }
 };
 
 #endif

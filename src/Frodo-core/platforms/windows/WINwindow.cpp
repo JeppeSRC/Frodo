@@ -33,7 +33,7 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 	wnd.lpszClassName = L"DANK";
 	wnd.style = CS_VREDRAW | CS_HREDRAW;
 
-	FD_ASSERT(RegisterClassEx(&wnd) == 0);
+	FD_ASSERT(RegisterClassEx(&wnd) != ERROR_SUCCESS);
 
 	if (Factory::GetAdapters().Find(info->graphicsAdapter) == ~0) {
 		FD_WARN("[Window] Invalid adapter specified!");
@@ -45,7 +45,7 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 		info->outputWindow = Factory::GetOutputs()[0];
 	}
 
-	RECT coord = { 0, 0, 0, 0 };
+	RECT coord = { 0, 0, 220, 220 };
 
 #ifdef FD_DX
 	DXGI_MODE_DESC mode = info->outputWindow->FindBestMatchingMode(info->width, info->height, info->refreshRate);
@@ -76,10 +76,10 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 		return;
 	}
 
-/*	if (!Context::Init(this)) {
+	if (!Context::Init(this)) {
 		DestroyWindow(hwnd);
 		exit(1);
-	}*/
+	}
 
 	SetVisible(true);
 

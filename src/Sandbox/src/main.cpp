@@ -6,6 +6,7 @@
 #include <core/log/log.h>
 #include <core/log/logdevice_console.h>
 #include <stdio.h>
+
 using namespace fd::core::math;
 using namespace fd::core::video;
 using namespace fd::utils;

@@ -37,7 +37,7 @@ private:
 	
 	static utils::List<Adapter*> adapters;
 	static utils::List<Output*> outputs;
-
+	
 	static VkDebugReportCallbackEXT debug;
 
 	static PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT;
