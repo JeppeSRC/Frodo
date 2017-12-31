@@ -19,19 +19,19 @@ Output::Output(IDXGIOutput* output) : output(output) {
 
 	switch (desc.Rotation) {
 		case DXGI_MODE_ROTATION_UNSPECIFIED:
-			orientation = FD_MONITOR_ORIENTATION::UNSPECIFIED;
+			orientation = MonitorOrientation::Unspecified;
 			break;
 		case DXGI_MODE_ROTATION_IDENTITY:
-			orientation = FD_MONITOR_ORIENTATION::IDENTITY;
+			orientation = MonitorOrientation::Identity;
 			break;
 		case DXGI_MODE_ROTATION_ROTATE90:
-			orientation = FD_MONITOR_ORIENTATION::ROTATE90;
+			orientation = MonitorOrientation::Rotate90;
 			break;
 		case DXGI_MODE_ROTATION_ROTATE180:
-			orientation = FD_MONITOR_ORIENTATION::ROTATE180;
+			orientation = MonitorOrientation::Rotate180;
 			break;
 		case DXGI_MODE_ROTATION_ROTATE270:
-			orientation = FD_MONITOR_ORIENTATION::ROTATE270;
+			orientation = MonitorOrientation::Rotate270;
 			break;
 	}
 

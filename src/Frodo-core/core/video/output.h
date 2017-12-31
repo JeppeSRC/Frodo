@@ -21,7 +21,7 @@ private:
 	DXGI_MODE_DESC currentMode;
 	
 	bool attachedToDesktop;
-	FD_MONITOR_ORIENTATION orientation;
+	MonitorOrientation orientation;
 	RECT desktopCoordinates;
 	HMONITOR monitor;
 
@@ -37,7 +37,7 @@ public:
 	inline const utils::List<DXGI_MODE_DESC>& GetModes() const { return modes; }
 	inline DXGI_MODE_DESC GetCurrentMode() const { return currentMode; }
 	inline bool IsAttachedToDesktop() const { return attachedToDesktop; }
-	inline FD_MONITOR_ORIENTATION GetOrientation() const { return orientation; }
+	inline MonitorOrientation GetOrientation() const { return orientation; }
 	inline RECT GetDesktopCoordinates() const { return desktopCoordinates; }
 	inline HMONITOR GetHMONITOR() const { return monitor; }
 

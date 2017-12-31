@@ -12,6 +12,7 @@ namespace video {
 class Context {
 private:
 	friend class Window;
+	friend struct PipelineInfo;
 
 private:
 	static ID3D11Device* device;
@@ -25,8 +26,8 @@ private:
 	static Output* output;
 
 public:
-
 	static bool Init(Window* window);
+	static void InitPipeline(PipelineInfo* pipeInfo, uint32 num);
 	static void Dispose();
 
 	static void SetFullscreen(bool state);
@@ -46,6 +47,7 @@ public:
 class Context {
 private:
 	friend class Window;
+	friend struct PipelineInfo;
 
 private:
 	static VkSwapchainKHR swapChain;
@@ -71,6 +73,20 @@ private:
 public:
 	static bool Init(Window* window);
 	static void Dispose();
+
+	inline static VkSwapchainKHR GetSwapchain() { return swapChain; }
+	inline static VkDevice GetDevice() { return device; }
+	inline static VkSurfaceKHR GetSurface() { return surface; }
+	
+	inline static VkFormat GetSwapchainFormat() { return swapchainFormat; }
+	inline static VkExtent2D GetSwapchainExtent() { return swapchainExtent; }
+	
+	inline static VkQueue GetGraphicsQueue() { return graphicsQueue; }
+	inline static VkQueue GetPresentQueue() { return presentQueue; }
+
+	inline static Window* GetWindow() { return window; }
+	inline static Adapter* GetAdapter() { return adapter; }
+	inline static Output* GetOutputs() { return output; }
 };
 
 #endif

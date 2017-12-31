@@ -1,6 +1,7 @@
 #include <core/video/context.h>
 #include <core/video/window.h>
 #include <core/log/log.h>
+#include <graphics/pipeline/pipeline.h>
 
 namespace fd {
 namespace core {
@@ -98,6 +99,8 @@ bool Context::Init(Window* window) {
 
 	if (presentQueueIndex != ~0) {
 		vkGetDeviceQueue(device, presentQueueIndex, 0, &presentQueue);
+	} else {
+		presentQueue = graphicsQueue;
 	}
 
 	const List<VkSurfaceFormatKHR>& surfaceFormats = adapter->GetSurfaceFormats();
@@ -217,7 +220,6 @@ bool Context::Init(Window* window) {
 
 		swapchainViews.Push_back(view);
 	}
-
 
 
 	return true;
