@@ -6,12 +6,16 @@
 #include <core/log/log.h>
 #include <core/log/logdevice_console.h>
 #include <stdio.h>
+#include <graphics/pipeline/pipeline.h>
 
-using namespace fd::core::math;
-using namespace fd::core::video;
-using namespace fd::utils;
-using namespace fd::core;
-using namespace fd::core::log;
+using namespace fd;
+using namespace core;
+using namespace math;
+using namespace log;
+using namespace video;
+using namespace utils;
+using namespace graphics;
+using namespace pipeline;
 
 int main() {
 
@@ -35,6 +39,8 @@ int main() {
 	info.title = "Dank Title";
 
 	Window window(&info);
+
+
 
 	while (window.IsOpen()) {
 

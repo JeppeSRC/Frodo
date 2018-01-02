@@ -1,13 +1,12 @@
 #pragma once
 #include <graphics/buffer/bufferlayout.h>
+#include <graphics/shader/shader.h>
 #include <core/types.h>
 #include <core/enums.h>
 
 namespace fd {
 namespace graphics {
 namespace pipeline {
-
-class Shader;
 
 struct ViewportInfo {
 	float32 x;
@@ -54,8 +53,10 @@ struct BlendInfo {
 
 struct PipelineLayoutElement {
 	const utils::String name;
+	BufferType type;
 	uint32 id;
 	uint32 size;
+	uint32 count;
 	uint32 shaderAccess;
 };
 
@@ -72,9 +73,12 @@ struct PipelineInfo {
 	ScissorInfo* scissors;
 
 	PrimitiveTopology topology;
+	PolygonMode polygonMode;
 
-	Shader* shader;
-	buffer::BufferLayout shaderInputLayout;
+	shader::Shader* shader;
+
+	uint32 numBufferLayouts;
+	buffer::BufferLayout* shaderInputLayouts;
 
 	PipelineLayout pipelineLayout;
 
@@ -82,6 +86,34 @@ struct PipelineInfo {
 
 	uint8 numBlends;
 	BlendInfo* blends;
+
+	CullMode cullMode;
+	FrontFace frotFace;
 };
+
+#ifdef FD_DX
+
+class Pipeline {
+private:
+};
+
+#else 
+
+class Pipeline {
+private:
+	PipelineInfo* info;
+
+	VkPipeline pipeline;
+	VkRenderPass renderPass;
+	VkPipelineLayout pipelineLayout;
+
+public:
+	Pipeline(PipelineInfo* info);
+	~Pipeline();
+
+
+};
+
+#endif
 
 } } }

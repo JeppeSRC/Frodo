@@ -25,27 +25,27 @@ uint32 BufferLayout::GetSize(BufferLayoutAttribType type) {
 	return 0;
 }
 
-BufferLayout::BufferLayout() {
+BufferLayout::BufferLayout(uint32 inputSlot, BufferInputRate rate) : inputSlot(inputSlot), stride(0), rate(rate) {
 
 }
 
-template<> void BufferLayout::Push<float32>(const String& name, uint32 inputSlot) {
-	attribs.Push_back({ name, BufferLayoutAttribType::Float, inputSlot });
+template<> void BufferLayout::Push<float32>(const String& name) {
+	attribs.Push_back({ name, BufferLayoutAttribType::Float });
 	stride += 4;
 }
 
-template<> void BufferLayout::Push<core::math::vec2>(const String& name, uint32 inputSlot) {
-	attribs.Push_back({ name, BufferLayoutAttribType::Vec2, inputSlot });
+template<> void BufferLayout::Push<core::math::vec2>(const String& name) {
+	attribs.Push_back({ name, BufferLayoutAttribType::Vec2 });
 	stride += 8;
 }
 
-template<> void BufferLayout::Push<core::math::vec3>(const String& name, uint32 inputSlot) {
-	attribs.Push_back({ name, BufferLayoutAttribType::Vec3, inputSlot });
+template<> void BufferLayout::Push<core::math::vec3>(const String& name) {
+	attribs.Push_back({ name, BufferLayoutAttribType::Vec3 });
 	stride += 12;
 }
 
-template<> void BufferLayout::Push<core::math::vec4>(const String& name, uint32 inputSlot) {
-	attribs.Push_back({ name, BufferLayoutAttribType::Vec4, inputSlot });
+template<> void BufferLayout::Push<core::math::vec4>(const String& name) {
+	attribs.Push_back({ name, BufferLayoutAttribType::Vec4 });
 	stride += 16;
 }
 

@@ -25,14 +25,6 @@ enum class LogDeviceType {
 	Custom
 };
 
-enum class BufferLayoutAttribType {
-	Float,
-	Vec2,
-	Vec3,
-	Vec4,
-	Mat4
-};
-
 #ifdef FD_DX
 enum class PrimitiveTopology {
 	PointLise = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
@@ -120,6 +112,25 @@ enum class ShaderType {
 	Pixel,
 	Geometry,
 	Compute,
+};
+
+enum class BufferInputRate {
+	PerVertex =D3D11_INPUT_PER_VERTEX_DATA,
+	PerInstance = D3D11_INPUT_PER_INSTANCE_DATA
+};
+
+enum class BufferLayoutAttribType {
+	Float = DXGI_FORMAT_R32_FLOAT,
+	Vec2 = DXGI_FORMAT_R32G32_FLOAT,
+	Vec3 = DXGI_FORMAT_R32G32B32_FLOAT,
+	Vec4 = DXGI_FORMAT_R32G32B32A32_FLOAT,
+	Mat4
+};
+
+enum class BufferType {
+	Uniform,
+	Sampler,
+	Texture
 };
 
 #else
@@ -211,6 +222,25 @@ enum class ShaderType {
 	Pixel = VK_SHADER_STAGE_FRAGMENT_BIT,
 	Geometry = VK_SHADER_STAGE_GEOMETRY_BIT,
 	Compute = VK_SHADER_STAGE_COMPUTE_BIT
+};
+
+enum class BufferInputRate {
+	PerVertex = VK_VERTEX_INPUT_RATE_VERTEX,
+	PerInstance = VK_VERTEX_INPUT_RATE_INSTANCE
+};
+
+enum class BufferLayoutAttribType {
+	Float = VK_FORMAT_R32_SFLOAT,
+	Vec2 = VK_FORMAT_R32G32_SFLOAT,
+	Vec3 = VK_FORMAT_R32G32B32_SFLOAT,
+	Vec4 = VK_FORMAT_R32G32B32A32_SFLOAT,
+	Mat4
+};
+
+enum class BufferType {
+	Uniform = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+	Sampler = VK_DESCRIPTOR_TYPE_SAMPLER,
+	Texture = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE
 };
 
 #endif
