@@ -40,6 +40,8 @@ struct DepthStencilInfo {
 	DepthStencilOp backFace;
 };
 
+typedef uint8 ColorWriteMaskFlags;
+
 struct BlendInfo {
 	bool blendEnable;
 	BlendFactor srcBlend;
@@ -48,8 +50,10 @@ struct BlendInfo {
 	BlendFactor alpahSrcBlend;
 	BlendFactor alphaDestBlend;
 	BlendOp alphaBlendOp;
-	uint8 colorWriteMask;
+	ColorWriteMaskFlags colorWriteMask;
 };
+
+typedef uint32 ShaderAccessFlags;
 
 struct PipelineLayoutElement {
 	const utils::String name;
@@ -57,7 +61,7 @@ struct PipelineLayoutElement {
 	uint32 id;
 	uint32 size;
 	uint32 count;
-	uint32 shaderAccess;
+	ShaderAccessFlags shaderAccess;
 };
 
 struct PipelineLayout {
@@ -77,7 +81,7 @@ struct PipelineInfo {
 
 	shader::Shader* shader;
 
-	uint32 numBufferLayouts;
+	uint32 numInputLayouts;
 	buffer::BufferLayout* shaderInputLayouts;
 
 	PipelineLayout pipelineLayout;

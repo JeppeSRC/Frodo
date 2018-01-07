@@ -1,14 +1,29 @@
 #include <graphics/shader/shader.h>
 #include <core/video/factory.h>
 #include <core/video/context.h>
+#include <utils/fileutils.h>
+#include <core/log/log.h>
 
 namespace fd {
 namespace graphics {
 namespace shader {
 
-using namespace core::video;
+using namespace core;
+using namespace video;
+using namespace utils;
+using namespace log;
 
 Shader::Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, const utils::String& geometrySrc) : vertexShader(nullptr), pixelShader(nullptr), geometryShader(nullptr) {
+
+	char* vCode = nullptr;
+	char* pCode = nullptr;
+
+	uint_t vSize = 0;
+	uint_t pSize = 0;
+
+	if (!FileUtils::ReadFile(vertexSrc, (void**)&vCode, &vSize) || !FileUtils::ReadFile(vertexSrc, (void**)&pCode, &pSize)) {
+		FD_FATAL("[Shader] Failed to load shaders");
+	}
 
 	VkShaderModuleCreateInfo info;
 

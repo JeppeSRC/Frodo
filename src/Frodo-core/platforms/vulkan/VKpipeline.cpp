@@ -1,5 +1,6 @@
 #include <graphics/pipeline/pipeline.h>
 #include <core/video/context.h>
+#include <core/log/log.h>
 
 namespace fd {
 namespace graphics {
@@ -9,6 +10,7 @@ using namespace utils;
 using namespace buffer;
 using namespace core;
 using namespace video;
+using namespace log;
 
 VkVertexInputBindingDescription* GetBindingDescriptors(const BufferLayout* layouts, uint32 num) {
 	VkVertexInputBindingDescription* binding = new VkVertexInputBindingDescription[num];
@@ -29,7 +31,7 @@ VkVertexInputAttributeDescription* GetAttributeDescriptors(const BufferLayout* l
 	*numAttributes = 0;
 	for (uint32 i = 0; i < num; i++) {
 		const BufferLayout& l = layouts[i];
-		numAttributes += l.GetAttribs().GetSize();
+		*numAttributes += l.GetAttribs().GetSize();
 	}
 
 	VkVertexInputAttributeDescription* attribs = new VkVertexInputAttributeDescription[*numAttributes];
@@ -42,7 +44,7 @@ VkVertexInputAttributeDescription* GetAttributeDescriptors(const BufferLayout* l
 
 		uint32 currentOffset = 0;
 
-		for (uint_t j = 0; j < attr.GetSize(); i++) {
+		for (uint_t j = 0; j < attr.GetSize(); j++) {
 			VkVertexInputAttributeDescription& a = attribs[currentAttrib];
 
 			a.binding = l.GetInputSlot();
@@ -59,6 +61,10 @@ VkVertexInputAttributeDescription* GetAttributeDescriptors(const BufferLayout* l
 
 VkDescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout) {
 	VkDescriptorSetLayout setLayout = nullptr;
+
+	if (layout.numElements == 0) {
+		return nullptr;
+	}
 
 	VkDescriptorSetLayoutBinding* binding = new VkDescriptorSetLayoutBinding[layout.numElements];
 
@@ -86,8 +92,78 @@ VkDescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout) {
 	return setLayout;
 }
 
+bool VerifyPipelineInfo(PipelineInfo* const info) {
+
+	if (info->numViewports == 0 || info->viewports == nullptr) {
+		FD_FATAL("[Pipeline] No viewport(s) specified");
+		return false;
+	}
+
+	if (info->numScissors == 0 || info->scissors == nullptr) {
+		FD_FATAL("[Pipeline] No scissor(s) specified");
+		return false;
+	}
+
+	switch (info->topology) {
+		case PrimitiveTopology::PointList:
+			break;
+		case PrimitiveTopology::LineList:
+			break;
+		case PrimitiveTopology::LineStrip:
+			break;
+		case PrimitiveTopology::TriangleList:
+			break;
+		case PrimitiveTopology::TriangleStrip:
+			break;
+		default:
+			FD_WARN("[Pipeline] No topology specified. Defaulting to TriangleList");
+			info->topology = PrimitiveTopology::TriangleList;
+				
+	}
+
+	switch (info->polygonMode) {
+		case PolygonMode::Fill:
+			break;
+		case PolygonMode::Line:
+			break;
+		case PolygonMode::Point:
+			break;
+		default:
+			FD_WARN("[Pipeline] No polygon mode specified. Defaulting to Fill");
+			info->polygonMode = PolygonMode::Fill;
+	}
+
+	if (info->shader == nullptr) {
+		FD_FATAL("[Pipeline] No shader specified");
+		return false;
+	}
+
+	if (info->numInputLayouts == 0 || info->shaderInputLayouts == nullptr) {
+		FD_FATAL("[Pipeline] no input layout(s) specified!");
+		return false;
+	}
+
+	if (info->pipelineLayout.numElements == 0 || info->pipelineLayout.elements == nullptr) {
+		FD_WARN("[Pipeline] No pipeline layout specified");
+	}
+
+	FD_WARN("[Pipeline] DeptStencilInfo fucking noob!");
+
+	if (info->numBlends == 0 || info->blends == nullptr) {
+		FD_FATAL("[Pipeline] No BlendInfo(s) specified");
+		return false;
+	}
+
+	return true;
+}
+
 
 Pipeline::Pipeline(PipelineInfo* info) : info(info) {
+
+	if (!VerifyPipelineInfo(info)) {
+		FD_FATAL("[Pipeline] Pipeline creation failed");
+		return;
+	}
 
 	VkPipelineShaderStageCreateInfo shaderInfo[3];
 
@@ -95,7 +171,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	shaderInfo[0].flags = 0;
 	shaderInfo[0].pNext = 0;
 	shaderInfo[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderInfo[0].pName = "vsMain";
+	shaderInfo[0].pName = "main";
 	shaderInfo[0].module = info->shader->GetVertexShader();
 	shaderInfo[0].pSpecializationInfo = nullptr;
 
@@ -103,7 +179,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	shaderInfo[1].flags = 0;
 	shaderInfo[1].pNext = 0;
 	shaderInfo[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderInfo[1].pName = "psMain";
+	shaderInfo[1].pName = "main";
 	shaderInfo[1].module = info->shader->GetPixelShader();
 	shaderInfo[1].pSpecializationInfo = nullptr;
 
@@ -111,7 +187,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	shaderInfo[2].flags = 0;
 	shaderInfo[2].pNext = 0;
 	shaderInfo[2].stage = VK_SHADER_STAGE_GEOMETRY_BIT;
-	shaderInfo[2].pName = "gsMain";
+	shaderInfo[2].pName = "main";
 	shaderInfo[2].module = info->shader->GetGeometryShader();
 	shaderInfo[2].pSpecializationInfo = nullptr;
 
@@ -121,9 +197,9 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	vertexInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertexInfo.pNext = nullptr;
 	vertexInfo.flags = 0;
-	vertexInfo.vertexBindingDescriptionCount = info->numBufferLayouts;
-	vertexInfo.pVertexBindingDescriptions = GetBindingDescriptors(info->shaderInputLayouts, info->numBufferLayouts);
-	vertexInfo.pVertexAttributeDescriptions = GetAttributeDescriptors(info->shaderInputLayouts, info->numBufferLayouts, &vertexInfo.vertexAttributeDescriptionCount);
+	vertexInfo.vertexBindingDescriptionCount = info->numInputLayouts;
+	vertexInfo.pVertexBindingDescriptions = GetBindingDescriptors(info->shaderInputLayouts, info->numInputLayouts);
+	vertexInfo.pVertexAttributeDescriptions = GetAttributeDescriptors(info->shaderInputLayouts, info->numInputLayouts, &vertexInfo.vertexAttributeDescriptionCount);
 	
 	VkPipelineInputAssemblyStateCreateInfo inputInfo;
 
@@ -250,7 +326,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	layoutInfo.pNext = nullptr;
 	layoutInfo.flags = 0;
-	layoutInfo.setLayoutCount = 1;
+	layoutInfo.setLayoutCount = setLayout ? 1 : 0;
 	layoutInfo.pSetLayouts = &setLayout;
 	layoutInfo.pushConstantRangeCount = 0;
 	layoutInfo.pPushConstantRanges = 0;
@@ -314,7 +390,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	pipeInfo.pViewportState = &viewInfo;
 	pipeInfo.pRasterizationState = &rasterInfo;
 	pipeInfo.pMultisampleState = &multisampleInfo;
-	pipeInfo.pDepthStencilState = &depthInfo;
+	pipeInfo.pDepthStencilState = nullptr;
 	pipeInfo.pColorBlendState = &blendInfo;
 	pipeInfo.pDynamicState = nullptr;
 	pipeInfo.layout = pipelineLayout;

@@ -27,7 +27,7 @@ enum class LogDeviceType {
 
 #ifdef FD_DX
 enum class PrimitiveTopology {
-	PointLise = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
+	PointList = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
 	LineLize = D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
 	LineStrip = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP,
 	TriangleList= D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
@@ -100,14 +100,15 @@ enum class BlendOp {
 	Max = D3D11_BLEND_OP_MAX
 };
 
-enum class ColorComponentFlag {
+enum ColorComponentFlag {
 	Red = D3D11_COLOR_WRITE_ENABLE_RED,
 	Green = D3D11_COLOR_WRITE_ENABLE_GREEN,
 	Blue = D3D11_COLOR_WRITE_ENABLE_BLUE,
-	Alpha = D3D11_COLOR_WRITE_ENABLE_ALPHA
+	Alpha = D3D11_COLOR_WRITE_ENABLE_ALPHA,
+	All = D3D11_COLOR_WRITE_ENABLE_ALL
 };
 
-enum class ShaderType {
+enum ShaderType {
 	Vertex, 
 	Pixel,
 	Geometry,
@@ -136,7 +137,7 @@ enum class BufferType {
 #else
 
 enum class PrimitiveTopology {
-	PointLize = VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
+	PointList = VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
 	LineList = VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
 	LineStrip = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP,
 	TriangleList = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
@@ -210,14 +211,15 @@ enum class BlendOp {
 	Max = VK_BLEND_OP_MAX
 };
 
-enum class ColorComponentFlag {
+enum ColorComponentFlag  {
 	Red = VK_COLOR_COMPONENT_R_BIT,
 	Green = VK_COLOR_COMPONENT_G_BIT,
 	Blue = VK_COLOR_COMPONENT_B_BIT,
-	Alpha = VK_COLOR_COMPONENT_A_BIT
+	Alpha = VK_COLOR_COMPONENT_A_BIT,
+	All = Red | Green | Blue | Alpha
 };
 
-enum class ShaderType {
+enum ShaderType {
 	Vertex = VK_SHADER_STAGE_VERTEX_BIT,
 	Pixel = VK_SHADER_STAGE_FRAGMENT_BIT,
 	Geometry = VK_SHADER_STAGE_GEOMETRY_BIT,

@@ -4,6 +4,10 @@
 #include <utils/string.h>
 #include <utils/list.h>
 
+#include <core/math/vec2.h>
+#include <core/math/vec3.h>
+#include <core/math/vec4.h>
+
 namespace fd {
 namespace graphics {
 namespace buffer {
@@ -26,7 +30,7 @@ public:
 	static uint32 GetSize(BufferLayoutAttribType type);
 
 	template<typename T>
-	void Push(const utils::String& name) {   }
+	void Push(const utils::String& name);
 
 	inline const utils::List<BufferLayoutAttrib>& GetAttribs() const { return attribs; }
 	inline uint32 GetInputSlot() const { return inputSlot; }

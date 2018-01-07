@@ -7,6 +7,7 @@
 #include <core/log/logdevice_console.h>
 #include <stdio.h>
 #include <graphics/pipeline/pipeline.h>
+#include <graphics/shader/shader.h>
 
 using namespace fd;
 using namespace core;
@@ -16,6 +17,8 @@ using namespace video;
 using namespace utils;
 using namespace graphics;
 using namespace pipeline;
+using namespace shader;
+using namespace buffer;
 
 int main() {
 
@@ -29,17 +32,45 @@ int main() {
 
 	Factory::CreateFactory();
 
-	WindowCreateInfo info;
+	WindowCreateInfo winfo;
 
-	info.graphicsAdapter = nullptr;
-	info.outputWindow = nullptr;
-	info.width = 1280;
-	info.height = 720;
-	info.refreshRate = 60;
-	info.title = "Dank Title";
+	winfo.graphicsAdapter = Factory::GetAdapters()[0];
+	winfo.outputWindow = nullptr;
+	winfo.width = 1280;
+	winfo.height = 720;
+	winfo.refreshRate = 60;
+	winfo.title = "Dank Title";
 
-	Window window(&info);
+	Window window(&winfo);
 
+	ViewportInfo viewInfo = { 0, 0, winfo.width, winfo.height, 0.0f, 1.0f };
+	ScissorInfo scissorInfo = { 0, 0, viewInfo.width, viewInfo.height };
+	BlendInfo blendInfo = { false, BlendFactor::One, BlendFactor::One, BlendOp::Add, BlendFactor::One, BlendFactor::One, BlendOp::Add, ColorComponentFlag::Red };
+	Shader shader("./res/vert.spv", "./res/frag.spv", "");
+
+	BufferLayout inputLayout(0, BufferInputRate::PerVertex);
+
+	inputLayout.Push<vec3>("POSITION");
+	inputLayout.Push<vec4>("COLOR");
+
+	PipelineInfo info;
+
+	info.cullMode = CullMode::Back;
+	info.frotFace = FrontFace::Clockwise;
+	info.topology = PrimitiveTopology::TriangleList;
+	info.polygonMode = PolygonMode::Fill;
+	info.numScissors = 1;
+	info.scissors = &scissorInfo;
+	info.numViewports = 1;
+	info.viewports = &viewInfo;
+	info.numBlends = 1;
+	info.blends = &blendInfo;
+	info.shader = &shader;
+	info.numInputLayouts = 1;
+	info.shaderInputLayouts = &inputLayout;
+	info.pipelineLayout.numElements = 0;
+
+	Pipeline pipeline(&info);
 
 
 	while (window.IsOpen()) {
