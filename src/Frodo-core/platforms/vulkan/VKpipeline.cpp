@@ -390,7 +390,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	pipeInfo.pViewportState = &viewInfo;
 	pipeInfo.pRasterizationState = &rasterInfo;
 	pipeInfo.pMultisampleState = &multisampleInfo;
-	pipeInfo.pDepthStencilState = nullptr;
+	pipeInfo.pDepthStencilState = &depthInfo;
 	pipeInfo.pColorBlendState = &blendInfo;
 	pipeInfo.pDynamicState = nullptr;
 	pipeInfo.layout = pipelineLayout;
@@ -399,7 +399,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	pipeInfo.basePipelineHandle = nullptr;
 	pipeInfo.basePipelineIndex = -1;
 
-	vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &pipeline);
+	VkResult res = vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &pipeline);
 	
 }
 

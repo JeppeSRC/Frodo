@@ -45,7 +45,9 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 		info->outputWindow = Factory::GetOutputs()[0];
 	}
 
-	RECT coord = { 0, 0, 220, 220 };
+	;
+
+	RECT coord = { 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
 
 #ifdef FD_DX
 	DXGI_MODE_DESC mode = info->outputWindow->FindBestMatchingMode(info->width, info->height, info->refreshRate);

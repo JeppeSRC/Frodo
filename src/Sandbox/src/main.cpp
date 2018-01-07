@@ -46,6 +46,7 @@ int main() {
 	ViewportInfo viewInfo = { 0, 0, winfo.width, winfo.height, 0.0f, 1.0f };
 	ScissorInfo scissorInfo = { 0, 0, viewInfo.width, viewInfo.height };
 	BlendInfo blendInfo = { false, BlendFactor::One, BlendFactor::One, BlendOp::Add, BlendFactor::One, BlendFactor::One, BlendOp::Add, ColorComponentFlag::Red };
+	DepthStencilInfo depthInfo = { };
 	Shader shader("./res/vert.spv", "./res/frag.spv", "");
 
 	BufferLayout inputLayout(0, BufferInputRate::PerVertex);
@@ -69,6 +70,7 @@ int main() {
 	info.numInputLayouts = 1;
 	info.shaderInputLayouts = &inputLayout;
 	info.pipelineLayout.numElements = 0;
+	info.depthStencilInfo = depthInfo;
 
 	Pipeline pipeline(&info);
 

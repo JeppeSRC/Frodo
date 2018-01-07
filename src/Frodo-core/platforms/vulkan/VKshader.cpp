@@ -13,6 +13,7 @@ using namespace video;
 using namespace utils;
 using namespace log;
 
+
 Shader::Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, const utils::String& geometrySrc) : vertexShader(nullptr), pixelShader(nullptr), geometryShader(nullptr) {
 
 	char* vCode = nullptr;
@@ -30,23 +31,35 @@ Shader::Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, co
 	info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	info.flags = 0;
 	info.pNext = nullptr;
-	info.pCode = (const uint32*)*vertexSrc;
-	info.codeSize = vertexSrc.GetLength();
+	info.pCode = (const uint32*)vCode;
+	info.codeSize = vSize;
 
-	vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &vertexShader);
+	VkResult res = vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &vertexShader);
+
+	if (res != VK_SUCCESS) {
+		FD_FATAL("[Shader] Failed to load vertex shader module");
+	}
 
 	if (pixelSrc.GetLength() > 1) {
-		info.pCode = (const uint32*)*pixelSrc;
-		info.codeSize = pixelSrc.GetLength();
+		info.pCode = (const uint32*)pCode;
+		info.codeSize = pSize;
 
-		vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &pixelShader);
+		res = vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &pixelShader);
+
+		if (res != VK_SUCCESS) {
+			FD_FATAL("[Shader] Failed to load pixelööö shader module");
+		}
 	}
 
 	if (geometrySrc.GetLength() > 1) {
 		info.pCode = (const uint32*)*geometrySrc;
 		info.codeSize = geometrySrc.GetLength();
 
-		vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &pixelShader);
+		res = vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &pixelShader);
+
+		if (res != VK_SUCCESS) {
+			FD_FATAL("[Shader] Failed to load geometry vertex shader module");
+		}
 	}
 
 }
