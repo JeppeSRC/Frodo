@@ -111,6 +111,8 @@ private:
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
 
+	utils::List<VkFramebuffer> framebuffers;
+
 public:
 	Pipeline(PipelineInfo* info);
 	~Pipeline();

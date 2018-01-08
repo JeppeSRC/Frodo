@@ -22,7 +22,7 @@ Shader::Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, co
 	uint_t vSize = 0;
 	uint_t pSize = 0;
 
-	if (!FileUtils::ReadFile(vertexSrc, (void**)&vCode, &vSize) || !FileUtils::ReadFile(vertexSrc, (void**)&pCode, &pSize)) {
+	if (!FileUtils::ReadFile(vertexSrc, (void**)&vCode, &vSize) || !FileUtils::ReadFile(pixelSrc, (void**)&pCode, &pSize)) {
 		FD_FATAL("[Shader] Failed to load shaders");
 	}
 
@@ -34,7 +34,7 @@ Shader::Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, co
 	info.pCode = (const uint32*)vCode;
 	info.codeSize = vSize;
 
-	VkResult res = vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &vertexShader);
+	VkResult res = VK(vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &vertexShader));
 
 	if (res != VK_SUCCESS) {
 		FD_FATAL("[Shader] Failed to load vertex shader module");
@@ -44,7 +44,7 @@ Shader::Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, co
 		info.pCode = (const uint32*)pCode;
 		info.codeSize = pSize;
 
-		res = vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &pixelShader);
+		res = VK(vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &pixelShader));
 
 		if (res != VK_SUCCESS) {
 			FD_FATAL("[Shader] Failed to load pixelööö shader module");
@@ -55,7 +55,7 @@ Shader::Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, co
 		info.pCode = (const uint32*)*geometrySrc;
 		info.codeSize = geometrySrc.GetLength();
 
-		res = vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &pixelShader);
+		res = VK(vkCreateShaderModule(Context::GetDevice(), &info, nullptr, &pixelShader));
 
 		if (res != VK_SUCCESS) {
 			FD_FATAL("[Shader] Failed to load geometry vertex shader module");

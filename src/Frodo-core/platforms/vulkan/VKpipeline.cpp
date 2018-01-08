@@ -87,7 +87,7 @@ VkDescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout) {
 	info.bindingCount = layout.numElements;
 	info.pBindings = binding;
 
-	vkCreateDescriptorSetLayout(Context::GetDevice(), &info, nullptr, &setLayout);
+	VK(vkCreateDescriptorSetLayout(Context::GetDevice(), &info, nullptr, &setLayout));
 
 	return setLayout;
 }
@@ -178,7 +178,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	shaderInfo[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderInfo[1].flags = 0;
 	shaderInfo[1].pNext = 0;
-	shaderInfo[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	shaderInfo[1].stage = VK_SHADER_STAGE_VERTEX_BIT;
 	shaderInfo[1].pName = "main";
 	shaderInfo[1].module = info->shader->GetPixelShader();
 	shaderInfo[1].pSpecializationInfo = nullptr;
@@ -331,7 +331,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	layoutInfo.pushConstantRangeCount = 0;
 	layoutInfo.pPushConstantRanges = 0;
 
-	vkCreatePipelineLayout(Context::GetDevice(), &layoutInfo, nullptr, &pipelineLayout);
+	VK(vkCreatePipelineLayout(Context::GetDevice(), &layoutInfo, nullptr, &pipelineLayout));
 
 	VkAttachmentDescription colorAttachment;
 
@@ -375,7 +375,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	renderInfo.subpassCount = 1;
 	renderInfo.pSubpasses = &subDesc;
 
-	vkCreateRenderPass(Context::GetDevice(), &renderInfo, nullptr, &renderPass);
+	VK(vkCreateRenderPass(Context::GetDevice(), &renderInfo, nullptr, &renderPass));
 
 	VkGraphicsPipelineCreateInfo pipeInfo;
 
@@ -398,8 +398,32 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	pipeInfo.subpass = 0;
 	pipeInfo.basePipelineHandle = nullptr;
 	pipeInfo.basePipelineIndex = -1;
+	
+	VK(vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &pipeline));
 
-	VkResult res = vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &pipeline);
+	uint_t numFramebuffers = Context::GetImageViews().GetSize();
+
+	framebuffers.Resize(numFramebuffers);
+
+	for (uint_t i = 0; i < numFramebuffers; i++) {
+		VkImageView imageView = Context::GetImageViews()[i];
+
+		VkFramebufferCreateInfo info;
+
+		info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;	
+		info.pNext = nullptr;
+		info.flags = 0;
+		info.renderPass = renderPass;
+		info.attachmentCount = 1;
+		info.pAttachments = &imageView;
+		info.width = Context::GetSwapchainExtent().width;
+		info.height = Context::GetSwapchainExtent().height;
+		info.layers = 1;
+
+		VK(vkCreateFramebuffer(Context::GetDevice(), &info, nullptr, &framebuffers[i]));
+	}
+
+
 	
 }
 

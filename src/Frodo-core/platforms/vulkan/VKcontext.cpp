@@ -184,16 +184,16 @@ bool Context::Init(Window* window) {
 	sinfo.clipped = VK_TRUE;
 	sinfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
-	if (vkCreateSwapchainKHR(device, &sinfo, nullptr, &swapChain) != VK_SUCCESS) {
+	if (VK(vkCreateSwapchainKHR(device, &sinfo, nullptr, &swapChain)) != VK_SUCCESS) {
 		FD_FATAL("[Context] Swapchain creation failed even when you did all those checks you nuub!");
 		return false;
 	}
 
 	uint32 numImages = 0;
 
-	vkGetSwapchainImagesKHR(device, swapChain, &numImages, nullptr);
+	VK(vkGetSwapchainImagesKHR(device, swapChain, &numImages, nullptr));
 	swapchainImages.Resize(numImages);
-	vkGetSwapchainImagesKHR(device, swapChain, &numImages, swapchainImages.GetData());
+	VK(vkGetSwapchainImagesKHR(device, swapChain, &numImages, swapchainImages.GetData()));
 
 	VkImageViewCreateInfo vinfo;
 
@@ -216,7 +216,7 @@ bool Context::Init(Window* window) {
 		vinfo.image = swapchainImages[i];
 
 		VkImageView view;
-		vkCreateImageView(device, &vinfo, nullptr, &view);
+		VK(vkCreateImageView(device, &vinfo, nullptr, &view));
 
 		swapchainViews.Push_back(view);
 	}

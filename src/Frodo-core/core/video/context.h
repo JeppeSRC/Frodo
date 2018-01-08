@@ -1,6 +1,7 @@
 #pragma once
 
 #include <platforms/platform.h>
+#include <core/log/log.h>
 #include "adapter.h"
 
 namespace fd {
@@ -44,6 +45,22 @@ public:
 
 #else
 
+#ifdef FD_DEBUG
+#define VK(dankFunction) VkFunctionLogBullshit(dankFunction, __FILE__, #dankFunction, __FUNCTION__, __LINE__)
+#else
+#define VK(dankFunction) dankFunction
+#endif
+
+
+static VkResult VkFunctionLogBullshit(VkResult res, const char* const file, const char* const callingFunc, const char* const func, uint32 line) {
+	if (res != VK_SUCCESS) {
+		log::Log::Fatal("[Vulkan] Error %d calling \"%s\" in %s -> %s -> %u", res, callingFunc, file, func, line);
+	}
+
+	return res;
+}
+
+
 class Context {
 private:
 	friend class Window;
@@ -83,6 +100,8 @@ public:
 	
 	inline static VkQueue GetGraphicsQueue() { return graphicsQueue; }
 	inline static VkQueue GetPresentQueue() { return presentQueue; }
+
+	inline static const utils::List<VkImageView>& GetImageViews() { return swapchainViews; }
 
 	inline static Window* GetWindow() { return window; }
 	inline static Adapter* GetAdapter() { return adapter; }

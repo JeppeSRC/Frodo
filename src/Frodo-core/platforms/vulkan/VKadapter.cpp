@@ -2,6 +2,7 @@
 #include <core/log/log.h>
 #include <core/video/factory.h>
 #include <core/video/window.h>
+#include <core/video/context.h>
 
 namespace fd {
 namespace core {
@@ -41,7 +42,7 @@ Adapter::Adapter(VkPhysicalDevice device) : device(device) {
 
 		uint32 numDisplays = 0;
 
-		VkResult res = vkGetPhysicalDeviceDisplayPropertiesKHR(device, &numDisplays, nullptr);
+		VK(vkGetPhysicalDeviceDisplayPropertiesKHR(device, &numDisplays, nullptr));
 
 		if (!numDisplays) {
 			FD_WARN("[Adapter] No outputs connected to adapter \"%s\"", prop.deviceName);
@@ -50,7 +51,7 @@ Adapter::Adapter(VkPhysicalDevice device) : device(device) {
 
 		VkDisplayPropertiesKHR* displays = new VkDisplayPropertiesKHR[numDisplays];
 
-		vkGetPhysicalDeviceDisplayPropertiesKHR(device, &numDisplays, displays);
+		VK(vkGetPhysicalDeviceDisplayPropertiesKHR(device, &numDisplays, displays));
 
 		for (uint32 i = 0; i < numDisplays; i++) {
 			outputs.Push_back(new Output(displays[i], this));
@@ -63,9 +64,9 @@ Adapter::Adapter(VkPhysicalDevice device) : device(device) {
 
 	uint32 numExtensions = 0;
 
-	vkEnumerateDeviceExtensionProperties(device, nullptr, &numExtensions, nullptr);
+	VK(vkEnumerateDeviceExtensionProperties(device, nullptr, &numExtensions, nullptr));
 	VkExtensionProperties* extensions = new VkExtensionProperties[numExtensions];
-	vkEnumerateDeviceExtensionProperties(device, nullptr, &numExtensions, extensions);
+	VK(vkEnumerateDeviceExtensionProperties(device, nullptr, &numExtensions, extensions));
 
 	for (uint32 i = 0; i < numExtensions; i++) {
 		uint_t len = strlen(extensions[i].extensionName);
@@ -144,15 +145,15 @@ VkSurfaceKHR Adapter::CreateSurface(const Window* window) {
 
 	uint32 num = 0;
 
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &num, nullptr);
+	VK(vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &num, nullptr));
 	surfaceFormats.Resize(num);
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &num, surfaceFormats.GetData());
+	VK(vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &num, surfaceFormats.GetData()));
 
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &num, nullptr);
+	VK(vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &num, nullptr));
 	presentModes.Resize(num);
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &num, presentModes.GetData());
+	VK(vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &num, presentModes.GetData()));
 
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &surfaceCababilities);
+	VK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &surfaceCababilities));
 
 	return surface;
 }

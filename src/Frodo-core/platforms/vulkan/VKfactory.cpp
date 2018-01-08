@@ -1,5 +1,6 @@
 #include <core/video/factory.h>
 #include <core/log/log.h>
+#include <core/video/context.h>
 
 namespace fd {
 namespace core {
@@ -45,11 +46,11 @@ void Factory::CreateFactory() {
 
 	uint32 numExtensions = 0;
 
-	vkEnumerateInstanceExtensionProperties(nullptr, &numExtensions, nullptr);
+	VK(vkEnumerateInstanceExtensionProperties(nullptr, &numExtensions, nullptr));
 
 	List<VkExtensionProperties> extensions(numExtensions);
 
-	vkEnumerateInstanceExtensionProperties(nullptr, &numExtensions, extensions.GetData());
+	VK(vkEnumerateInstanceExtensionProperties(nullptr, &numExtensions, extensions.GetData()));
 	
 	instanceExtensions.Reserve(numExtensions);
 
@@ -85,7 +86,7 @@ void Factory::CreateFactory() {
 	instanceInfo.flags = 0;
 	instanceInfo.pNext = nullptr;
 	
-	if (vkCreateInstance(&instanceInfo, nullptr, &instance) != VK_SUCCESS) {
+	if (VK(vkCreateInstance(&instanceInfo, nullptr, &instance)) != VK_SUCCESS) {
 		FD_FATAL("[Factory] Failed to create VkInstance");
 		return;
 	}
@@ -94,11 +95,11 @@ void Factory::CreateFactory() {
 
 	uint32 numDevices = 0;
 
-	vkEnumeratePhysicalDevices(instance, &numDevices, nullptr);
+	VK(vkEnumeratePhysicalDevices(instance, &numDevices, nullptr));
 
 	VkPhysicalDevice* devices = new VkPhysicalDevice[numDevices];
 
-	vkEnumeratePhysicalDevices(instance, &numDevices, devices);
+	VK(vkEnumeratePhysicalDevices(instance, &numDevices, devices));
 
 	for (uint32 i = 0; i < numDevices; i++) {
 		adapters.Push_back(new Adapter(devices[i]));
