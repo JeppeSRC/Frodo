@@ -31,7 +31,7 @@ VkVertexInputAttributeDescription* GetAttributeDescriptors(const BufferLayout* l
 	*numAttributes = 0;
 	for (uint32 i = 0; i < num; i++) {
 		const BufferLayout& l = layouts[i];
-		*numAttributes += l.GetAttribs().GetSize();
+		*numAttributes += (uint32)l.GetAttribs().GetSize();
 	}
 
 	VkVertexInputAttributeDescription* attribs = new VkVertexInputAttributeDescription[*numAttributes];
@@ -147,8 +147,6 @@ bool VerifyPipelineInfo(PipelineInfo* const info) {
 		FD_WARN("[Pipeline] No pipeline layout specified");
 	}
 
-	FD_WARN("[Pipeline] DeptStencilInfo fucking noob!");
-
 	if (info->numBlends == 0 || info->blends == nullptr) {
 		FD_FATAL("[Pipeline] No BlendInfo(s) specified");
 		return false;
@@ -178,7 +176,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	shaderInfo[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderInfo[1].flags = 0;
 	shaderInfo[1].pNext = 0;
-	shaderInfo[1].stage = VK_SHADER_STAGE_VERTEX_BIT;
+	shaderInfo[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	shaderInfo[1].pName = "main";
 	shaderInfo[1].module = info->shader->GetPixelShader();
 	shaderInfo[1].pSpecializationInfo = nullptr;
@@ -363,13 +361,23 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	subDesc.pPreserveAttachments = nullptr;
 	subDesc.pDepthStencilAttachment = nullptr;
 
+	VkSubpassDependency dependency;
+
+	dependency.dependencyFlags = 0;
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcAccessMask = 0;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
 	VkRenderPassCreateInfo renderInfo;
 
 	renderInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	renderInfo.pNext = nullptr;
 	renderInfo.flags = 0;
-	renderInfo.dependencyCount = 0;
-	renderInfo.pDependencies = nullptr;
+	renderInfo.dependencyCount = 1;
+	renderInfo.pDependencies = &dependency;
 	renderInfo.attachmentCount = 1;
 	renderInfo.pAttachments = &colorAttachment;
 	renderInfo.subpassCount = 1;
@@ -423,11 +431,14 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 		VK(vkCreateFramebuffer(Context::GetDevice(), &info, nullptr, &framebuffers[i]));
 	}
 
-
-	
 }
 
 Pipeline::~Pipeline() {
+
+	for (uint_t i = 0; i < framebuffers.GetSize(); i++) {
+		vkDestroyFramebuffer(Context::GetDevice(), framebuffers[i], nullptr);
+	}
+
 	vkDestroyPipeline(Context::GetDevice(), pipeline, nullptr);
 	vkDestroyRenderPass(Context::GetDevice(), renderPass, nullptr);
 	vkDestroyPipelineLayout(Context::GetDevice(), pipelineLayout, nullptr);

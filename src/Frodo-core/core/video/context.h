@@ -80,8 +80,14 @@ private:
 	static VkQueue graphicsQueue;
 	static VkQueue presentQueue;
 
+	static VkCommandPool cmdPool;
+
+	static VkSemaphore imageSemaphore;
+	static VkSemaphore renderSemaphore;
+
 	static utils::List<VkImage> swapchainImages;
 	static utils::List<VkImageView> swapchainViews;
+	static utils::List<VkCommandBuffer> cmdbuffers;
 	
 	static Window* window;
 	static Adapter* adapter;
@@ -98,8 +104,14 @@ public:
 	inline static VkFormat GetSwapchainFormat() { return swapchainFormat; }
 	inline static VkExtent2D GetSwapchainExtent() { return swapchainExtent; }
 	
+	inline static uint32 GetGraphicsQueueIndex() { return graphicsQueueIndex; }
+	inline static uint32 GetPresentQueueIndex() { return presentQueueIndex; }
+
 	inline static VkQueue GetGraphicsQueue() { return graphicsQueue; }
 	inline static VkQueue GetPresentQueue() { return presentQueue; }
+
+	inline static VkSemaphore GetImageSemaphore() { return imageSemaphore; }
+	inline static VkSemaphore GetRenderSemaphore() { return renderSemaphore; }
 
 	inline static const utils::List<VkImageView>& GetImageViews() { return swapchainViews; }
 

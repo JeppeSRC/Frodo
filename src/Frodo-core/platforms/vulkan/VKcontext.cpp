@@ -23,8 +23,14 @@ uint32 Context::presentQueueIndex = ~0;
 VkQueue Context::graphicsQueue;
 VkQueue Context::presentQueue;
 
+VkCommandPool Context::cmdPool;
+
+VkSemaphore Context::imageSemaphore;
+VkSemaphore Context::renderSemaphore;
+
 List<VkImage> Context::swapchainImages;
 List<VkImageView> Context::swapchainViews;
+List<VkCommandBuffer> Context::cmdbuffers;
 
 Window* Context::window = nullptr;
 Adapter* Context::adapter = nullptr;
@@ -221,11 +227,49 @@ bool Context::Init(Window* window) {
 		swapchainViews.Push_back(view);
 	}
 
+	VkCommandPoolCreateInfo poolInfo;
+
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.pNext = nullptr;
+	poolInfo.flags = 0;
+	poolInfo.queueFamilyIndex = graphicsQueueIndex;
+	
+	VK(vkCreateCommandPool(device, &poolInfo, nullptr, &cmdPool));
+
+	cmdbuffers.Resize(swapchainImages.GetSize());
+
+	VkCommandBufferAllocateInfo cmdInfo;
+
+	cmdInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	cmdInfo.pNext = nullptr;
+	cmdInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	cmdInfo.commandBufferCount = 1;
+	cmdInfo.commandPool = cmdPool;
+
+	VK(vkAllocateCommandBuffers(device, &cmdInfo, cmdbuffers.GetData()));
+
+	VkSemaphoreCreateInfo semInfo;
+
+	semInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	semInfo.pNext = nullptr;
+	semInfo.flags = 0;
+
+	VK(vkCreateSemaphore(Context::GetDevice(), &semInfo, nullptr, &imageSemaphore));
+	VK(vkCreateSemaphore(Context::GetDevice(), &semInfo, nullptr, &renderSemaphore));
 
 	return true;
 }
 
 void Context::Dispose() {
+	vkDestroySemaphore(Context::GetDevice(), imageSemaphore, nullptr);
+	vkDestroySemaphore(Context::GetDevice(), renderSemaphore, nullptr);
+
+	vkDestroyCommandPool(device, cmdPool, nullptr);
+
+	for (uint_t i = 0; i < swapchainViews.GetSize(); i++) {
+		vkDestroyImageView(Context::GetDevice(), swapchainViews[i], nullptr);
+	}
+
 	vkDestroySurfaceKHR(Factory::GetInstance(), surface, nullptr);
 	vkDestroyDevice(device, nullptr);
 	vkDestroySwapchainKHR(device, swapChain, nullptr);

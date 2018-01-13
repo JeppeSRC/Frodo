@@ -110,14 +110,19 @@ private:
 	VkPipeline pipeline;
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
-
+	
 	utils::List<VkFramebuffer> framebuffers;
 
 public:
 	Pipeline(PipelineInfo* info);
 	~Pipeline();
 
+	inline VkPipeline GetPipeline() const { return pipeline; }
+	inline VkRenderPass GetRenderPass() const { return renderPass; }
+	inline VkPipelineLayout GetPipelineLayout() const { return pipelineLayout; }
 
+	inline const utils::List<VkFramebuffer>& GetFramebuffers() const { return framebuffers; }
+	inline VkFramebuffer GetFramebuffer(uint_t index) const { return framebuffers[index]; }
 };
 
 #endif

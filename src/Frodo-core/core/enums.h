@@ -134,6 +134,11 @@ enum class BufferType {
 	Texture
 };
 
+enum class IndexBufferFormat {
+	Uint16 = DXGI_FORMAT_R16_UINT,
+	Uint32 = DXGI_FORMAT_R32_UINT
+};
+
 #else
 
 enum class PrimitiveTopology {
@@ -243,6 +248,11 @@ enum class BufferType {
 	Uniform = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 	Sampler = VK_DESCRIPTOR_TYPE_SAMPLER,
 	Texture = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE
+};
+
+enum class IndexBufferFormat {
+	Uint16 = VK_INDEX_TYPE_UINT16,
+	Uint32 = VK_INDEX_TYPE_UINT32
 };
 
 #endif
