@@ -27,8 +27,10 @@ public:
 	IndexBuffer(const uint32* const data, uint32 count);
 	~IndexBuffer();
 
+	inline uint32 GetCount() const { return count; }
+
 	inline VkBuffer GetBuffer() const { return buf; }
-	inline IndexBufferFormat GetFormat() const { return format; }
+	inline VkIndexType GetFormat() const { return (VkIndexType)format; }
 };
 
 #endif

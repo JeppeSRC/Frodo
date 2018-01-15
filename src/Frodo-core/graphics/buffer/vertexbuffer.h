@@ -17,10 +17,10 @@ private:
 	VkDeviceMemory deviceMemory;
 
 public:
-	VertexBuffer(byte* const data, uint64 size);
+	VertexBuffer(const void* const data, uint64 size);
 	~VertexBuffer();
 
-	inline VkBuffer GetBuffer() const { return buf; }
+	inline const VkBuffer& GetBuffer() const { return buf; }
 
 };
 

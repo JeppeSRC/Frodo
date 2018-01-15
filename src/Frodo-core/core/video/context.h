@@ -64,7 +64,6 @@ static VkResult VkFunctionLogBullshit(VkResult res, const char* const file, cons
 class Context {
 private:
 	friend class Window;
-	friend struct PipelineInfo;
 
 private:
 	static VkSwapchainKHR swapChain;
@@ -97,9 +96,9 @@ public:
 	static bool Init(Window* window);
 	static void Dispose();
 
-	inline static VkSwapchainKHR GetSwapchain() { return swapChain; }
-	inline static VkDevice GetDevice() { return device; }
-	inline static VkSurfaceKHR GetSurface() { return surface; }
+	inline static const VkSwapchainKHR& GetSwapchain() { return swapChain; }
+	inline static const VkDevice& GetDevice() { return device; }
+	inline static const VkSurfaceKHR& GetSurface() { return surface; }
 	
 	inline static VkFormat GetSwapchainFormat() { return swapchainFormat; }
 	inline static VkExtent2D GetSwapchainExtent() { return swapchainExtent; }
@@ -110,10 +109,11 @@ public:
 	inline static VkQueue GetGraphicsQueue() { return graphicsQueue; }
 	inline static VkQueue GetPresentQueue() { return presentQueue; }
 
-	inline static VkSemaphore GetImageSemaphore() { return imageSemaphore; }
-	inline static VkSemaphore GetRenderSemaphore() { return renderSemaphore; }
+	inline static const VkSemaphore& GetImageSemaphore() { return imageSemaphore; }
+	inline static const VkSemaphore& GetRenderSemaphore() { return renderSemaphore; }
 
 	inline static const utils::List<VkImageView>& GetImageViews() { return swapchainViews; }
+	inline static const utils::List<VkCommandBuffer>& GetCmdBuffers() { return cmdbuffers; }
 
 	inline static Window* GetWindow() { return window; }
 	inline static Adapter* GetAdapter() { return adapter; }

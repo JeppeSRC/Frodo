@@ -224,7 +224,7 @@ enum ColorComponentFlag  {
 	All = Red | Green | Blue | Alpha
 };
 
-enum ShaderType {
+enum class ShaderType {
 	Vertex = VK_SHADER_STAGE_VERTEX_BIT,
 	Pixel = VK_SHADER_STAGE_FRAGMENT_BIT,
 	Geometry = VK_SHADER_STAGE_GEOMETRY_BIT,

@@ -9,7 +9,7 @@ namespace buffer {
 using namespace core;
 using namespace video;
 
-VertexBuffer::VertexBuffer(byte* const data, uint64 size) {
+VertexBuffer::VertexBuffer(const void* const data, uint64 size) {
 	VkBufferCreateInfo info;
 
 	info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -46,6 +46,11 @@ VertexBuffer::VertexBuffer(byte* const data, uint64 size) {
 	VK(vkAllocateMemory(Context::GetDevice(), &ainfo, nullptr, &deviceMemory));
 
 	VK(vkBindBufferMemory(Context::GetDevice(), buf, deviceMemory, 0));
+
+	void* dank = nullptr;
+	VK(vkMapMemory(Context::GetDevice(), deviceMemory, 0, size, 0, &dank));
+	memcpy(dank, data, size);
+	vkUnmapMemory(Context::GetDevice(), deviceMemory);
 }
 
 VertexBuffer::~VertexBuffer() {

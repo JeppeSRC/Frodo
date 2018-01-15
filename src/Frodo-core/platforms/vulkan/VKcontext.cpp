@@ -243,7 +243,7 @@ bool Context::Init(Window* window) {
 	cmdInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	cmdInfo.pNext = nullptr;
 	cmdInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	cmdInfo.commandBufferCount = 1;
+	cmdInfo.commandBufferCount = 2;
 	cmdInfo.commandPool = cmdPool;
 
 	VK(vkAllocateCommandBuffers(device, &cmdInfo, cmdbuffers.GetData()));
