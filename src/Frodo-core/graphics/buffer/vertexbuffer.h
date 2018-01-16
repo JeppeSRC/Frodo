@@ -1,7 +1,6 @@
 #pragma once
 
-#include <platforms/platform.h>
-#include <core/types.h>
+#include "buffer.h"
 
 namespace fd {
 namespace graphics {
@@ -11,16 +10,10 @@ namespace buffer {
 
 #else
 
-class VertexBuffer {
-private:
-	VkBuffer buf;
-	VkDeviceMemory deviceMemory;
-
+class VertexBuffer : public Buffer {
 public:
 	VertexBuffer(const void* const data, uint64 size);
 	~VertexBuffer();
-
-	inline const VkBuffer& GetBuffer() const { return buf; }
 
 };
 

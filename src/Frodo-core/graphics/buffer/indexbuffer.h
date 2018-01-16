@@ -1,7 +1,6 @@
 #pragma once
 
-#include <platforms/platform.h>
-#include <core/types.h>
+#include "buffer.h"
 #include <core/enums.h>
 
 namespace fd {
@@ -12,11 +11,8 @@ namespace buffer {
 
 #else
 
-class IndexBuffer {
+class IndexBuffer : public Buffer {
 private:
-	VkBuffer buf;
-	VkDeviceMemory deviceMemory;
-
 	IndexBufferFormat format;
 
 	uint32 count;
@@ -29,7 +25,6 @@ public:
 
 	inline uint32 GetCount() const { return count; }
 
-	inline VkBuffer GetBuffer() const { return buf; }
 	inline VkIndexType GetFormat() const { return (VkIndexType)format; }
 };
 
