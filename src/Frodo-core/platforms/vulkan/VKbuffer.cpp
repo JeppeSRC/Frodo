@@ -17,7 +17,7 @@ uint32 FindMemoryType(const VkPhysicalDeviceMemoryProperties mem, uint32 type, u
 	return ~0;
 }
 
-Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size) {
+Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bool dynamic) {
 	VkBufferCreateInfo info;
 
 	info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -58,26 +58,30 @@ Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size) {
 	memcpy(dank, data, size);
 	vkUnmapMemory(Context::GetDevice(), tmpMemory);
 
+	if (dynamic) {
+		buf = tmpBuf;
+		deviceMemory = tmpMemory;
+	}else {
+		info.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-	info.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		VK(vkCreateBuffer(Context::GetDevice(), &info, nullptr, &buf));
 
-	VK(vkCreateBuffer(Context::GetDevice(), &info, nullptr, &buf));
+		vkGetBufferMemoryRequirements(Context::GetDevice(), buf, &req);
 
-	vkGetBufferMemoryRequirements(Context::GetDevice(), buf, &req);
+		memIndex = FindMemoryType(mem, req.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-	memIndex = FindMemoryType(mem, req.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		ainfo.memoryTypeIndex = memIndex;
+		ainfo.allocationSize = req.size;
 
-	ainfo.memoryTypeIndex = memIndex;
-	ainfo.allocationSize = req.size;
+		VK(vkAllocateMemory(Context::GetDevice(), &ainfo, nullptr, &deviceMemory));
 
-	VK(vkAllocateMemory(Context::GetDevice(), &ainfo, nullptr, &deviceMemory));
+		VK(vkBindBufferMemory(Context::GetDevice(), buf, deviceMemory, 0));
 
-	VK(vkBindBufferMemory(Context::GetDevice(), buf, deviceMemory, 0));
+		Context::CopyBuffers(buf, tmpBuf, size);
 
-	Context::CopyBuffers(buf, tmpBuf, size);
-
-	vkFreeMemory(Context::GetDevice(), tmpMemory, nullptr);
-	vkDestroyBuffer(Context::GetDevice(), tmpBuf, nullptr);
+		vkFreeMemory(Context::GetDevice(), tmpMemory, nullptr);
+		vkDestroyBuffer(Context::GetDevice(), tmpBuf, nullptr);
+	}
 }
 
 Buffer::~Buffer() {
