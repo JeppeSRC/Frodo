@@ -72,7 +72,7 @@ VkDescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout) {
 		VkDescriptorSetLayoutBinding& b = binding[i];
 		const PipelineLayoutElement& e = layout.elements[i];
 
-		b.binding = 0;
+		b.binding = i;
 		b.descriptorCount = e.count;
 		b.descriptorType = (VkDescriptorType)e.type;
 		b.pImmutableSamplers = 0;

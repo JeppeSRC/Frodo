@@ -2,6 +2,9 @@
 
 #include <platforms/platform.h>
 #include <core/log/log.h>
+#include <graphics/pipeline/pipeline.h>
+#include <graphics/buffer/indexbuffer.h>
+#include <graphics/buffer/vertexbuffer.h>
 #include "adapter.h"
 
 namespace fd {
@@ -80,6 +83,9 @@ private:
 	static VkQueue presentQueue;
 
 	static VkCommandPool cmdPool;
+	static VkCommandPool auxPool;
+
+	static VkCommandBuffer auxCommandBuffer;
 
 	static VkSemaphore imageSemaphore;
 	static VkSemaphore renderSemaphore;
@@ -92,8 +98,31 @@ private:
 	static Adapter* adapter;
 	static Output* output;
 
+private:
+	static const graphics::pipeline::Pipeline* currentRenderPass;
+	static const graphics::buffer::IndexBuffer* currentIndexBuffer;
+
+	static VkSubmitInfo submitInfo;
+	static VkPresentInfoKHR presentInfo;
+
 public:
-	static bool Init(Window* window);
+	static void CopyBuffers(VkBuffer dst, VkBuffer src, uint64 size);
+
+	static void BeginCommandBuffers();
+	static void EndCommandBuffers();
+
+	static void BeginRenderPass(const graphics::pipeline::Pipeline* const pipeline);
+	static void EndRenderPass();
+
+	static void Bind(const graphics::buffer::VertexBuffer* const buffer, uint32 slot);
+	static void Bind(const graphics::buffer::IndexBuffer* const buffer);
+
+	static void DrawIndexed();
+
+	static void Present();
+
+public:
+	static bool Init(Window* const window);
 	static void Dispose();
 
 	inline static const VkSwapchainKHR& GetSwapchain() { return swapChain; }

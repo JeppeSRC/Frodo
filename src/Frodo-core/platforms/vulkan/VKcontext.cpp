@@ -9,6 +9,9 @@ namespace video {
 
 using namespace log;
 using namespace utils;
+using namespace graphics;
+using namespace pipeline;
+using namespace buffer;
 
 VkSwapchainKHR Context::swapChain = nullptr;
 VkDevice Context::device = nullptr;
@@ -24,6 +27,9 @@ VkQueue Context::graphicsQueue;
 VkQueue Context::presentQueue;
 
 VkCommandPool Context::cmdPool;
+VkCommandPool Context::auxPool;
+
+VkCommandBuffer Context::auxCommandBuffer;
 
 VkSemaphore Context::imageSemaphore;
 VkSemaphore Context::renderSemaphore;
@@ -36,7 +42,15 @@ Window* Context::window = nullptr;
 Adapter* Context::adapter = nullptr;
 Output* Context::output = nullptr;
 
-bool Context::Init(Window* window) {
+const Pipeline* Context::currentRenderPass = nullptr;
+const IndexBuffer* Context::currentIndexBuffer = nullptr;
+
+VkSubmitInfo Context::submitInfo;
+VkPresentInfoKHR Context::presentInfo;
+
+static const VkPipelineStageFlags st[]{ VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+bool Context::Init(Window* const window) {
 	Context::window = window;
 	Context::adapter = window->GetCreateInfo()->graphicsAdapter;
 	Context::output = window->GetCreateInfo()->outputWindow;
@@ -235,6 +249,7 @@ bool Context::Init(Window* window) {
 	poolInfo.queueFamilyIndex = graphicsQueueIndex;
 	
 	VK(vkCreateCommandPool(device, &poolInfo, nullptr, &cmdPool));
+	VK(vkCreateCommandPool(device, &poolInfo, nullptr, &auxPool));
 
 	cmdbuffers.Resize(swapchainImages.GetSize());
 
@@ -243,10 +258,15 @@ bool Context::Init(Window* window) {
 	cmdInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	cmdInfo.pNext = nullptr;
 	cmdInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	cmdInfo.commandBufferCount = 2;
+	cmdInfo.commandBufferCount = (uint32)cmdbuffers.GetSize();
 	cmdInfo.commandPool = cmdPool;
 
 	VK(vkAllocateCommandBuffers(device, &cmdInfo, cmdbuffers.GetData()));
+
+	cmdInfo.commandBufferCount = 1;
+	cmdInfo.commandPool = auxPool;
+
+	VK(vkAllocateCommandBuffers(device, &cmdInfo, &auxCommandBuffer));
 
 	VkSemaphoreCreateInfo semInfo;
 
@@ -257,6 +277,23 @@ bool Context::Init(Window* window) {
 	VK(vkCreateSemaphore(Context::GetDevice(), &semInfo, nullptr, &imageSemaphore));
 	VK(vkCreateSemaphore(Context::GetDevice(), &semInfo, nullptr, &renderSemaphore));
 
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.pNext = nullptr;
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = &imageSemaphore;
+	submitInfo.pWaitDstStageMask = st;
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = &renderSemaphore;
+	submitInfo.commandBufferCount = 1;
+
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.pNext = nullptr;
+	presentInfo.pResults = nullptr;
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = &swapChain;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = &renderSemaphore;
+
 	return true;
 }
 
@@ -265,6 +302,7 @@ void Context::Dispose() {
 	vkDestroySemaphore(Context::GetDevice(), renderSemaphore, nullptr);
 
 	vkDestroyCommandPool(device, cmdPool, nullptr);
+	vkDestroyCommandPool(device, auxPool, nullptr);
 
 	for (uint_t i = 0; i < swapchainViews.GetSize(); i++) {
 		vkDestroyImageView(Context::GetDevice(), swapchainViews[i], nullptr);
@@ -273,6 +311,135 @@ void Context::Dispose() {
 	vkDestroySurfaceKHR(Factory::GetInstance(), surface, nullptr);
 	vkDestroyDevice(device, nullptr);
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
+}
+
+void Context::CopyBuffers(VkBuffer dst, VkBuffer src, uint64 size) {
+	VkCommandBufferBeginInfo info;
+
+	info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	info.pNext = nullptr;
+	info.pInheritanceInfo = nullptr;
+	info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	VK(vkBeginCommandBuffer(auxCommandBuffer, &info));
+
+	VkBufferCopy cinfo;
+
+	cinfo.dstOffset = 0;
+	cinfo.srcOffset = 0;
+	cinfo.size = size;
+
+	vkCmdCopyBuffer(auxCommandBuffer, src, dst, 1, &cinfo);
+
+	VK(vkEndCommandBuffer(auxCommandBuffer));
+
+	VkSubmitInfo sinfo;
+
+	sinfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	sinfo.pNext = nullptr;
+	sinfo.commandBufferCount = 1;
+	sinfo.pCommandBuffers = &auxCommandBuffer;
+	sinfo.signalSemaphoreCount = 0;
+	sinfo.waitSemaphoreCount = 0;
+
+	VK(vkQueueSubmit(graphicsQueue, 1, &sinfo, nullptr));
+	VK(vkQueueWaitIdle(graphicsQueue));
+
+}
+
+void Context::BeginCommandBuffers() {
+	VkCommandBufferBeginInfo info;
+
+	info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	info.pNext = nullptr;
+	info.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	info.pInheritanceInfo = nullptr;
+
+	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
+		VK(vkBeginCommandBuffer(cmdbuffers[i], &info));
+	}
+}
+
+void Context::EndCommandBuffers() {
+	if (currentRenderPass) {
+		EndRenderPass();
+	}
+
+	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
+		VK(vkEndCommandBuffer(cmdbuffers[i]));
+	}
+}
+
+static VkClearValue gay{ 0.0f, 0.0f, 0.0f, 0.0f };
+
+void Context::BeginRenderPass(const Pipeline* const pipeline) {
+
+	VkRenderPassBeginInfo rinfo;
+
+	rinfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	rinfo.pNext = nullptr;
+	rinfo.renderArea.offset = { 0, 0 };
+	rinfo.renderArea.extent = swapchainExtent;
+	rinfo.renderPass = pipeline->GetRenderPass();
+	rinfo.clearValueCount = 1;
+	rinfo.pClearValues = &gay;
+
+	if (currentRenderPass) {
+		EndRenderPass();
+	}
+
+	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
+		rinfo.framebuffer = pipeline->GetFramebuffer(i);
+
+		vkCmdBeginRenderPass(cmdbuffers[i], &rinfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		vkCmdBindPipeline(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
+	}
+
+	currentRenderPass = pipeline;
+}
+
+void Context::EndRenderPass() {
+	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
+		vkCmdEndRenderPass(cmdbuffers[i]);
+	}
+
+	currentRenderPass = nullptr;
+}
+
+void Context::Bind(const VertexBuffer* const buffer, uint32 slot) {
+	uint64 offset = 0;
+	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
+		vkCmdBindVertexBuffers(cmdbuffers[i], slot, 1, &buffer->GetBuffer(), &offset);
+	}
+}
+
+void Context::Bind(const IndexBuffer* const buffer) {
+	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
+		vkCmdBindIndexBuffer(cmdbuffers[i], buffer->GetBuffer(), 0, buffer->GetFormat());
+	}
+
+	currentIndexBuffer = buffer;
+}
+
+void Context::DrawIndexed() {
+	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
+		vkCmdDrawIndexed(cmdbuffers[i], currentIndexBuffer->GetCount(), 1, 0, 0, 0);
+	}
+}
+
+void Context::Present() {
+	uint32 imageIndex;
+
+	VK(vkAcquireNextImageKHR(device, swapChain, ~0L, imageSemaphore, nullptr, &imageIndex));
+
+	submitInfo.pCommandBuffers = &cmdbuffers[imageIndex];
+
+	VK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr));
+
+	presentInfo.pImageIndices = &imageIndex;
+
+	VK(vkQueuePresentKHR(presentQueue, &presentInfo));
 }
 
 } } }
