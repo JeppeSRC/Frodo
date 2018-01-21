@@ -319,7 +319,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 
 	VkPipelineLayoutCreateInfo layoutInfo;
 
-	VkDescriptorSetLayout setLayout = GetDescriptorSetLayout(info->pipelineLayout);;
+	setLayout = GetDescriptorSetLayout(info->pipelineLayout);;
 
 	layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	layoutInfo.pNext = nullptr;
@@ -382,11 +382,11 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	renderInfo.pAttachments = &colorAttachment;
 	renderInfo.subpassCount = 1;
 	renderInfo.pSubpasses = &subDesc;
-
+	
 	VK(vkCreateRenderPass(Context::GetDevice(), &renderInfo, nullptr, &renderPass));
-
+	
 	VkGraphicsPipelineCreateInfo pipeInfo;
-
+	
 	pipeInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipeInfo.pNext = nullptr;
 	pipeInfo.flags = 0;
@@ -408,17 +408,17 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	pipeInfo.basePipelineIndex = -1;
 	
 	VK(vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &pipeline));
-
+	
 	uint_t numFramebuffers = Context::GetImageViews().GetSize();
-
+	
 	framebuffers.Resize(numFramebuffers);
-
+	
 	for (uint_t i = 0; i < numFramebuffers; i++) {
 		VkImageView imageView = Context::GetImageViews()[i];
-
+	
 		VkFramebufferCreateInfo info;
-
-		info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;	
+	
+		info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		info.pNext = nullptr;
 		info.flags = 0;
 		info.renderPass = renderPass;
@@ -427,13 +427,99 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 		info.width = Context::GetSwapchainExtent().width;
 		info.height = Context::GetSwapchainExtent().height;
 		info.layers = 1;
-
+	
 		VK(vkCreateFramebuffer(Context::GetDevice(), &info, nullptr, &framebuffers[i]));
 	}
+	
+	if (info->pipelineLayout.numElements) {
 
+		VkDescriptorPoolCreateInfo dpinfo;
+
+		VkDescriptorPoolSize poolSize;
+
+		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSize.descriptorCount = 1;
+
+		dpinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		dpinfo.pNext = nullptr;
+		dpinfo.flags = 0;
+		dpinfo.maxSets = 1;
+		dpinfo.poolSizeCount = 1;
+		dpinfo.pPoolSizes = &poolSize;
+
+		VK(vkCreateDescriptorPool(Context::GetDevice(), &dpinfo, nullptr, &descriptorPool));
+
+		VkDescriptorSetAllocateInfo dsinfo;
+
+		dsinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		dsinfo.pNext = nullptr;
+		dsinfo.descriptorSetCount = 1;
+		dsinfo.pSetLayouts = &setLayout;
+		dsinfo.descriptorPool = descriptorPool;
+
+		VK(vkAllocateDescriptorSets(Context::GetDevice(), &dsinfo, &descriptorSet));
+
+		uint64 uniformBufferSize = 0;
+
+		for (uint32 i = 0; i < info->pipelineLayout.numElements; i++) {
+			const PipelineLayoutElement& e = info->pipelineLayout.elements[i];
+
+			switch (e.type) {
+				case BufferType::Uniform:
+					descriptors.Push_back(new UniformElement(e.shaderAccess, e.size, uniformBufferSize, e.count));
+					uniformBufferSize += e.size;
+					break;
+				case BufferType::Texture:
+					descriptors.Push_back(new DescriptorElement(0, BufferType::Texture));
+					break;
+				case BufferType::Sampler:
+					descriptors.Push_back(new DescriptorElement(0, BufferType::Sampler));
+					break;
+			}
+		}
+
+		uniformBuffer = new UniformBuffer(nullptr, uniformBufferSize);
+
+		VkWriteDescriptorSet* winfo = new VkWriteDescriptorSet[info->pipelineLayout.numElements];
+
+		VkDescriptorBufferInfo* binfo = new VkDescriptorBufferInfo[info->pipelineLayout.numElements];
+
+		for (uint32 i = 0; i < info->pipelineLayout.numElements; i++) {
+			winfo[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			winfo[i].pNext = nullptr;
+			winfo[i].descriptorType = (VkDescriptorType)descriptors[i]->type;
+			winfo[i].descriptorCount = 1;
+			winfo[i].dstArrayElement = 0;
+			winfo[i].dstSet = descriptorSet;
+			winfo[i].dstBinding = i;
+			
+			if (descriptors[i]->type == BufferType::Uniform) {
+				
+
+				binfo[i].buffer = uniformBuffer->GetBuffer();
+				binfo[i].offset = ((UniformElement*)descriptors[i])->offset;
+				binfo[i].range = ((UniformElement*)descriptors[i])->size;
+
+				winfo[i].pBufferInfo = &binfo[i];
+			} else if (descriptors[i]->type == BufferType::Texture) {
+				winfo[i].descriptorCount = 0;
+			} else if (descriptors[i]->type == BufferType::Sampler) {
+				winfo[i].descriptorCount = 0;
+			}
+		}
+
+		vkUpdateDescriptorSets(Context::GetDevice(), info->pipelineLayout.numElements, winfo, 0, nullptr);
+
+		delete[] binfo;
+		delete[] winfo;
+	}
 }
 
 Pipeline::~Pipeline() {
+
+	delete uniformBuffer;
+
+	vkDestroyDescriptorPool(Context::GetDevice(), descriptorPool, nullptr);
 
 	for (uint_t i = 0; i < framebuffers.GetSize(); i++) {
 		vkDestroyFramebuffer(Context::GetDevice(), framebuffers[i], nullptr);
@@ -442,6 +528,27 @@ Pipeline::~Pipeline() {
 	vkDestroyPipeline(Context::GetDevice(), pipeline, nullptr);
 	vkDestroyRenderPass(Context::GetDevice(), renderPass, nullptr);
 	vkDestroyPipelineLayout(Context::GetDevice(), pipelineLayout, nullptr);
+	vkDestroyDescriptorSetLayout(Context::GetDevice(), setLayout, nullptr);
+}
+
+void Pipeline::UpdateUniformBuffer(uint32 slot, const void* const data, uint64 offset, uint64 size) const {
+	const UniformElement& uniform = *(UniformElement*)descriptors[slot];
+
+#ifdef FD_DEBUG
+	if (uniform.type != BufferType::Uniform) {
+		FD_WARN("[Pipeline] No uniform buffer at slot %u!", slot);
+		return;
+	}
+
+	if (offset + size > uniform.size + uniform.offset) {
+		FD_FATAL("[Pipeline] Uniform(%u) update out of bounds. Offset(%u) + size(%u) > uniform size(%u)", slot, offset, size, uniform.size);
+		return;
+	}
+#endif
+
+	void* mappedData = uniformBuffer->Map(data, offset, size);
+	memcpy(mappedData, data, size);
+	uniformBuffer->Unmap();
 }
 
 }

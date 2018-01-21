@@ -394,6 +394,8 @@ void Context::BeginRenderPass(const Pipeline* const pipeline) {
 		vkCmdBeginRenderPass(cmdbuffers[i], &rinfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
+		
+		vkCmdBindDescriptorSets(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipelineLayout(), 0, 1, &pipeline->GetDescriptorSet(), 0, nullptr);
 	}
 
 	currentRenderPass = pipeline;

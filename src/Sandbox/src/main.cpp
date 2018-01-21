@@ -78,18 +78,23 @@ int main() {
 	info.shader = &shader;
 	info.numInputLayouts = 1;
 	info.shaderInputLayouts = &inputLayout;
-	info.pipelineLayout.numElements = 0;
+	info.pipelineLayout.numElements = 1;
+	info.pipelineLayout.elements = new PipelineLayoutElement;
+	info.pipelineLayout.elements->count = 1;
+	info.pipelineLayout.elements->shaderAccess = ShaderTypePixel;
+	info.pipelineLayout.elements->type = BufferType::Uniform;
+	info.pipelineLayout.elements->size = sizeof(vec4);
 	info.depthStencilInfo = depthInfo;
 
 	Pipeline pipeline(&info);
 
 	Vertex vertices[3];
-
+	
 	vertices[0].position = vec3(0, -1, 0);
-	vertices[0].color = vec4(1, 0, 1, 1);
-
+	vertices[0].color = vec4(1, 1, 1, 1);
+	
 	vertices[1].position = vec3(1, 1, 0);
-	vertices[1].color = vec4(0, 1, 1, 1);
+	vertices[1].color = vec4(1, 1, 1, 1);
 
 	vertices[2].position = vec3(-1, 1, 0);
 	vertices[2].color = vec4(1, 1, 1, 1);
@@ -99,83 +104,30 @@ int main() {
 	VertexBuffer vbo(vertices, sizeof(vertices));
 	IndexBuffer ibo(indices, 3);
 
-	const List<VkCommandBuffer>& cmd = Context::GetCmdBuffers();
+	Context::BeginCommandBuffers();
+	Context::BeginRenderPass(&pipeline);
 
-	for (uint_t i = 0; i < cmd.GetSize(); i++) {
-		VkCommandBufferBeginInfo info;
+	Context::Bind(&vbo, 0);
+	Context::Bind(&ibo);
 
-		info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		info.pNext = nullptr;
-		info.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-		info.pInheritanceInfo = nullptr;
+	Context::DrawIndexed();
 
-		VK(vkBeginCommandBuffer(cmd[i], &info));
+	Context::EndCommandBuffers();
 
-		VkClearValue gay{ 0.0f, 0.0f, 0.0f, 0.0f };
+	vec4 dankVec(1, 1, 1, 1);
 
-		VkRenderPassBeginInfo rinfo;
-
-		rinfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		rinfo.pNext = nullptr;
-		rinfo.renderArea.offset = { 0, 0 };
-		rinfo.renderArea.extent = Context::GetSwapchainExtent();
-		rinfo.renderPass = pipeline.GetRenderPass();
-		rinfo.framebuffer = pipeline.GetFramebuffer(i);
-		rinfo.clearValueCount = 1;
-		rinfo.pClearValues = &gay;
-		
-		vkCmdBeginRenderPass(cmd[i], &rinfo, VK_SUBPASS_CONTENTS_INLINE);
-
-		vkCmdBindPipeline(cmd[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.GetPipeline());
-
-		uint64 gayOffset = 0;
-
-		vkCmdBindVertexBuffers(cmd[i], 0, 1, &vbo.GetBuffer(), &gayOffset);
-
-		vkCmdBindIndexBuffer(cmd[i], ibo.GetBuffer(), 0, ibo.GetFormat());
-
-		vkCmdDrawIndexed(cmd[i], ibo.GetCount(), 1, 0, 0, 0);
-
-		vkCmdEndRenderPass(cmd[i]);
-
-		vkEndCommandBuffer(cmd[i]);
-	}
+	pipeline.UpdateUniformBuffer(0, &dankVec, 0, sizeof(vec4));
 
 	unsigned int shit2 = clock();
 	unsigned int dankFps = 0;
+	float aa = 0;
 	while (window.IsOpen()) {
-		uint32 imageIndex;
+		dankVec.x = cosf(aa += 0.0001f);
+		dankVec.y = sinf(aa);
+		dankVec.z = tanh(aa);
+	//	pipeline.UpdateUniformBuffer(0, &dankVec, 0, sizeof(vec4));
 
-		VK(vkAcquireNextImageKHR(Context::GetDevice(), Context::GetSwapchain(), ~0L, Context::GetImageSemaphore(), 0, &imageIndex));
-
-		VkSubmitInfo info;
-
-		VkPipelineStageFlags shit[]{ VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
-		info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		info.pNext = nullptr;
-		info.commandBufferCount = 1;
-		info.pCommandBuffers = &cmd[imageIndex];
-		info.signalSemaphoreCount = 1;
-		info.pSignalSemaphores = &Context::GetRenderSemaphore();
-		info.waitSemaphoreCount = 1;
-		info.pWaitSemaphores = &Context::GetImageSemaphore();
-		info.pWaitDstStageMask = shit;
-
-		VK(vkQueueSubmit(Context::GetGraphicsQueue(), 1, &info, 0));
-
-		VkPresentInfoKHR pinfo;
-
-		pinfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		pinfo.pNext = nullptr;
-		pinfo.swapchainCount = 1;
-		pinfo.pSwapchains = &Context::GetSwapchain();
-		pinfo.pImageIndices = &imageIndex;
-		pinfo.waitSemaphoreCount = 1;
-		pinfo.pWaitSemaphores = &Context::GetRenderSemaphore();
-		pinfo.pResults = nullptr;
-
-		VK(vkQueuePresentKHR(Context::GetPresentQueue(), &pinfo));
+		Context::Present();
 
 		window.Update();
 

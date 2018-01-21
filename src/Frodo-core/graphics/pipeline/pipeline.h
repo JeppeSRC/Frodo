@@ -1,5 +1,6 @@
 #pragma once
 #include <graphics/buffer/bufferlayout.h>
+#include <graphics/buffer/uniformbuffer.h>
 #include <graphics/shader/shader.h>
 #include <core/types.h>
 #include <core/enums.h>
@@ -56,10 +57,8 @@ struct BlendInfo {
 typedef uint32 ShaderAccessFlags;
 
 struct PipelineLayoutElement {
-	const utils::String name;
 	BufferType type;
-	uint32 id;
-	uint32 size;
+	uint64 size;
 	uint32 count;
 	ShaderAccessFlags shaderAccess;
 };
@@ -105,11 +104,40 @@ private:
 
 class Pipeline {
 private:
+	struct DescriptorElement {
+		DescriptorElement(ShaderAccessFlags accessFlags, BufferType type) : shaderAccess(accessFlags), type(type) { }
+		ShaderAccessFlags shaderAccess;
+		BufferType type;
+	};
+
+	struct UniformElement : public DescriptorElement {
+		UniformElement(ShaderAccessFlags access, uint64 size, uint64 offset, uint32 count) : DescriptorElement(access, BufferType::Uniform), size(size), offset(offset), count(count) {}
+		uint64 size;
+		uint64 offset;
+		uint32 count;
+	};
+
+	struct SamplerElement {
+
+	};
+
+	struct TextureElement {
+
+	};
+
+private:
 	PipelineInfo* info;
 
 	VkPipeline pipeline;
 	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
+	VkDescriptorSetLayout setLayout;
+	VkDescriptorPool descriptorPool;
+	VkDescriptorSet descriptorSet;
+
+	buffer::UniformBuffer* uniformBuffer;
+
+	utils::List<DescriptorElement*> descriptors;
 	
 	utils::List<VkFramebuffer> framebuffers;
 
@@ -117,9 +145,12 @@ public:
 	Pipeline(PipelineInfo* info);
 	~Pipeline();
 
+	void UpdateUniformBuffer(uint32 slot, const void* const data, uint64 offset, uint64 size) const;
+
 	inline VkPipeline GetPipeline() const { return pipeline; }
 	inline VkRenderPass GetRenderPass() const { return renderPass; }
 	inline VkPipelineLayout GetPipelineLayout() const { return pipelineLayout; }
+	inline const VkDescriptorSet& GetDescriptorSet() const { return descriptorSet; }
 
 	inline const utils::List<VkFramebuffer>& GetFramebuffers() const { return framebuffers; }
 	inline VkFramebuffer GetFramebuffer(uint_t index) const { return framebuffers[index]; }

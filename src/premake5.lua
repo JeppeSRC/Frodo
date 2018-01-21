@@ -161,6 +161,8 @@ project("Sandbox")
     links {"Frodo-core"}
 
     if _TARGET_OS == "windows" then
+
+        postbuildcommands { "call \"$(SolutionDir)../src/post.bat\" \"$(SolutionDir)../src/Sandbox/res\"" }
    
         filter("configurations:Release-DX")
             links {

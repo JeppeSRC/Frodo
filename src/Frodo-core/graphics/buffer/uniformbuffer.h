@@ -1,0 +1,24 @@
+#pragma once
+
+#include "buffer.h"
+
+namespace fd {
+namespace graphics {
+namespace buffer {
+
+#ifdef FD_DX
+
+#else
+
+class UniformBuffer : public Buffer {
+public:
+	UniformBuffer(const void* const data, uint64 size);
+	~UniformBuffer();
+
+};
+
+#endif
+
+}
+}
+}

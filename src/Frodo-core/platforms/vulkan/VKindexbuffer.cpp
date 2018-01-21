@@ -18,8 +18,7 @@ IndexBuffer::IndexBuffer(const uint16* const data, uint32 count) : IndexBuffer(d
 IndexBuffer::IndexBuffer(const uint32* const data, uint32 count) : IndexBuffer(data, count * sizeof(uint32), IndexBufferFormat::Uint32) { this->count = count; }
 
 IndexBuffer::~IndexBuffer() {
-	vkDestroyBuffer(Context::GetDevice(), buf, nullptr);
-	vkFreeMemory(Context::GetDevice(), deviceMemory, nullptr);
+
 }
 
 }

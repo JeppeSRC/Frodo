@@ -8,6 +8,7 @@ namespace buffer {
 
 using namespace core;
 using namespace video;
+using namespace log;
 
 uint32 FindMemoryType(const VkPhysicalDeviceMemoryProperties mem, uint32 type, uint32 prop) {
 	for (uint32 i = 0; i < mem.memoryTypeCount; i++) {
@@ -17,7 +18,7 @@ uint32 FindMemoryType(const VkPhysicalDeviceMemoryProperties mem, uint32 type, u
 	return ~0;
 }
 
-Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bool dynamic) {
+Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bool dynamic) : size(size), dynamic(dynamic) {
 	VkBufferCreateInfo info;
 
 	info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -55,7 +56,7 @@ Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bo
 
 	void* dank = nullptr;
 	VK(vkMapMemory(Context::GetDevice(), tmpMemory, 0, size, 0, &dank));
-	memcpy(dank, data, size);
+	if (data) memcpy(dank, data, size);
 	vkUnmapMemory(Context::GetDevice(), tmpMemory);
 
 	if (dynamic) {
@@ -87,6 +88,28 @@ Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bo
 Buffer::~Buffer() {
 	vkDestroyBuffer(Context::GetDevice(), buf, nullptr);
 	vkFreeMemory(Context::GetDevice(), deviceMemory, nullptr);
+}
+
+void* Buffer::Map(const void* const data, uint64 offset, uint64 size) {
+#ifdef FD_DEBUG
+	if (!dynamic) {
+		FD_FATAL("[Buffer] Buffer not mappable!");
+		return nullptr;
+	}
+
+	if (offset + size > this->size) {
+		FD_FATAL("[Buffer] Buffer mapping out of bounds! Offset(%u) + size(%u) > buffer size(%u)", offset, size, this->size);
+		return nullptr;
+	}
+#endif
+
+	void* mappedData = nullptr;
+	VK(vkMapMemory(Context::GetDevice(), deviceMemory, offset, size, 0, &mappedData));
+	return mappedData;
+}
+
+void Buffer::Unmap() {
+	vkUnmapMemory(Context::GetDevice(), deviceMemory);
 }
 
 }
