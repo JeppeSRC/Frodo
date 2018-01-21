@@ -118,7 +118,7 @@ project("Frodo-core")
 
     filter("Release-VK or Debug-VK")
         includedirs { vk_path .. "/include/vulkan" }
-        libdirs { vk_path ..  "/Bin" }
+        libdirs { vk_path ..  "/Lib" }
 
     filter {"Release-VK or Debug-VK", "files:Frodo-core/**DX*.cpp"}
         flags "ExcludeFromBuild"
@@ -149,9 +149,9 @@ project("Sandbox")
         "Sandbox/**.cpp",
         "Sandbox/**.h"
     }
-
+    
     filter("Release-VK or Debug-VK")
-        libdirs { vk_path ..  "/Bin" }
+        libdirs { vk_path ..  "/Lib" }
         includedirs { vk_path .. "/include/vulkan" }
 
     filter {}
