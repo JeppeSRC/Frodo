@@ -77,13 +77,17 @@ int main() {
 	info.blends = &blendInfo;
 	info.shader = &shader;
 	info.numInputLayouts = 1;
-	info.shaderInputLayouts = &inputLayout;
-	info.pipelineLayout.numElements = 1;
-	info.pipelineLayout.elements = new PipelineLayoutElement;
-	info.pipelineLayout.elements->count = 1;
-	info.pipelineLayout.elements->shaderAccess = ShaderTypePixel;
-	info.pipelineLayout.elements->type = BufferType::Uniform;
-	info.pipelineLayout.elements->size = sizeof(vec4);
+	info.shaderInputLayouts = &inputLayout; 
+	info.pipelineLayout.numElements = 2;
+	info.pipelineLayout.elements = new PipelineLayoutElement[2];
+	info.pipelineLayout.elements[0].count = 1;
+	info.pipelineLayout.elements[0].shaderAccess = ShaderTypePixel;
+	info.pipelineLayout.elements[0].type = BufferType::Uniform;
+	info.pipelineLayout.elements[0].size = sizeof(vec4);
+	info.pipelineLayout.elements[1].count = 1;
+	info.pipelineLayout.elements[1].shaderAccess = ShaderTypePixel;
+	info.pipelineLayout.elements[1].type = BufferType::Uniform;
+	info.pipelineLayout.elements[1].size = sizeof(vec4);
 	info.depthStencilInfo = depthInfo;
 
 	Pipeline pipeline(&info);
@@ -94,7 +98,7 @@ int main() {
 	vertices[0].color = vec4(1, 1, 1, 1);
 	
 	vertices[1].position = vec3(1, 1, 0);
-	vertices[1].color = vec4(1, 1, 1, 1);
+	vertices[1].color = vec4(1, 1, 1, 1); 
 
 	vertices[2].position = vec3(-1, 1, 0);
 	vertices[2].color = vec4(1, 1, 1, 1);
@@ -105,34 +109,34 @@ int main() {
 	IndexBuffer ibo(indices, 3);
 
 	Context::BeginCommandBuffers();
-	Context::BeginRenderPass(&pipeline);
-
+	Context::BeginRenderPass(&pipeline); 
+	
 	Context::Bind(&vbo, 0);
 	Context::Bind(&ibo);
 
 	Context::DrawIndexed();
-
+	 
 	Context::EndCommandBuffers();
-
+	  
 	vec4 dankVec(1, 1, 1, 1);
 
-	pipeline.UpdateUniformBuffer(0, &dankVec, 0, sizeof(vec4));
+	//pipeline.UpdateUniformBuffer(0, &dankVec, 0, sizeof(vec4));
 
 	unsigned int shit2 = clock();
-	unsigned int dankFps = 0;
-	float aa = 0;
+ 	unsigned int dankFps = 0;
+	float aa = 0; 
 	while (window.IsOpen()) {
 		dankVec.x = cosf(aa += 0.0001f);
-		dankVec.y = sinf(aa);
-		dankVec.z = tanh(aa);
-	//	pipeline.UpdateUniformBuffer(0, &dankVec, 0, sizeof(vec4));
-
+		dankVec.y = sinf(aa); 
+		dankVec.z = tanh(aa); 
+		//pipeline.UpdateUniformBuffer(0, &dankVec, 0, sizeof(vec4));
+		 
 		Context::Present();
 
-		window.Update();
+		window.Update(); 
 
 		dankFps++;
-
+		
 		if (clock() - shit2 > 1000) {
 			shit2 = clock();
 			Log::Info("%u", dankFps);

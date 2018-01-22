@@ -394,7 +394,7 @@ void Context::BeginRenderPass(const Pipeline* const pipeline) {
 		vkCmdBeginRenderPass(cmdbuffers[i], &rinfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
-		
+
 		vkCmdBindDescriptorSets(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipelineLayout(), 0, 1, &pipeline->GetDescriptorSet(), 0, nullptr);
 	}
 
@@ -424,6 +424,10 @@ void Context::Bind(const IndexBuffer* const buffer) {
 	currentIndexBuffer = buffer;
 }
 
+void Context::UpdateUniform(uint32 slot, const void* const data, uint64 offset, uint64 size) {
+	currentRenderPass->UpdateUniformBuffer(slot, data, offset, size);
+}
+
 void Context::DrawIndexed() {
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
 		vkCmdDrawIndexed(cmdbuffers[i], currentIndexBuffer->GetCount(), 1, 0, 0, 0);
@@ -440,7 +444,7 @@ void Context::Present() {
 	VK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr));
 
 	presentInfo.pImageIndices = &imageIndex;
-
+	
 	VK(vkQueuePresentKHR(presentQueue, &presentInfo));
 }
 
