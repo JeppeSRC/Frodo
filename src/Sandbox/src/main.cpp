@@ -78,8 +78,8 @@ int main() {
 	info.shader = &shader;
 	info.numInputLayouts = 1;
 	info.shaderInputLayouts = &inputLayout; 
-	info.pipelineLayout.numElements = 2;
-	info.pipelineLayout.elements = new PipelineLayoutElement[2];
+	info.pipelineLayout.numElements = 0;
+	info.pipelineLayout.elements = new PipelineLayoutElement[3];
 	info.pipelineLayout.elements[0].count = 1;
 	info.pipelineLayout.elements[0].shaderAccess = ShaderTypePixel;
 	info.pipelineLayout.elements[0].type = BufferType::Uniform;
@@ -88,6 +88,10 @@ int main() {
 	info.pipelineLayout.elements[1].shaderAccess = ShaderTypePixel;
 	info.pipelineLayout.elements[1].type = BufferType::Uniform;
 	info.pipelineLayout.elements[1].size = sizeof(vec4);
+	info.pipelineLayout.elements[2].count = 1;
+	info.pipelineLayout.elements[2].shaderAccess = ShaderTypePixel;
+	info.pipelineLayout.elements[2].type = BufferType::Uniform;
+	info.pipelineLayout.elements[2].size = sizeof(float32);
 	info.depthStencilInfo = depthInfo;
 
 	Pipeline pipeline(&info);
@@ -118,18 +122,11 @@ int main() {
 	 
 	Context::EndCommandBuffers();
 	  
-	vec4 dankVec(1, 1, 1, 1);
-
-	//pipeline.UpdateUniformBuffer(0, &dankVec, 0, sizeof(vec4));
-
 	unsigned int shit2 = clock();
  	unsigned int dankFps = 0;
 	float aa = 0; 
 	while (window.IsOpen()) {
-		dankVec.x = cosf(aa += 0.0001f);
-		dankVec.y = sinf(aa); 
-		dankVec.z = tanh(aa); 
-		//pipeline.UpdateUniformBuffer(0, &dankVec, 0, sizeof(vec4));
+
 		 
 		Context::Present();
 

@@ -25,7 +25,7 @@ public:
 	Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bool dynamic = false);
 	~Buffer();
 
-	void* Map(const void* const data, uint64 offset, uint64 size);
+	void* Map(uint64 offset, uint64 size);
 	void Unmap();
 
 	inline const VkBuffer& GetBuffer() const { return buf; }

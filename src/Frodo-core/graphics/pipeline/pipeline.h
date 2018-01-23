@@ -105,16 +105,16 @@ private:
 class Pipeline {
 private:
 	struct DescriptorElement {
-		DescriptorElement(ShaderAccessFlags accessFlags, BufferType type) : shaderAccess(accessFlags), type(type) { }
+		DescriptorElement(ShaderAccessFlags accessFlags, BufferType type, uint32 count) : shaderAccess(accessFlags), type(type), count(count) { }
 		ShaderAccessFlags shaderAccess;
 		BufferType type;
+		uint32 count;
 	};
 
 	struct UniformElement : public DescriptorElement {
-		UniformElement(ShaderAccessFlags access, uint64 size, uint64 offset, uint32 count) : DescriptorElement(access, BufferType::Uniform), size(size), offset(offset), count(count) {}
+		UniformElement(ShaderAccessFlags access, uint64 size, uint64 offset, uint32 count) : DescriptorElement(access, BufferType::Uniform, count), size(size), offset(offset) {}
 		uint64 size;
 		uint64 offset;
-		uint32 count;
 	};
 
 	struct SamplerElement {

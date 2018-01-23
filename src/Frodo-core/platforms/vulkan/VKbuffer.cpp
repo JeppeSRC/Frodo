@@ -90,7 +90,7 @@ Buffer::~Buffer() {
 	vkFreeMemory(Context::GetDevice(), deviceMemory, nullptr);
 }
 
-void* Buffer::Map(const void* const data, uint64 offset, uint64 size) {
+void* Buffer::Map(uint64 offset, uint64 size) {
 #ifdef FD_DEBUG
 	if (!dynamic) {
 		FD_FATAL("[Buffer] Buffer not mappable!");

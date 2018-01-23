@@ -433,19 +433,45 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	
 	if (info->pipelineLayout.numElements) {
 
+		uint32 numDescriptors = info->pipelineLayout.numElements;
+		uint64 minOffset = Context::GetAdapter()->GetDeviceLimits().minUniformBufferOffsetAlignment;
+
+		uint64 uniformBufferSize = 0;
+
+		for (uint32 i = 0; i < numDescriptors; i++) {
+			const PipelineLayoutElement& e = info->pipelineLayout.elements[i];
+
+			switch (e.type) {
+				case BufferType::Uniform:
+					descriptors.Push_back(new UniformElement(e.shaderAccess, e.size, uniformBufferSize, e.count));
+					uniformBufferSize += e.size > minOffset ?  e.size : minOffset;
+					break;
+				case BufferType::Texture:
+					descriptors.Push_back(new DescriptorElement(0, BufferType::Texture, 0));
+					break;
+				case BufferType::Sampler:
+					descriptors.Push_back(new DescriptorElement(0, BufferType::Sampler, 0));
+					break;
+			}
+		}
+
+		uniformBuffer = new UniformBuffer(nullptr, uniformBufferSize);
+
 		VkDescriptorPoolCreateInfo dpinfo;
 
-		VkDescriptorPoolSize poolSize;
+		VkDescriptorPoolSize* poolSize = new VkDescriptorPoolSize[numDescriptors];
 
-		poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		poolSize.descriptorCount = 2;
+		for (uint32 i = 0; i < numDescriptors; i++) {
+			poolSize[i].type = (VkDescriptorType)descriptors[i]->type;
+			poolSize[i].descriptorCount = descriptors[i]->count;
+		}
 
 		dpinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		dpinfo.pNext = nullptr;
 		dpinfo.flags = 0;
 		dpinfo.maxSets = 1;
 		dpinfo.poolSizeCount = 1;
-		dpinfo.pPoolSizes = &poolSize;
+		dpinfo.pPoolSizes = poolSize;
 
 		VK(vkCreateDescriptorPool(Context::GetDevice(), &dpinfo, nullptr, &descriptorPool));
 
@@ -459,43 +485,9 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 
 		VK(vkAllocateDescriptorSets(Context::GetDevice(), &dsinfo, &descriptorSet));
 
-		uint64 uniformBufferSize = 0;
-
-		for (uint32 i = 0; i < info->pipelineLayout.numElements; i++) {
-			const PipelineLayoutElement& e = info->pipelineLayout.elements[i];
-
-			switch (e.type) {
-				case BufferType::Uniform:
-					descriptors.Push_back(new UniformElement(e.shaderAccess, e.size, uniformBufferSize, e.count));
-					uniformBufferSize += e.size * e.count;
-					break;
-				case BufferType::Texture:
-					descriptors.Push_back(new DescriptorElement(0, BufferType::Texture));
-					break;
-				case BufferType::Sampler:
-					descriptors.Push_back(new DescriptorElement(0, BufferType::Sampler));
-					break;
-			}
-		}
-
-		uniformBuffer = new UniformBuffer(nullptr, uniformBufferSize);
-
-		uint32 numDescriptors = info->pipelineLayout.numElements;
-
 		VkWriteDescriptorSet* winfo = new VkWriteDescriptorSet[numDescriptors];
-
-	
-		List<VkDescriptorBufferInfo> binfo;
-
-		VkDescriptorBufferInfo a[2];
-
-		a[0].buffer = uniformBuffer->GetBuffer();
-		a[0].range = 16;
-		a[0].offset = 0;
-
-		a[1] = a[0];
-
-		a[1].offset = 16;
+			
+		List<VkDescriptorBufferInfo> binfo(numDescriptors);
 
 		for (uint32 i = 0; i < numDescriptors; i++) {
 			DescriptorElement* e = descriptors[i];
@@ -510,7 +502,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 			if (e->type == BufferType::Uniform) {
 				UniformElement* u = (UniformElement*)e;
 								
-			/*	uint_t binfoIndex = binfo.GetSize();
+				uint_t binfoIndex = binfo.GetSize();
 
 				binfo.Resize(binfoIndex + 1);
 
@@ -518,9 +510,8 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 				binfo[binfoIndex].offset = u->offset;
 				binfo[binfoIndex].range = u->size;
 				
-				winfo[i].pBufferInfo = &binfo[binfoIndex];*/
+				winfo[i].pBufferInfo = &binfo[binfoIndex];
 
-				winfo[i].pBufferInfo = &a[i];
 				winfo[i].pImageInfo = nullptr;
 				winfo[i].pTexelBufferView = nullptr;			
 			} else if (e->type == BufferType::Texture) {
@@ -568,9 +559,15 @@ void Pipeline::UpdateUniformBuffer(uint32 slot, const void* const data, uint64 o
 	}
 #endif
 
-	void* mappedData = uniformBuffer->Map(data, uniform.offset + offset, size);
-	memcpy(mappedData, data, size);
-	uniformBuffer->Unmap();
+	//if (slot == 0) {
+		void* mappedData = uniformBuffer->Map(uniform.offset + offset, size);
+		memcpy(mappedData, data, size);
+		uniformBuffer->Unmap();
+	/*} else if (slot == 1) {
+		void* mappedData = uniformBuffer2->Map(uniform.offset + offset, size);
+		memcpy(mappedData, data, size);
+		uniformBuffer2->Unmap();
+	}*/
 }
 
 }
