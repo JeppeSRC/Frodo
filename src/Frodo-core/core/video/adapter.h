@@ -83,6 +83,7 @@ public:
 	VkSurfaceKHR CreateSurface(const Window* window);
 	bool IsExtensionSupported(const char* name) const;
 	uint32 IsExtensionsSupported(const char** names, uint32 num) const;
+	bool CheckImageFormat(VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* prop) const;
 
 	inline VkPhysicalDevice GetPhysicalDevice() const { return device; }
 	inline uint32 GetAPIVersion() const { return prop.apiVersion; }
