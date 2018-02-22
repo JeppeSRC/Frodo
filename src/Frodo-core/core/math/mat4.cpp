@@ -52,14 +52,34 @@ mat4 mat4::Translate(const vec3& v) {
 }
 
 mat4 mat4::Rotate(const vec3& v) {
-	return mat4();
+	mat4 x(1), y(1), z(1);
+
+	float32 xcos = cosf((float32)FD_TO_RADIANS_F(v.x));
+	float32 xsin = sinf((float32)FD_TO_RADIANS_F(v.x));
+	float32 ycos = cosf((float32)FD_TO_RADIANS_F(v.y));
+	float32 ysin = sinf((float32)FD_TO_RADIANS_F(v.y));
+	float32 zcos = cosf((float32)FD_TO_RADIANS_F(v.z));
+	float32 zsin = sinf((float32)FD_TO_RADIANS_F(v.z));
+
+	x.m[1 + 1 * 4] = xcos; x.m[1 + 2 * 4] = -xsin;
+	x.m[2 + 1 * 4] = xsin; x.m[2 + 2 * 4] = xcos;
+
+	y.m[0 + 0 * 4] = ycos; y.m[0 + 2 * 4] = -ysin;
+	y.m[2 + 0 * 4] = ysin; y.m[2 + 2 * 4] = ycos;
+
+	z.m[0 + 0 * 4] = zcos; z.m[0 + 1 * 4] = -zsin;
+	z.m[1 + 0 * 4] = zsin; z.m[1 + 1 * 4] = zcos;
+
+	return x * y * z;
 }
 
 mat4 mat4::Perspective(float32 aspect, float32 fov, float32 zNear, float32 zFar) {
 	mat4 m(1);
 
-	m.m[0 + 0 * 4] = aspect * (1.0f / (tan(fov * 0.5f)));
-	m.m[1 + 1 * 4] = 1.0f / (tan(fov * 0.5f));
+	
+
+	m.m[0 + 0 * 4] = 1.0f / (aspect * (tanh(fov * 0.5f)));
+	m.m[1 + 1 * 4] = 1.0f / (tanh(fov * 0.5f));
 	m.m[2 + 2 * 4] = zFar / (zFar - zNear);
 	m.m[3 + 2 * 4] = 1;
 	m.m[2 + 3 * 4] = -zNear * (zFar / (zFar - zNear));
