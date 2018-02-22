@@ -313,7 +313,7 @@ void Context::Dispose() {
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
 }
 
-void Context::CopyBuffers(VkBuffer dst, VkBuffer src, uint64 size) {
+void Context::CopyBuffers(VkBuffer* dst, VkBuffer* src, uint64* size, uint64 num) {
 	VkCommandBufferBeginInfo info;
 
 	info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -323,13 +323,15 @@ void Context::CopyBuffers(VkBuffer dst, VkBuffer src, uint64 size) {
 
 	VK(vkBeginCommandBuffer(auxCommandBuffer, &info));
 
-	VkBufferCopy cinfo;
+	VkBufferCopy* cinfo = new VkBufferCopy[num];
 
-	cinfo.dstOffset = 0;
-	cinfo.srcOffset = 0;
-	cinfo.size = size;
+	for (uint64 i = 0; i < num; i++) {
+		cinfo[i].dstOffset = 0;
+		cinfo[i].srcOffset = 0;
+		cinfo[i].size = size[i];
 
-	vkCmdCopyBuffer(auxCommandBuffer, src, dst, 1, &cinfo);
+		vkCmdCopyBuffer(auxCommandBuffer, src[i], dst[i], 1, &cinfo[i]);
+	}
 
 	VK(vkEndCommandBuffer(auxCommandBuffer));
 
@@ -388,15 +390,17 @@ void Context::BeginRenderPass(const Pipeline* const pipeline) {
 		EndRenderPass();
 	}
 
+	currentRenderPass = pipeline;
+
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
 		rinfo.framebuffer = pipeline->GetFramebuffer(i);
 
 		vkCmdBeginRenderPass(cmdbuffers[i], &rinfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
-	}
 
-	currentRenderPass = pipeline;
+		vkCmdBindDescriptorSets(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipelineLayout(), 0, 1, &pipeline->GetDescriptorSet(), 0, 0);
+	}
 }
 
 void Context::EndRenderPass() {
@@ -422,8 +426,8 @@ void Context::Bind(const IndexBuffer* const buffer) {
 	currentIndexBuffer = buffer;
 }
 
-void Context::UpdateUniform(uint32 slot, const void* const data, uint64 offset, uint64 size) {
-	currentRenderPass->UpdateUniformBuffer(slot, data, offset, size);
+void Context::UpdateUniform(const Pipeline* pipeline, uint32 slot, const void* const data, uint64 offset, uint64 size) {
+	pipeline->UpdateUniformBuffer(slot, data, offset, size);
 }
 
 void Context::DrawIndexed() {

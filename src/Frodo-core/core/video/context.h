@@ -106,7 +106,7 @@ private:
 	static VkPresentInfoKHR presentInfo;
 
 public:
-	static void CopyBuffers(VkBuffer dst, VkBuffer src, uint64 size);
+	static void CopyBuffers(VkBuffer* dst, VkBuffer* src, uint64* size, uint64 num);
 
 	static void BeginCommandBuffers();
 	static void EndCommandBuffers();
@@ -117,7 +117,7 @@ public:
 	static void Bind(const graphics::buffer::VertexBuffer* const buffer, uint32 slot);
 	static void Bind(const graphics::buffer::IndexBuffer* const buffer);
 
-	static void UpdateUniform(uint32 slot, const void* const data, uint64 offset, uint64 size);
+	static void UpdateUniform(const graphics::pipeline::Pipeline* pipeline, uint32 slot, const void* const data, uint64 offset, uint64 size);
 
 	static void DrawIndexed();
 
