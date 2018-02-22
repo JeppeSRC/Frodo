@@ -10,14 +10,6 @@ using namespace core;
 using namespace video;
 using namespace log;
 
-uint32 FindMemoryType(const VkPhysicalDeviceMemoryProperties mem, uint32 type, uint32 prop) {
-	for (uint32 i = 0; i < mem.memoryTypeCount; i++) {
-		if ((type & (1 << i)) && ((mem.memoryTypes[i].propertyFlags & prop) == prop)) return i;
-	}
-
-	return ~0;
-}
-
 Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bool dynamic) : size(size), dynamic(dynamic) {
 	VkBufferCreateInfo info;
 
@@ -78,7 +70,7 @@ Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bo
 
 		VK(vkBindBufferMemory(Context::GetDevice(), buf, deviceMemory, 0));
 
-		Context::CopyBuffers(buf, tmpBuf, size);
+		Context::CopyBuffers(&buf, &tmpBuf, &size, 1);
 
 		vkFreeMemory(Context::GetDevice(), tmpMemory, nullptr);
 		vkDestroyBuffer(Context::GetDevice(), tmpBuf, nullptr);
@@ -110,6 +102,52 @@ void* Buffer::Map(uint64 offset, uint64 size) {
 
 void Buffer::Unmap() {
 	vkUnmapMemory(Context::GetDevice(), deviceMemory);
+}
+
+uint32 FindMemoryType(const VkPhysicalDeviceMemoryProperties mem, uint32 type, uint32 prop) {
+	for (uint32 i = 0; i < mem.memoryTypeCount; i++) {
+		if ((type & (1 << i)) && ((mem.memoryTypes[i].propertyFlags & prop) == prop)) return i;
+	}
+
+	return ~0;
+}
+
+uint8 GetFormatSize(VkFormat format) {
+	if (format >= VK_FORMAT_R8_UNORM && format <= VK_FORMAT_R8_SRGB) {
+		return 1;
+	} else if (format >= VK_FORMAT_R8G8_UNORM && format <= VK_FORMAT_R8G8_SRGB) {
+		return 2;
+	} else if (format >= VK_FORMAT_R8G8B8_UNORM && format <= VK_FORMAT_B8G8R8_SRGB) {
+		return 3;
+	} else if (format >= VK_FORMAT_R8G8B8A8_UNORM && format <= VK_FORMAT_B8G8R8A8_SRGB) {
+		return 4;
+	} else if (format >= VK_FORMAT_R16_UNORM && format <= VK_FORMAT_R16_SFLOAT) {
+		return 2;
+	} else if (format >= VK_FORMAT_R16G16_UNORM && format <= VK_FORMAT_R16G16_SFLOAT) {
+		return 4;
+	} else if (format >= VK_FORMAT_R16G16B16_UNORM && format <= VK_FORMAT_R16G16B16_SFLOAT) {
+		return 6;
+	} else if (format >= VK_FORMAT_R16G16B16A16_UNORM && format <= VK_FORMAT_R16G16B16A16_SFLOAT) {
+		return 8;
+	} else if (format >= VK_FORMAT_R32_UINT && format <= VK_FORMAT_R32_SFLOAT) {
+		return 4;
+	} else if (format >= VK_FORMAT_R32G32_UINT && format <= VK_FORMAT_R32G32_SFLOAT) {
+		return 8;
+	} else if (format >= VK_FORMAT_R32G32B32_UINT && format <= VK_FORMAT_R32G32B32_SFLOAT) {
+		return 12;
+	} else if (format >= VK_FORMAT_R32G32B32A32_UINT && format <= VK_FORMAT_R32G32B32A32_SFLOAT) {
+		return 16;
+	} else if (format >= VK_FORMAT_R64_UINT && format <= VK_FORMAT_R64_SFLOAT) {
+		return 8;
+	} else if (format >= VK_FORMAT_R64G64_UINT && format <= VK_FORMAT_R64G64_SFLOAT) {
+		return 16;
+	} else if (format >= VK_FORMAT_R64G64B64_UINT && format <= VK_FORMAT_R64G64B64_SFLOAT) {
+		return 24;
+	} else if (format >= VK_FORMAT_R64G64B64A64_UINT && format <= VK_FORMAT_R64G64B64A64_SFLOAT) {
+		return 32;
+	}
+
+	return 0;
 }
 
 }

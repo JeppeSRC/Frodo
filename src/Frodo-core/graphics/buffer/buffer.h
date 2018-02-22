@@ -29,8 +29,12 @@ public:
 	void Unmap();
 
 	inline const VkBuffer& GetBuffer() const { return buf; }
+	inline const VkDeviceMemory& GetDeviceMemory() const { return deviceMemory; }
 
 };
+
+uint32 FindMemoryType(const VkPhysicalDeviceMemoryProperties mem, uint32 type, uint32 prop);
+uint8  GetFormatSize(VkFormat format);
 
 #endif
 
