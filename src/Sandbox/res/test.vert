@@ -11,8 +11,12 @@ out gl_PerVertex {
 
 layout (location = 0) out vec4 color;
 
+layout (set = 0, binding = 0) uniform UniformBuffer {
+	mat4 matrix;
+};
+
 void main() {
-	gl_Position = vec4(position, 1.0);	
+	gl_Position = matrix * vec4(position, 1.0);	
 
 	color = colors;
 }

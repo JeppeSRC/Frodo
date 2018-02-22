@@ -78,34 +78,34 @@ int main() {
 	info.shader = &shader;
 	info.numInputLayouts = 1;
 	info.shaderInputLayouts = &inputLayout; 
-	info.pipelineLayout.numElements = 0;
+	info.pipelineLayout.numElements = 1;
 	info.pipelineLayout.elements = new PipelineLayoutElement[3];
 	info.pipelineLayout.elements[0].count = 1;
-	info.pipelineLayout.elements[0].shaderAccess = ShaderTypePixel;
+	info.pipelineLayout.elements[0].shaderAccess = ShaderTypeVertex;
 	info.pipelineLayout.elements[0].type = BufferType::Uniform;
-	info.pipelineLayout.elements[0].size = sizeof(vec4);
-	info.pipelineLayout.elements[1].count = 1;
+	info.pipelineLayout.elements[0].size = sizeof(mat4);
+	/*info.pipelineLayout.elements[1].count = 1;
 	info.pipelineLayout.elements[1].shaderAccess = ShaderTypePixel;
 	info.pipelineLayout.elements[1].type = BufferType::Uniform;
 	info.pipelineLayout.elements[1].size = sizeof(vec4);
 	info.pipelineLayout.elements[2].count = 1;
 	info.pipelineLayout.elements[2].shaderAccess = ShaderTypePixel;
 	info.pipelineLayout.elements[2].type = BufferType::Uniform;
-	info.pipelineLayout.elements[2].size = sizeof(float32);
+	info.pipelineLayout.elements[2].size = sizeof(float32);*/
 	info.depthStencilInfo = depthInfo;
 
 	Pipeline pipeline(&info);
 
 	Vertex vertices[3];
 	
-	vertices[0].position = vec3(0, -1, 0);
-	vertices[0].color = vec4(1, 1, 1, 1);
+	vertices[0].position = vec3(0, -1, 2);
+	vertices[0].color = vec4(0, 1, 1, 1);
 	
-	vertices[1].position = vec3(1, 1, 0);
-	vertices[1].color = vec4(1, 1, 1, 1); 
+	vertices[1].position = vec3(1, 1, 2);
+	vertices[1].color = vec4(1, 1, 0, 1); 
 
-	vertices[2].position = vec3(-1, 1, 0);
-	vertices[2].color = vec4(1, 1, 1, 1);
+	vertices[2].position = vec3(-1, 1, 2);
+	vertices[2].color = vec4(1, 0, 1, 1);
 
 	uint32 indices[]{ 0, 1, 2 };
 
@@ -119,15 +119,21 @@ int main() {
 	Context::Bind(&ibo);
 
 	Context::DrawIndexed();
-	 
+
+		 
 	Context::EndCommandBuffers();
 	  
 	unsigned int shit2 = clock();
  	unsigned int dankFps = 0;
 	float aa = 0; 
 	while (window.IsOpen()) {
+		aa += 0.001f;
+		vec3 tmp(0, 0, aa);
 
-		 
+		mat4 m = mat4::Perspective(1280.0f / 720.0f, 70.0f, 0.001f, 1000.0f) * mat4::Rotate(tmp);
+
+		Context::UpdateUniform(&pipeline, 0, &m, 0, sizeof(mat4));
+
 		Context::Present();
 
 		window.Update(); 
