@@ -176,6 +176,15 @@ uint32 Adapter::IsExtensionsSupported(const char** names, uint32 num) const {
 	return ~0;
 }
 
+bool Adapter::CheckImageFormat(VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* prop) const {
+	VkResult res = vkGetPhysicalDeviceImageFormatProperties(device, format, type, tiling, usage, flags, prop);
+	if (res == VK_ERROR_FORMAT_NOT_SUPPORTED) {
+		return false;
+	}
+
+	return true;
+}
+
 }
 }
 }
