@@ -470,7 +470,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 		dpinfo.pNext = nullptr;
 		dpinfo.flags = 0;
 		dpinfo.maxSets = 1;
-		dpinfo.poolSizeCount = 1;
+		dpinfo.poolSizeCount = numDescriptors;
 		dpinfo.pPoolSizes = poolSize;
 
 		VK(vkCreateDescriptorPool(Context::GetDevice(), &dpinfo, nullptr, &descriptorPool));
