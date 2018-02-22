@@ -1,0 +1,24 @@
+Things:
+	TextureChannel -> byte:
+		R = 0
+		RG = 1
+		RGB = 2
+		RGBA = 3
+
+	TextureChannelType -> byte:
+		Uint8 = 0
+
+
+Formats: 
+	Header:
+		- uint16: version // Version of the file header
+		- byte: type // type of file
+		- uint64: size // size of data including header for the specified format
+		- uint32 compressedSize[2] // Data is compessed 2 times, compressedSize[1] contains the size after the first compressing and compressedSize[0] contains the size after the second compression. 
+
+	Texture:
+		- uint16: 				version //Version of the format header
+		- TextureChannel: 		pixelLayout // layout of the pixels
+		- TextureChannelType:	pixelSize // size of each channel in the pixels
+		- uint16: 				width // width of the image
+		- uint16: 				height // height of the image
