@@ -559,15 +559,9 @@ void Pipeline::UpdateUniformBuffer(uint32 slot, const void* const data, uint64 o
 	}
 #endif
 
-	//if (slot == 0) {
 		void* mappedData = uniformBuffer->Map(uniform.offset + offset, size);
 		memcpy(mappedData, data, size);
 		uniformBuffer->Unmap();
-	/*} else if (slot == 1) {
-		void* mappedData = uniformBuffer2->Map(uniform.offset + offset, size);
-		memcpy(mappedData, data, size);
-		uniformBuffer2->Unmap();
-	}*/
 }
 
 }
