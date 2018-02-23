@@ -107,6 +107,7 @@ private:
 
 public:
 	static void CopyBuffers(VkBuffer* dst, VkBuffer* src, uint64* size, uint64 num);
+	static void TransitionImage(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
 	static void BeginCommandBuffers();
 	static void EndCommandBuffers();

@@ -349,6 +349,68 @@ void Context::CopyBuffers(VkBuffer* dst, VkBuffer* src, uint64* size, uint64 num
 
 }
 
+void Context::TransitionImage(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
+	VkCommandBufferBeginInfo info;
+
+	info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	info.pNext = nullptr;
+	info.pInheritanceInfo = nullptr;
+	info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	VK(vkBeginCommandBuffer(auxCommandBuffer, &info));
+
+	VkImageMemoryBarrier barrier;
+
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.pNext = nullptr;
+	barrier.image = image;
+	barrier.oldLayout = oldLayout;
+	barrier.newLayout = newLayout;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	
+	VkPipelineStageFlags srcStage;
+	VkPipelineStageFlags dstStage;
+
+	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	} else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		srcStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	} else {
+		Log::Fatal("[Context] Unsupported layout transition");
+		FD_ASSERT(false);
+	}
+
+	vkCmdPipelineBarrier(auxCommandBuffer, srcStage, dstStage, 0, 0, 0, 0, 0, 1, &barrier);
+
+	VK(vkEndCommandBuffer(auxCommandBuffer));
+
+	VkSubmitInfo sinfo;
+
+	sinfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	sinfo.pNext = nullptr;
+	sinfo.commandBufferCount = 1;
+	sinfo.pCommandBuffers = &auxCommandBuffer;
+	sinfo.signalSemaphoreCount = 0;
+	sinfo.waitSemaphoreCount = 0;
+
+	VK(vkQueueSubmit(graphicsQueue, 1, &sinfo, nullptr));
+	VK(vkQueueWaitIdle(graphicsQueue));
+}
+
 void Context::BeginCommandBuffers() {
 	VkCommandBufferBeginInfo info;
 
