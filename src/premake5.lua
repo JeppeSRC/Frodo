@@ -105,7 +105,8 @@ project("Frodo-core")
     
     files {
         "Frodo-core/**.cpp",
-        "Frodo-core/**.h"
+        "Frodo-core/**.h",
+        "Frodo-core/**.c"
     }
 
     targetdir "../bin/$(Configuration)/$(Platform)/"
