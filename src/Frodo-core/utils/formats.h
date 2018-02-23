@@ -3,6 +3,7 @@
 #include <core/types.h>
 
 #define FD_HEADER_MAKE_SIG(a, b, c, d) (((uint32)d << 24) | ((uint32)c << 16) | ((uint32)b << 8) | a)
+#define FD_HEADER_SIGNATURE FD_HEADER_MAKE_SIG(' ', 'F', 'D', ' ')
 
 #define FD_HEADER_VERSION 0x0001
 
