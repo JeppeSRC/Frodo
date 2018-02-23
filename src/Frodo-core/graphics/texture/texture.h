@@ -4,6 +4,7 @@
 #include <core/types.h>
 #include <utils/string.h>
 #include <graphics/buffer/buffer.h>
+#include <utils/formats.h>
 
 namespace fd {
 namespace graphics {
@@ -32,6 +33,9 @@ public:
 
 	inline VkImage GetImage() const { return image; }
 	inline VkImageView GetImageView() const { return imageView; }
+
+public:
+	static void LoadImageFile(const utils::String& filename, FD::Header* header, FD::TextureHeader* textureHeader, byte** pixels);
 };
 
 class Texture2D : public Texture {
