@@ -14,7 +14,7 @@ Definitions:
 
 Formats: 
 	Header:
-		- byte[4]: signature // Signature = " FD "
+		- uint32: signature // Signature = " FD " (0x20444620 little-endian)
 		- uint16: version // Version of the file header
 		- FileType: type // type of file
 		- uint64: size // size of data including header for the specified format
