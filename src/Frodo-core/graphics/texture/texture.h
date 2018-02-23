@@ -23,7 +23,7 @@ protected:
 	VkDeviceMemory imageMemory;
 	VkImageView imageView;
 
-	void CreateImage(uint32 width, uint32 height, VkImageCreateFlagBits flags, VkImageType imageType, VkFormat format, VkImageUsageFlagBits usage, VkMemoryPropertyFlagBits memoryFlags, VkImageLayout initialLayout);
+	void CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags, VkImageType imageType, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags memoryFlags, VkImageLayout initialLayout);
 
 	Texture();
 public:

@@ -13,7 +13,7 @@ using namespace buffer;
 
 Texture::Texture() : width(0), height(0) { }
 
-void Texture::CreateImage(uint32 width, uint32 height, VkImageCreateFlagBits flags, VkImageType imageType, VkFormat format, VkImageUsageFlagBits usage, VkMemoryPropertyFlagBits memoryFlags, VkImageLayout initialLayout) {
+void Texture::CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags, VkImageType imageType, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags memoryFlags, VkImageLayout initialLayout) {
 	this->width = width;
 	this->height = height;
 
