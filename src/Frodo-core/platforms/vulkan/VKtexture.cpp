@@ -14,9 +14,6 @@ using namespace buffer;
 Texture::Texture() : width(0), height(0) { }
 
 void Texture::CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags, VkImageType imageType, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags memoryFlags, VkImageLayout initialLayout) {
-	this->width = width;
-	this->height = height;
-
 	VkImageCreateInfo iinfo;
 
 	VkImageFormatProperties prop;
