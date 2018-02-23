@@ -411,6 +411,49 @@ void Context::TransitionImage(VkImage image, VkFormat format, VkImageLayout oldL
 	VK(vkQueueWaitIdle(graphicsQueue));
 }
 
+void Context::CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBuffer buffer) {
+	VkCommandBufferBeginInfo info;
+
+	info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	info.pNext = nullptr;
+	info.pInheritanceInfo = nullptr;
+	info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	VK(vkBeginCommandBuffer(auxCommandBuffer, &info));
+
+	VkBufferImageCopy copyInfo;
+
+	copyInfo.bufferOffset = 0;
+	copyInfo.bufferRowLength = 0;
+	copyInfo.bufferImageHeight = 0;
+
+	copyInfo.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	copyInfo.imageSubresource.baseArrayLayer = 0;
+	copyInfo.imageSubresource.layerCount = 1;
+	copyInfo.imageSubresource.mipLevel = 0;
+
+	copyInfo.imageOffset = { 0, 0, 0 };
+	copyInfo.imageExtent.width = width;
+	copyInfo.imageExtent.height = height;
+	copyInfo.imageExtent.depth = 1;
+
+	vkCmdCopyBufferToImage(auxCommandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyInfo);
+
+	VK(vkEndCommandBuffer(auxCommandBuffer));
+
+	VkSubmitInfo sinfo;
+
+	sinfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	sinfo.pNext = nullptr;
+	sinfo.commandBufferCount = 1;
+	sinfo.pCommandBuffers = &auxCommandBuffer;
+	sinfo.signalSemaphoreCount = 0;
+	sinfo.waitSemaphoreCount = 0;
+
+	VK(vkQueueSubmit(graphicsQueue, 1, &sinfo, nullptr));
+	VK(vkQueueWaitIdle(graphicsQueue));
+}
+
 void Context::BeginCommandBuffers() {
 	VkCommandBufferBeginInfo info;
 
