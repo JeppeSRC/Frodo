@@ -44,7 +44,7 @@ Texture2D::Texture2D(const String& filename) {
 
 	VkImageViewCreateInfo vinfo;
 
-	vinfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	vinfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	vinfo.pNext = nullptr;
 	vinfo.flags = 0;
 	vinfo.image = image;
