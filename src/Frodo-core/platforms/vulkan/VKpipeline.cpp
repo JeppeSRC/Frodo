@@ -484,44 +484,44 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 		VK(vkAllocateDescriptorSets(Context::GetDevice(), &dsinfo, &descriptorSet));
 
 		
-		VkWriteDescriptorSet* winfo = new VkWriteDescriptorSet[numDescriptors];
+		List<VkWriteDescriptorSet> winfo;
 			
 		List<VkDescriptorBufferInfo> binfo(numDescriptors);
 
 		for (uint32 i = 0; i < numDescriptors; i++) {
 			DescriptorElement* e = descriptors[i];
-			winfo[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			winfo[i].pNext = nullptr;
-			winfo[i].descriptorType = (VkDescriptorType)e->type;
-			winfo[i].dstBinding = i;
-			winfo[i].dstSet = descriptorSet;
-			winfo[i].descriptorCount = 1;
-			winfo[i].dstArrayElement = 0;
+
+			if (e->type != BufferType::Uniform) continue;
+
+			VkWriteDescriptorSet info;
+			info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			info.pNext = nullptr;
+			info.descriptorType = (VkDescriptorType)e->type;
+			info.dstBinding = i;
+			info.dstSet = descriptorSet;
+			info.descriptorCount = 1;
+			info.dstArrayElement = 0;
 					
-			if (e->type == BufferType::Uniform) {
-				UniformElement* u = (UniformElement*)e;
-								
-				uint_t binfoIndex = binfo.GetSize();
+			UniformElement* u = (UniformElement*)e;
+							
+			uint_t binfoIndex = binfo.GetSize();
 
-				binfo.Resize(binfoIndex + 1);
+			binfo.Resize(binfoIndex + 1);
 
-				binfo[binfoIndex].buffer = uniformBuffer->GetBuffer();
-				binfo[binfoIndex].offset = u->offset;
-				binfo[binfoIndex].range = u->size;
-				
-				winfo[i].pBufferInfo = &binfo[binfoIndex];
+			binfo[binfoIndex].buffer = uniformBuffer->GetBuffer();
+			binfo[binfoIndex].offset = u->offset;
+			binfo[binfoIndex].range = u->size;
+			
+			info.pBufferInfo = &binfo[binfoIndex];
 
-				winfo[i].pImageInfo = nullptr;
-				winfo[i].pTexelBufferView = nullptr;			
-			} else if (e->type == BufferType::TextureSampler) {
-				winfo[i].descriptorCount = 0;
-			}
+			info.pImageInfo = nullptr;
+			info.pTexelBufferView = nullptr;		
+
+			winfo.Push_back(info);
+			
 		}
 
-		vkUpdateDescriptorSets(Context::GetDevice(), numDescriptors, winfo, 0, nullptr);
-
-		delete[] winfo;
-
+		vkUpdateDescriptorSets(Context::GetDevice(), winfo.GetSize(), winfo.GetData(), 0, nullptr);
 	}
 }
 
