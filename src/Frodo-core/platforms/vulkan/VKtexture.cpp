@@ -11,7 +11,7 @@ using namespace video;
 using namespace log;
 using namespace buffer;
 
-Texture::Texture() : width(0), height(0) { }
+Texture::Texture() : width(0), height(0), image(nullptr), imageMemory(nullptr), imageView(nullptr) { }
 
 void Texture::CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags, VkImageType imageType, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags memoryFlags, VkImageLayout initialLayout) {
 	VkImageCreateInfo iinfo;
@@ -70,6 +70,12 @@ void Texture::CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags,
 
 	VK(vkBindImageMemory(Context::GetDevice(), image, imageMemory, 0));
 
+}
+
+Texture::~Texture() {
+	vkDestroyImageView(Context::GetDevice(), imageView, nullptr);
+	vkDestroyImage(Context::GetDevice(), image, nullptr);
+	vkFreeMemory(Context::GetDevice(), imageMemory, nullptr);
 }
 
 }

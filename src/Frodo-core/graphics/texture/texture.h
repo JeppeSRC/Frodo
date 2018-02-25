@@ -27,6 +27,7 @@ protected:
 
 	Texture();
 public:
+	virtual ~Texture();
 	
 	inline uint32 GetWidth() const { return width; }
 	inline uint32 GetHeight() const { return height; }
