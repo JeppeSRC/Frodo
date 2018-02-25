@@ -12,6 +12,7 @@ using namespace utils;
 using namespace graphics;
 using namespace pipeline;
 using namespace buffer;
+using namespace texture;
 
 VkSwapchainKHR Context::swapChain = nullptr;
 VkDevice Context::device = nullptr;
@@ -533,6 +534,18 @@ void Context::Bind(const IndexBuffer* const buffer) {
 
 void Context::UpdateUniform(const Pipeline* pipeline, uint32 slot, const void* const data, uint64 offset, uint64 size) {
 	pipeline->UpdateUniformBuffer(slot, data, offset, size);
+}
+
+void Context::SetUniformBuffer(Pipeline* pipeline, uint32 slot, const UniformBuffer* buffer) {
+	pipeline->SetUniformBuffer(buffer);
+}
+
+void Context::SetTexture(const Pipeline* pipeline, uint32 slot, const Texture* texture, const Sampler* sampler) {
+	pipeline->SetTexture(slot, texture, sampler);
+}
+
+void Context::SetTexture(const Pipeline* pipeline, uint32* slots, uint32 num, const Texture* textures, const Sampler* samplers) {
+	pipeline->SetTexture(slots, num, textures, samplers);
 }
 
 void Context::DrawIndexed() {
