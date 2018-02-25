@@ -139,6 +139,10 @@ enum class IndexBufferFormat {
 	Uint32 = DXGI_FORMAT_R32_UINT
 };
 
+enum class Filter {
+
+};
+
 #else
 
 enum class PrimitiveTopology {
@@ -253,6 +257,25 @@ enum class BufferType {
 enum class IndexBufferFormat {
 	Uint16 = VK_INDEX_TYPE_UINT16,
 	Uint32 = VK_INDEX_TYPE_UINT32
+};
+
+enum class SamplerFilter {
+	Linear = VK_FILTER_LINEAR,
+	Nearest = VK_FILTER_NEAREST
+};
+
+enum class SamplerAddressMode {
+	Repeat = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+	MirroredRepeat = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT,
+	ClampToEdge = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+	ClampToBorder = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER,
+	MirrorClampToEdge = VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE
+};
+
+enum class SamplerBorderColor {
+	White = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE,
+	Black = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK,
+	TransparentBlack = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK,
 };
 
 #endif
