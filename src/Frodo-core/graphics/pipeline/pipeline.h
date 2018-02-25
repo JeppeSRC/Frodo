@@ -2,6 +2,8 @@
 #include <graphics/buffer/bufferlayout.h>
 #include <graphics/buffer/uniformbuffer.h>
 #include <graphics/shader/shader.h>
+#include <graphics/texture/texture.h>
+#include <graphics/texture/sampler.h>
 #include <core/types.h>
 #include <core/enums.h>
 
@@ -117,14 +119,6 @@ private:
 		uint64 offset;
 	};
 
-	struct SamplerElement {
-
-	};
-
-	struct TextureElement {
-
-	};
-
 private:
 	PipelineInfo* info;
 
@@ -141,11 +135,19 @@ private:
 	
 	utils::List<VkFramebuffer> framebuffers;
 
+	uint32 totalUniformBufferSize;
+
 public:
 	Pipeline(PipelineInfo* info);
 	~Pipeline();
 
 	void UpdateUniformBuffer(uint32 slot, const void* const data, uint64 offset, uint64 size) const;
+
+	void SetUniformBuffer(const graphics::buffer::UniformBuffer* buffer, bool deleteOld = true);
+	void SetTexture(uint32 slot, const graphics::texture::Texture* texture, const graphics::texture::Sampler* sampler) const;
+	void SetTexture(uint32* slots, uint32 num, const graphics::texture::Texture*, const graphics::texture::Sampler* sampler) const;
+
+	inline const buffer::Buffer* GetUniformBuffer() const { return uniformBuffer; }
 
 	inline VkPipeline GetPipeline() const { return pipeline; }
 	inline VkRenderPass GetRenderPass() const { return renderPass; }

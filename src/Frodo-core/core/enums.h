@@ -250,8 +250,9 @@ enum class BufferLayoutAttribType {
 
 enum class BufferType {
 	Uniform = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-	Sampler = VK_DESCRIPTOR_TYPE_SAMPLER,
-	Texture = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE
+//	Sampler = VK_DESCRIPTOR_TYPE_SAMPLER,
+//	Texture = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+	TextureSampler = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
 };
 
 enum class IndexBufferFormat {

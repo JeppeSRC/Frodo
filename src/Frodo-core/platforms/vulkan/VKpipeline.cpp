@@ -11,6 +11,7 @@ using namespace buffer;
 using namespace core;
 using namespace video;
 using namespace log;
+using namespace texture;
 
 VkVertexInputBindingDescription* GetBindingDescriptors(const BufferLayout* layouts, uint32 num) {
 	VkVertexInputBindingDescription* binding = new VkVertexInputBindingDescription[num];
@@ -436,26 +437,23 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 		uint32 numDescriptors = info->pipelineLayout.numElements;
 		uint64 minOffset = Context::GetAdapter()->GetDeviceLimits().minUniformBufferOffsetAlignment;
 
-		uint64 uniformBufferSize = 0;
+		 totalUniformBufferSize = 0;
 
 		for (uint32 i = 0; i < numDescriptors; i++) {
 			const PipelineLayoutElement& e = info->pipelineLayout.elements[i];
 
 			switch (e.type) {
 				case BufferType::Uniform:
-					descriptors.Push_back(new UniformElement(e.shaderAccess, e.size, uniformBufferSize, e.count));
-					uniformBufferSize += e.size > minOffset ?  e.size : minOffset;
+					descriptors.Push_back(new UniformElement(e.shaderAccess, e.size, totalUniformBufferSize, e.count));
+					totalUniformBufferSize += e.size > minOffset ?  e.size : minOffset;
 					break;
-				case BufferType::Texture:
-					descriptors.Push_back(new DescriptorElement(0, BufferType::Texture, 0));
-					break;
-				case BufferType::Sampler:
-					descriptors.Push_back(new DescriptorElement(0, BufferType::Sampler, 0));
+				case BufferType::TextureSampler:
+					descriptors.Push_back(new DescriptorElement(e.shaderAccess, BufferType::TextureSampler, e.count));
 					break;
 			}
 		}
 
-		uniformBuffer = new UniformBuffer(nullptr, uniformBufferSize);
+		uniformBuffer = new UniformBuffer(nullptr, totalUniformBufferSize);
 
 		VkDescriptorPoolCreateInfo dpinfo;
 
@@ -485,6 +483,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 
 		VK(vkAllocateDescriptorSets(Context::GetDevice(), &dsinfo, &descriptorSet));
 
+		
 		VkWriteDescriptorSet* winfo = new VkWriteDescriptorSet[numDescriptors];
 			
 		List<VkDescriptorBufferInfo> binfo(numDescriptors);
@@ -514,9 +513,7 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 
 				winfo[i].pImageInfo = nullptr;
 				winfo[i].pTexelBufferView = nullptr;			
-			} else if (e->type == BufferType::Texture) {
-				winfo[i].descriptorCount = 0;
-			} else if (e->type == BufferType::Sampler) {
+			} else if (e->type == BufferType::TextureSampler) {
 				winfo[i].descriptorCount = 0;
 			}
 		}
@@ -562,6 +559,91 @@ void Pipeline::UpdateUniformBuffer(uint32 slot, const void* const data, uint64 o
 		void* mappedData = uniformBuffer->Map(uniform.offset + offset, size);
 		memcpy(mappedData, data, size);
 		uniformBuffer->Unmap();
+}
+
+void Pipeline::SetUniformBuffer(const UniformBuffer* buffer, bool deleteOld) {
+	if (deleteOld) {
+		delete uniformBuffer;
+	}
+
+	uniformBuffer = (UniformBuffer*)buffer;
+
+	uint32 numDescriptors = descriptors.GetSize();
+
+	VkWriteDescriptorSet* winfo = new VkWriteDescriptorSet[numDescriptors];
+
+	List<VkDescriptorBufferInfo> binfo(numDescriptors);
+
+	for (uint32 i = 0; i < numDescriptors; i++) {
+		DescriptorElement* e = descriptors[i];
+		winfo[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		winfo[i].pNext = nullptr;
+		winfo[i].descriptorType = (VkDescriptorType)e->type;
+		winfo[i].dstBinding = i;
+		winfo[i].dstSet = descriptorSet;
+		winfo[i].descriptorCount = 1;
+		winfo[i].dstArrayElement = 0;
+
+		if (e->type == BufferType::Uniform) {
+			UniformElement* u = (UniformElement*)e;
+
+			uint_t binfoIndex = binfo.GetSize();
+
+			binfo.Resize(binfoIndex + 1);
+
+			binfo[binfoIndex].buffer = uniformBuffer->GetBuffer();
+			binfo[binfoIndex].offset = u->offset;
+			binfo[binfoIndex].range = u->size;
+
+			winfo[i].pBufferInfo = &binfo[binfoIndex];
+
+			winfo[i].pImageInfo = nullptr;
+			winfo[i].pTexelBufferView = nullptr;
+		} else if (e->type == BufferType::TextureSampler) {
+			winfo[i].descriptorCount = 0;
+		}
+	}
+
+	vkUpdateDescriptorSets(Context::GetDevice(), numDescriptors, winfo, 0, nullptr);
+
+	delete[] winfo;
+
+}
+
+void Pipeline::SetTexture(uint32 slot, const Texture* texture, const Sampler* sampler) const {
+	SetTexture(&slot, 1, texture, sampler);
+}
+
+void Pipeline::SetTexture(uint32* slots, uint32 num, const Texture* textures, const Sampler* samplers) const {
+	VkWriteDescriptorSet* winfo = new VkWriteDescriptorSet[num];
+
+	VkDescriptorImageInfo* iinfo = new VkDescriptorImageInfo[num];
+
+	for (uint32 i = 0; i < num; i++) {
+		uint32 slot = slots[i];
+		const DescriptorElement& element = *descriptors[slot];
+
+		FD_ASSERT(element.type == BufferType::TextureSampler);
+
+		winfo[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		winfo[i].pNext = nullptr;
+		winfo[i].descriptorType = (VkDescriptorType)element.type;
+		winfo[i].dstSet = descriptorSet;
+		winfo[i].dstBinding = slot;
+		winfo[i].dstArrayElement = 0;
+		winfo[i].descriptorCount = 1;
+		winfo[i].pBufferInfo = nullptr;
+		winfo[i].pTexelBufferView = nullptr;
+
+		winfo[i].pImageInfo = iinfo + i;
+
+		iinfo[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		iinfo[i].imageView = textures[i].GetImageView();
+		iinfo[i].sampler = samplers[i].GetSampler();
+	}
+
+	vkUpdateDescriptorSets(Context::GetDevice(), num, winfo, 0, 0);
+
 }
 
 }
