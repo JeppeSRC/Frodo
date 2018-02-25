@@ -4,14 +4,16 @@
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec4 colors;
+layout (location = 2) in vec2 texCoords;
 
 out gl_PerVertex {
 	vec4 gl_Position;
 };
 
 layout (location = 0) out vec4 color;
+layout (location = 1) out vec2 texCoord;
 
-layout (set = 0, binding = 0) uniform UniformBuffer {
+layout (binding = 0) uniform UniformBuffer {
 	mat4 matrix;
 };
 
@@ -19,4 +21,5 @@ void main() {
 	gl_Position = matrix * vec4(position, 1.0);	
 
 	color = colors;
+	texCoord = texCoords;
 }
