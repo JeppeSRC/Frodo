@@ -128,7 +128,7 @@ enum class BufferLayoutAttribType {
 	Mat4
 };
 
-enum class BufferType {
+enum class DescriptorType {
 	Uniform,
 	Sampler,
 	Texture
@@ -248,7 +248,7 @@ enum class BufferLayoutAttribType {
 	Mat4
 };
 
-enum class BufferType {
+enum class DescriptorType {
 	Uniform = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 //	Sampler = VK_DESCRIPTOR_TYPE_SAMPLER,
 //	Texture = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
