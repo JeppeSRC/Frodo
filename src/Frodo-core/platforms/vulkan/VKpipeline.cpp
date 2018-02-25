@@ -53,7 +53,7 @@ VkVertexInputAttributeDescription* GetAttributeDescriptors(const BufferLayout* l
 			a.offset = currentOffset;
 			a.format = (VkFormat)attr[j].type;
 
-			currentOffset += BufferLayout::GetSize(attr[i].type);
+			currentOffset += BufferLayout::GetSize(attr[j].type);
 		}
 	}
 
