@@ -41,6 +41,28 @@ Texture2D::Texture2D(const String& filename) {
 	Context::CopyBufferToImage(image, width, height, tmpBuffer.GetBuffer());
 
 	Context::TransitionImage(image, VK_FORMAT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	VkImageViewCreateInfo vinfo;
+
+	vinfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	vinfo.pNext = nullptr;
+	vinfo.flags = 0;
+	vinfo.image = image;
+	vinfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	vinfo.format = format;
+	vinfo.components.r = VK_COMPONENT_SWIZZLE_R;
+	vinfo.components.g = VK_COMPONENT_SWIZZLE_G;
+	vinfo.components.b = VK_COMPONENT_SWIZZLE_B;
+	vinfo.components.a = VK_COMPONENT_SWIZZLE_A;
+	vinfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	vinfo.subresourceRange.baseArrayLayer = 0;
+	vinfo.subresourceRange.baseMipLevel = 0;
+	vinfo.subresourceRange.layerCount = 1;
+	vinfo.subresourceRange.levelCount = 1;
+
+	VK(vkCreateImageView(Context::GetDevice(), &vinfo, nullptr, &imageView));
+
+
 }
 
 }
