@@ -25,7 +25,7 @@ protected:
 
 	void CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags, VkImageType imageType, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags memoryFlags, VkImageLayout initialLayout);
 
-	Texture();
+	Texture(uint32 width = 0, uint32 height = 0);
 public:
 	virtual ~Texture();
 	
