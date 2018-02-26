@@ -5,6 +5,7 @@
 #include <utils/string.h>
 #include <graphics/buffer/buffer.h>
 #include <utils/formats.h>
+#include <core/enums.h>
 
 namespace fd {
 namespace graphics {
@@ -42,6 +43,7 @@ public:
 class Texture2D : public Texture {
 protected:
 	
+	Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageFlags usage, VkImageLayout layout);
 public:
 	Texture2D(const utils::String& filename);
 };
