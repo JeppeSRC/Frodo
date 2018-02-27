@@ -4,6 +4,8 @@
 #include <graphics/shader/shader.h>
 #include <graphics/texture/texture.h>
 #include <graphics/texture/sampler.h>
+#include <graphics/pipeline/renderpass.h>
+#include <graphics/pipeline/layout.h>
 #include <core/types.h>
 #include <core/enums.h>
 
@@ -56,20 +58,6 @@ struct BlendInfo {
 	ColorWriteMaskFlags colorWriteMask;
 };
 
-typedef uint32 ShaderAccessFlags;
-
-struct PipelineLayoutElement {
-	BufferType type;
-	uint64 size;
-	uint32 count;
-	ShaderAccessFlags shaderAccess;
-};
-
-struct PipelineLayout {
-	uint32 numElements;
-	PipelineLayoutElement* elements;
-};
-
 struct PipelineInfo {
 	uint32 numViewports;
 	ViewportInfo* viewports;
@@ -84,8 +72,6 @@ struct PipelineInfo {
 
 	uint32 numInputLayouts;
 	buffer::BufferLayout* shaderInputLayouts;
-
-	PipelineLayout pipelineLayout;
 
 	DepthStencilInfo depthStencilInfo;
 
@@ -106,56 +92,21 @@ private:
 
 class Pipeline {
 private:
-	struct DescriptorElement {
-		DescriptorElement(ShaderAccessFlags accessFlags, BufferType type, uint32 count) : shaderAccess(accessFlags), type(type), count(count) { }
-		ShaderAccessFlags shaderAccess;
-		BufferType type;
-		uint32 count;
-	};
-
-	struct UniformElement : public DescriptorElement {
-		UniformElement(ShaderAccessFlags access, uint64 size, uint64 offset, uint32 count) : DescriptorElement(access, BufferType::Uniform, count), size(size), offset(offset) {}
-		uint64 size;
-		uint64 offset;
-	};
-
-private:
 	PipelineInfo* info;
 
 	VkPipeline pipeline;
-	VkRenderPass renderPass;
-	VkPipelineLayout pipelineLayout;
-	VkDescriptorSetLayout setLayout;
-	VkDescriptorPool descriptorPool;
-	VkDescriptorSet descriptorSet;
 
-	buffer::UniformBuffer* uniformBuffer;
-
-	utils::List<DescriptorElement*> descriptors;
-	
-	utils::List<VkFramebuffer> framebuffers;
-
-	uint32 totalUniformBufferSize;
+	RenderPass* renderPass;
+	PipelineLayout* pipelineLayout;
 
 public:
-	Pipeline(PipelineInfo* info);
+	Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* pipelineLayout);
 	~Pipeline();
 
-	void UpdateUniformBuffer(uint32 slot, const void* const data, uint64 offset, uint64 size) const;
-
-	void SetUniformBuffer(const graphics::buffer::UniformBuffer* buffer, bool deleteOld = true);
-	void SetTexture(uint32 slot, const graphics::texture::Texture* texture, const graphics::texture::Sampler* sampler) const;
-	void SetTexture(uint32* slots, uint32 num, const graphics::texture::Texture*, const graphics::texture::Sampler* sampler) const;
-
-	inline const buffer::Buffer* GetUniformBuffer() const { return uniformBuffer; }
 
 	inline VkPipeline GetPipeline() const { return pipeline; }
-	inline VkRenderPass GetRenderPass() const { return renderPass; }
-	inline VkPipelineLayout GetPipelineLayout() const { return pipelineLayout; }
-	inline const VkDescriptorSet& GetDescriptorSet() const { return descriptorSet; }
-
-	inline const utils::List<VkFramebuffer>& GetFramebuffers() const { return framebuffers; }
-	inline VkFramebuffer GetFramebuffer(uint_t index) const { return framebuffers[index]; }
+	inline RenderPass* GetRenderPass() const { return renderPass; }
+	inline PipelineLayout* GetPipelineLayout() const { return pipelineLayout; }
 };
 
 #endif

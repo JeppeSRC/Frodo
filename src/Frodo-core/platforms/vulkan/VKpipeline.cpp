@@ -60,39 +60,6 @@ VkVertexInputAttributeDescription* GetAttributeDescriptors(const BufferLayout* l
 	return attribs;
 }
 
-VkDescriptorSetLayout GetDescriptorSetLayout(const PipelineLayout& layout) {
-	VkDescriptorSetLayout setLayout = nullptr;
-
-	if (layout.numElements == 0) {
-		return nullptr;
-	}
-
-	VkDescriptorSetLayoutBinding* binding = new VkDescriptorSetLayoutBinding[layout.numElements];
-
-	for (uint32 i = 0; i < layout.numElements; i++) {
-		VkDescriptorSetLayoutBinding& b = binding[i];
-		const PipelineLayoutElement& e = layout.elements[i];
-
-		b.binding = i;
-		b.descriptorCount = e.count;
-		b.descriptorType = (VkDescriptorType)e.type;
-		b.pImmutableSamplers = 0;
-		b.stageFlags = (VkShaderStageFlags)e.shaderAccess;
-	}
-	
-	VkDescriptorSetLayoutCreateInfo info;
-
-	info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	info.pNext = nullptr;
-	info.flags = 0;
-	info.bindingCount = layout.numElements;
-	info.pBindings = binding;
-
-	VK(vkCreateDescriptorSetLayout(Context::GetDevice(), &info, nullptr, &setLayout));
-
-	return setLayout;
-}
-
 bool VerifyPipelineInfo(PipelineInfo* const info) {
 
 	if (info->numViewports == 0 || info->viewports == nullptr) {
@@ -144,10 +111,6 @@ bool VerifyPipelineInfo(PipelineInfo* const info) {
 		return false;
 	}
 
-	if (info->pipelineLayout.numElements == 0 || info->pipelineLayout.elements == nullptr) {
-		FD_WARN("[Pipeline] No pipeline layout specified");
-	}
-
 	if (info->numBlends == 0 || info->blends == nullptr) {
 		FD_FATAL("[Pipeline] No BlendInfo(s) specified");
 		return false;
@@ -157,7 +120,7 @@ bool VerifyPipelineInfo(PipelineInfo* const info) {
 }
 
 
-Pipeline::Pipeline(PipelineInfo* info) : info(info) {
+Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* pipelineLayout) : info(info), renderPass(renderPass), pipelineLayout(pipelineLayout) {
 
 	if (!VerifyPipelineInfo(info)) {
 		FD_FATAL("[Pipeline] Pipeline creation failed");
@@ -318,74 +281,6 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	blendInfo.attachmentCount = info->numBlends;
 	blendInfo.pAttachments = blends;
 
-	VkPipelineLayoutCreateInfo layoutInfo;
-
-	setLayout = GetDescriptorSetLayout(info->pipelineLayout);;
-
-	layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	layoutInfo.pNext = nullptr;
-	layoutInfo.flags = 0;
-	layoutInfo.setLayoutCount = setLayout ? 1 : 0;
-	layoutInfo.pSetLayouts = &setLayout;
-	layoutInfo.pushConstantRangeCount = 0;
-	layoutInfo.pPushConstantRanges = 0;
-
-	VK(vkCreatePipelineLayout(Context::GetDevice(), &layoutInfo, nullptr, &pipelineLayout));
-
-	VkAttachmentDescription colorAttachment;
-
-	colorAttachment.flags = 0;
-	colorAttachment.format = Context::GetSwapchainFormat();
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-
-	VkAttachmentReference ref;
-
-	ref.attachment = 0;
-	ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-	VkSubpassDescription subDesc;
-
-	subDesc.flags = 0;
-	subDesc.colorAttachmentCount = 1;
-	subDesc.pColorAttachments = &ref;
-	subDesc.inputAttachmentCount = 0;
-	subDesc.pInputAttachments = nullptr;
-	subDesc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-	subDesc.pResolveAttachments = nullptr;
-	subDesc.preserveAttachmentCount = 0;
-	subDesc.pPreserveAttachments = nullptr;
-	subDesc.pDepthStencilAttachment = nullptr;
-
-	VkSubpassDependency dependency;
-
-	dependency.dependencyFlags = 0;
-	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependency.dstSubpass = 0;
-	dependency.srcAccessMask = 0;
-	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-	VkRenderPassCreateInfo renderInfo;
-
-	renderInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderInfo.pNext = nullptr;
-	renderInfo.flags = 0;
-	renderInfo.dependencyCount = 1;
-	renderInfo.pDependencies = &dependency;
-	renderInfo.attachmentCount = 1;
-	renderInfo.pAttachments = &colorAttachment;
-	renderInfo.subpassCount = 1;
-	renderInfo.pSubpasses = &subDesc;
-	
-	VK(vkCreateRenderPass(Context::GetDevice(), &renderInfo, nullptr, &renderPass));
-	
 	VkGraphicsPipelineCreateInfo pipeInfo;
 	
 	pipeInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -402,249 +297,20 @@ Pipeline::Pipeline(PipelineInfo* info) : info(info) {
 	pipeInfo.pDepthStencilState = &depthInfo;
 	pipeInfo.pColorBlendState = &blendInfo;
 	pipeInfo.pDynamicState = nullptr;
-	pipeInfo.layout = pipelineLayout;
-	pipeInfo.renderPass = renderPass;
+	pipeInfo.layout = pipelineLayout->GetPipelineLayout();
+	pipeInfo.renderPass = renderPass->GetRenderPass();
 	pipeInfo.subpass = 0;
 	pipeInfo.basePipelineHandle = nullptr;
 	pipeInfo.basePipelineIndex = -1;
 	
 	VK(vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &pipeline));
-	
-	uint_t numFramebuffers = Context::GetImageViews().GetSize();
-	
-	framebuffers.Resize(numFramebuffers);
-	
-	for (uint_t i = 0; i < numFramebuffers; i++) {
-		VkImageView imageView = Context::GetImageViews()[i];
-	
-		VkFramebufferCreateInfo info;
-	
-		info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		info.pNext = nullptr;
-		info.flags = 0;
-		info.renderPass = renderPass;
-		info.attachmentCount = 1;
-		info.pAttachments = &imageView;
-		info.width = Context::GetSwapchainExtent().width;
-		info.height = Context::GetSwapchainExtent().height;
-		info.layers = 1;
-	
-		VK(vkCreateFramebuffer(Context::GetDevice(), &info, nullptr, &framebuffers[i]));
-	}
-	
-	if (info->pipelineLayout.numElements) {
-
-		uint32 numDescriptors = info->pipelineLayout.numElements;
-		uint64 minOffset = Context::GetAdapter()->GetDeviceLimits().minUniformBufferOffsetAlignment;
-
-		 totalUniformBufferSize = 0;
-
-		for (uint32 i = 0; i < numDescriptors; i++) {
-			const PipelineLayoutElement& e = info->pipelineLayout.elements[i];
-
-			switch (e.type) {
-				case BufferType::Uniform:
-					descriptors.Push_back(new UniformElement(e.shaderAccess, e.size, totalUniformBufferSize, e.count));
-					totalUniformBufferSize += e.size > minOffset ?  e.size : minOffset;
-					break;
-				case BufferType::TextureSampler:
-					descriptors.Push_back(new DescriptorElement(e.shaderAccess, BufferType::TextureSampler, e.count));
-					break;
-			}
-		}
-
-		uniformBuffer = new UniformBuffer(nullptr, totalUniformBufferSize);
-
-		VkDescriptorPoolCreateInfo dpinfo;
-
-		VkDescriptorPoolSize* poolSize = new VkDescriptorPoolSize[numDescriptors];
-
-		for (uint32 i = 0; i < numDescriptors; i++) {
-			poolSize[i].type = (VkDescriptorType)descriptors[i]->type;
-			poolSize[i].descriptorCount = descriptors[i]->count;
-		}
-
-		dpinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		dpinfo.pNext = nullptr;
-		dpinfo.flags = 0;
-		dpinfo.maxSets = 1;
-		dpinfo.poolSizeCount = numDescriptors;
-		dpinfo.pPoolSizes = poolSize;
-
-		VK(vkCreateDescriptorPool(Context::GetDevice(), &dpinfo, nullptr, &descriptorPool));
-
-		VkDescriptorSetAllocateInfo dsinfo;
-
-		dsinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		dsinfo.pNext = nullptr;
-		dsinfo.descriptorSetCount = 1;
-		dsinfo.pSetLayouts = &setLayout;
-		dsinfo.descriptorPool = descriptorPool;
-
-		VK(vkAllocateDescriptorSets(Context::GetDevice(), &dsinfo, &descriptorSet));
-
-		
-		List<VkWriteDescriptorSet> winfo;
-			
-		List<VkDescriptorBufferInfo> binfo(numDescriptors);
-
-		for (uint32 i = 0; i < numDescriptors; i++) {
-			DescriptorElement* e = descriptors[i];
-
-			if (e->type != BufferType::Uniform) continue;
-
-			VkWriteDescriptorSet info;
-			info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			info.pNext = nullptr;
-			info.descriptorType = (VkDescriptorType)e->type;
-			info.dstBinding = i;
-			info.dstSet = descriptorSet;
-			info.descriptorCount = 1;
-			info.dstArrayElement = 0;
-					
-			UniformElement* u = (UniformElement*)e;
-							
-			uint_t binfoIndex = binfo.GetSize();
-
-			binfo.Resize(binfoIndex + 1);
-
-			binfo[binfoIndex].buffer = uniformBuffer->GetBuffer();
-			binfo[binfoIndex].offset = u->offset;
-			binfo[binfoIndex].range = u->size;
-			
-			info.pBufferInfo = &binfo[binfoIndex];
-
-			info.pImageInfo = nullptr;
-			info.pTexelBufferView = nullptr;		
-
-			winfo.Push_back(info);
-			
-		}
-
-		vkUpdateDescriptorSets(Context::GetDevice(), winfo.GetSize(), winfo.GetData(), 0, nullptr);
-	}
 }
 
 Pipeline::~Pipeline() {
-
-	delete uniformBuffer;
-
-	vkDestroyDescriptorPool(Context::GetDevice(), descriptorPool, nullptr);
-
-	for (uint_t i = 0; i < framebuffers.GetSize(); i++) {
-		vkDestroyFramebuffer(Context::GetDevice(), framebuffers[i], nullptr);
-	}
-
 	vkDestroyPipeline(Context::GetDevice(), pipeline, nullptr);
-	vkDestroyRenderPass(Context::GetDevice(), renderPass, nullptr);
-	vkDestroyPipelineLayout(Context::GetDevice(), pipelineLayout, nullptr);
-	vkDestroyDescriptorSetLayout(Context::GetDevice(), setLayout, nullptr);
 }
 
-void Pipeline::UpdateUniformBuffer(uint32 slot, const void* const data, uint64 offset, uint64 size) const {
-	const UniformElement& uniform = *(UniformElement*)descriptors[slot];
 
-#ifdef FD_DEBUG
-	if (uniform.type != BufferType::Uniform) {
-		FD_WARN("[Pipeline] No uniform buffer at slot %u!", slot);
-		return;
-	}
-
-	if (offset + size > uniform.size) {
-		FD_FATAL("[Pipeline] Uniform(%u) update out of bounds", slot);
-		return;
-	}
-#endif
-
-		void* mappedData = uniformBuffer->Map(uniform.offset + offset, size);
-		memcpy(mappedData, data, size);
-		uniformBuffer->Unmap();
-}
-
-void Pipeline::SetUniformBuffer(const UniformBuffer* buffer, bool deleteOld) {
-	if (deleteOld) {
-		delete uniformBuffer;
-	}
-
-	uniformBuffer = (UniformBuffer*)buffer;
-
-	uint32 numDescriptors = descriptors.GetSize();
-
-	VkWriteDescriptorSet* winfo = new VkWriteDescriptorSet[numDescriptors];
-
-	List<VkDescriptorBufferInfo> binfo(numDescriptors);
-
-	for (uint32 i = 0; i < numDescriptors; i++) {
-		DescriptorElement* e = descriptors[i];
-		winfo[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		winfo[i].pNext = nullptr;
-		winfo[i].descriptorType = (VkDescriptorType)e->type;
-		winfo[i].dstBinding = i;
-		winfo[i].dstSet = descriptorSet;
-		winfo[i].descriptorCount = 1;
-		winfo[i].dstArrayElement = 0;
-
-		if (e->type == BufferType::Uniform) {
-			UniformElement* u = (UniformElement*)e;
-
-			uint_t binfoIndex = binfo.GetSize();
-
-			binfo.Resize(binfoIndex + 1);
-
-			binfo[binfoIndex].buffer = uniformBuffer->GetBuffer();
-			binfo[binfoIndex].offset = u->offset;
-			binfo[binfoIndex].range = u->size;
-
-			winfo[i].pBufferInfo = &binfo[binfoIndex];
-
-			winfo[i].pImageInfo = nullptr;
-			winfo[i].pTexelBufferView = nullptr;
-		} else if (e->type == BufferType::TextureSampler) {
-			winfo[i].descriptorCount = 0;
-		}
-	}
-
-	vkUpdateDescriptorSets(Context::GetDevice(), numDescriptors, winfo, 0, nullptr);
-
-	delete[] winfo;
-
-}
-
-void Pipeline::SetTexture(uint32 slot, const Texture* texture, const Sampler* sampler) const {
-	SetTexture(&slot, 1, texture, sampler);
-}
-
-void Pipeline::SetTexture(uint32* slots, uint32 num, const Texture* textures, const Sampler* samplers) const {
-	VkWriteDescriptorSet* winfo = new VkWriteDescriptorSet[num];
-
-	VkDescriptorImageInfo* iinfo = new VkDescriptorImageInfo[num];
-
-	for (uint32 i = 0; i < num; i++) {
-		uint32 slot = slots[i];
-		const DescriptorElement& element = *descriptors[slot];
-
-		FD_ASSERT(element.type == BufferType::TextureSampler);
-
-		winfo[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		winfo[i].pNext = nullptr;
-		winfo[i].descriptorType = (VkDescriptorType)element.type;
-		winfo[i].dstSet = descriptorSet;
-		winfo[i].dstBinding = slot;
-		winfo[i].dstArrayElement = 0;
-		winfo[i].descriptorCount = 1;
-		winfo[i].pBufferInfo = nullptr;
-		winfo[i].pTexelBufferView = nullptr;
-
-		winfo[i].pImageInfo = iinfo + i;
-
-		iinfo[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		iinfo[i].imageView = textures[i].GetImageView();
-		iinfo[i].sampler = samplers[i].GetSampler();
-	}
-
-	vkUpdateDescriptorSets(Context::GetDevice(), num, winfo, 0, 0);
-
-}
 
 }
 }
