@@ -18,7 +18,7 @@ layout (binding = 0) uniform UniformBuffer {
 };
 
 void main() {
-	gl_Position = matrix * vec4(position, 1.0);	
+	gl_Position = matrix * vec4(position.x, -position.y, position.z, 1.0);	
 
 	color = colors;
 	texCoord = texCoords;

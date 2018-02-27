@@ -26,7 +26,7 @@ protected:
 
 	void CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags, VkImageType imageType, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags memoryFlags, VkImageLayout initialLayout);
 
-	Texture(uint32 width = 0, uint32 height = 0);
+	Texture(uint32 width = 0, uint32 height = 0, VkImage image = nullptr, VkDeviceMemory memory = nullptr, VkImageView imageView = nullptr);
 public:
 	virtual ~Texture();
 	
@@ -43,6 +43,7 @@ public:
 class Texture2D : public Texture {
 protected:
 	
+	Texture2D(uint32 width, uint32 height, VkImageView imageView);
 	Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageFlags usage, VkImageLayout layout);
 public:
 	Texture2D(const utils::String& filename);

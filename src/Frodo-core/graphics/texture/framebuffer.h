@@ -13,8 +13,11 @@ namespace texture {
 class Framebuffer : public Texture2D {
 protected:
 
+
 public:
+	Framebuffer(uint32 width, uint32 heitgh, VkImageView imageView);
 	Framebuffer(uint32 width, uint32 height, Format format);
+
 };
 
 #endif

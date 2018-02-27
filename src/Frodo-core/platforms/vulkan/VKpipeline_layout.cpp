@@ -34,6 +34,8 @@ void PipelineLayout::AddSet(List<PipelineLayoutElement>& elements) {
 		return;
 	}
 
+	setOffsets.Push_back(descriptors.GetSize());
+
 	VkDescriptorSetLayoutBinding* bindings = new VkDescriptorSetLayoutBinding[elements.GetSize()];
 
 	for (uint_t i = 0; i < elements.GetSize(); i++) {
@@ -78,10 +80,8 @@ void PipelineLayout::AddSet(List<PipelineLayoutElement>& elements) {
 	VK(vkCreateDescriptorSetLayout(Context::GetDevice(), &info, nullptr, &setLayout));
 
 	setLayouts.Push_back(setLayout);
-	setOffsets.Push_back(elements.GetSize());
 
 	delete[] bindings;
-
 }
 
 void PipelineLayout::CreateLayout() {

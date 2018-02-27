@@ -121,12 +121,12 @@ public:
 	static void Bind(const graphics::buffer::VertexBuffer* const buffer, uint32 slot);
 	static void Bind(const graphics::buffer::IndexBuffer* const buffer);
 
-	static void UpdateUniform(const graphics::pipeline::Pipeline* pipeline, uint32 slot, const void* const data, uint64 offset, uint64 size);
+/*	static void UpdateUniform(const graphics::pipeline::Pipeline* pipeline, uint32 slot, const void* const data, uint64 offset, uint64 size);
 
 	static void SetUniformBuffer(graphics::pipeline::Pipeline* pipeline, uint32 slot, const graphics::buffer::UniformBuffer* buffer);
 	static void SetTexture(const graphics::pipeline::Pipeline* pipeline, uint32 slot, const graphics::texture::Texture* texture, const graphics::texture::Sampler* sampler);
 	static void SetTexture(const graphics::pipeline::Pipeline* pipeline, uint32* slots, uint32 num, const graphics::texture::Texture* textures, const graphics::texture::Sampler* samplers);
-
+	*/
 	static void DrawIndexed();
 
 	static void Present();
@@ -151,7 +151,7 @@ public:
 	inline static const VkSemaphore& GetImageSemaphore() { return imageSemaphore; }
 	inline static const VkSemaphore& GetRenderSemaphore() { return renderSemaphore; }
 
-	inline static const utils::List<VkImageView>& GetImageViews() { return swapchainViews; }
+	inline static const utils::List<VkImageView>& GetSwapchainImageViews() { return swapchainViews; }
 	inline static const utils::List<VkCommandBuffer>& GetCmdBuffers() { return cmdbuffers; }
 
 	inline static Window* GetWindow() { return window; }

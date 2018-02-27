@@ -72,7 +72,7 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 	AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, FALSE);
 
 	hwnd = CreateWindow(L"DANK", info->title.GetWCHAR(), WS_OVERLAPPEDWINDOW, xPos, yPos, r.right - r.left, r.bottom - r.top, 0, 0, 0, 0);
-
+	Log::Debug("%u %u", r.right - r.left, r.bottom - r.top);
 	if (!hwnd) {
 		FD_FATAL("[Window] Failed to create window!");
 		return;

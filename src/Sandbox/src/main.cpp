@@ -50,7 +50,7 @@ int main() {
 	winfo.graphicsAdapter = Factory::GetAdapters()[0];
 	winfo.outputWindow = nullptr;
 	winfo.width = 1280;
-	winfo.height = 720;
+	winfo.height = 1280;
 	winfo.refreshRate = 60;
 	winfo.title = "Dank Title";
 
@@ -86,47 +86,47 @@ int main() {
 	info.shader = &shader;
 	info.numInputLayouts = 1;
 	info.shaderInputLayouts = &inputLayout; 
-	info.pipelineLayout.numElements = 2;
-	info.pipelineLayout.elements = new PipelineLayoutElement[3];
-	info.pipelineLayout.elements[0].count = 1;
-	info.pipelineLayout.elements[0].shaderAccess = ShaderTypeVertex;
-	info.pipelineLayout.elements[0].type = BufferType::Uniform;
-	info.pipelineLayout.elements[0].size = sizeof(mat4);
-	info.pipelineLayout.elements[1].count = 1;
-	info.pipelineLayout.elements[1].shaderAccess = ShaderTypePixel;
-	info.pipelineLayout.elements[1].type = BufferType::TextureSampler;
-	info.pipelineLayout.elements[1].size = 0;
-	/*info.pipelineLayout.elements[2].count = 1;
-	info.pipelineLayout.elements[2].shaderAccess = ShaderTypePixel;
-	info.pipelineLayout.elements[2].type = BufferType::Uniform;
-	info.pipelineLayout.elements[2].size = sizeof(float32);*/
+
 	info.depthStencilInfo = depthInfo;
 
-	Pipeline pipeline(&info);
+	PipelineLayout layout;
 
-	pipeline.SetTexture(1, &texture, &sampler);
+	List<PipelineLayoutElement> elements;
+
+	elements.Push_back({ DescriptorType::Uniform, 0, sizeof(mat4), 1, ShaderTypeVertex });
+	elements.Push_back({ DescriptorType::TextureSampler, 1, 0, 1, ShaderTypePixel });
+
+	layout.AddSet(elements);
+
+	layout.CreateLayout();
+
+	layout.SetTexture(0, 1, &texture, &sampler);
+
+	RenderPass renderPass;
+
+	Pipeline pipeline(&info, &renderPass, &layout);
 
 	Vertex vertices[3];
 	
-	vertices[0].position = vec3(0, -1, 2);
-	vertices[0].color = vec4(0, 0, 0, 1);
+	vertices[0].position = vec3(0, 1, 4);
+	vertices[0].color = vec4(1, 1, 1, 1);
 	vertices[0].texCoords = vec2(0.5f, 0.0f); 
 	
-	vertices[1].position = vec3(1, 1, 2);
+	vertices[1].position = vec3(1, -1, 4);
 	vertices[1].color = vec4(1, 1, 1, 1); 
 	vertices[1].texCoords = vec2(1.0f, 1.0f);
 	
-	vertices[2].position = vec3(-1, 1, 2);
+	vertices[2].position = vec3(-1, -1, 4);
 	vertices[2].color = vec4(1, 1, 1, 1);
 	vertices[2].texCoords = vec2(0.0f, 1.0f);
 
 	uint32 indices[]{ 0, 1, 2 };
 
 	VertexBuffer vbo(vertices, sizeof(vertices));
-	IndexBuffer ibo(indices, 3);
+	IndexBuffer ibo(indices, 3); 
 
 	Context::BeginCommandBuffers();
-	Context::BeginRenderPass(&pipeline); 
+	Context::BeginRenderPass(&pipeline);  
 	 
 	Context::Bind(&vbo, 0);
 	Context::Bind(&ibo);
@@ -140,12 +140,16 @@ int main() {
  	unsigned int dankFps = 0;
 	float aa = 0; 
 	while (window.IsOpen()) {
-		aa += 0.001f;
+		if (GetAsyncKeyState('A'))
+			aa -= 0.005f;
+		else if (GetAsyncKeyState('D'))
+			aa += 0.005f;
+
 		vec3 tmp(0, 0, aa);
 
-		mat4 m = mat4::Perspective(1280.0f / 720.0f, 85.0f, 0.001f, 1000.0f) * mat4::Rotate(tmp);
+		mat4 m = mat4::Perspective(1.0f, 85.0f, 0.01f, 100.0f) * mat4::Rotate(tmp);
 
-		Context::UpdateUniform(&pipeline, 0, &m, 0, sizeof(mat4));
+		layout.UpdateUniform(0, 0, &m, sizeof(mat4));
 
 		Context::Present();
 

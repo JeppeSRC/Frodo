@@ -25,6 +25,8 @@ public:
 
 	static mat4 Perspective(float32 aspect, float32 fov, float32 zNear, float32 zFar);
 
+	static mat4 Transpose(mat4 m);
+
 	mat4 operator*(const mat4& r) const;
 
 	vec3 operator*(const vec3& v) const;

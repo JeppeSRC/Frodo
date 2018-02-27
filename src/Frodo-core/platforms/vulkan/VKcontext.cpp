@@ -482,13 +482,13 @@ static VkClearValue gay{ 0.0f, 0.0f, 0.0f, 0.0f };
 
 void Context::BeginRenderPass(const Pipeline* const pipeline) {
 
-	VkRenderPassBeginInfo rinfo;
+	VkRenderPassBeginInfo rinfo; 
 
 	rinfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rinfo.pNext = nullptr;
 	rinfo.renderArea.offset = { 0, 0 };
 	rinfo.renderArea.extent = swapchainExtent;
-	rinfo.renderPass = pipeline->GetRenderPass();
+	rinfo.renderPass = pipeline->GetRenderPass()->GetRenderPass();
 	rinfo.clearValueCount = 1;
 	rinfo.pClearValues = &gay;
 
@@ -499,13 +499,13 @@ void Context::BeginRenderPass(const Pipeline* const pipeline) {
 	currentRenderPass = pipeline;
 
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		rinfo.framebuffer = pipeline->GetFramebuffer(i);
+		rinfo.framebuffer = pipeline->GetRenderPass()->GetFramebuffer(i);
 
 		vkCmdBeginRenderPass(cmdbuffers[i], &rinfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		vkCmdBindPipeline(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
 
-		vkCmdBindDescriptorSets(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipelineLayout(), 0, 1, &pipeline->GetDescriptorSet(), 0, 0);
+		vkCmdBindDescriptorSets(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipelineLayout()->GetPipelineLayout(), 0, 1, &pipeline->GetPipelineLayout()->GetDescriptorSets()[0], 0, 0);
 	}
 }
 
@@ -531,7 +531,7 @@ void Context::Bind(const IndexBuffer* const buffer) {
 
 	currentIndexBuffer = buffer;
 }
-
+/*
 void Context::UpdateUniform(const Pipeline* pipeline, uint32 slot, const void* const data, uint64 offset, uint64 size) {
 	pipeline->UpdateUniformBuffer(slot, data, offset, size);
 }
@@ -547,7 +547,7 @@ void Context::SetTexture(const Pipeline* pipeline, uint32 slot, const Texture* t
 void Context::SetTexture(const Pipeline* pipeline, uint32* slots, uint32 num, const Texture* textures, const Sampler* samplers) {
 	pipeline->SetTexture(slots, num, textures, samplers);
 }
-
+*/
 void Context::DrawIndexed() {
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
 		vkCmdDrawIndexed(cmdbuffers[i], currentIndexBuffer->GetCount(), 1, 0, 0, 0);

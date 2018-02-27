@@ -81,6 +81,7 @@ mat4 mat4::Perspective(float32 aspect, float32 fov, float32 zNear, float32 zFar)
 	m.m[2 + 2 * 4] = zFar / (zFar - zNear);
 	m.m[3 + 2 * 4] = 1;
 	m.m[2 + 3 * 4] = -zNear * (zFar / (zFar - zNear));
+	m.m[3 + 3 * 4] = 0;
 
 	return m;
 }
@@ -138,6 +139,19 @@ vec4 mat4::operator*(const vec4& v) const {
 		res = _mm_fmadd_ps(row[i], col, res);
 
 	return vec4(res.m128_f32[0], res.m128_f32[1], res.m128_f32[2], res.m128_f32[3]);
+}
+
+mat4 mat4::Transpose(mat4 m) {
+	float tmp[16];
+	memcpy(tmp, m.m, sizeof(m));
+
+	for (uint32 y = 0; y < 4; y++) {
+		for (uint32 x = 0; x < 4; x++) {
+			m.m[y + x * 4] = tmp[x + y * 4];
+		}
+	}
+
+	return m;
 }
 
 } } }
