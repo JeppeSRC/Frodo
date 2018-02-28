@@ -120,12 +120,13 @@ project("Frodo-core")
     filter("Release-VK or Debug-VK")
         includedirs { vk_path .. "/include/vulkan" }
         libdirs { vk_path ..  "/Lib" }
+        targetprefix "VK-"
+
+    filter("Release-DX or Debug-DX")
+        targetprefix "VK-"
 
     filter {"Release-VK or Debug-VK", "files:Frodo-core/**DX*.cpp"}
         flags "ExcludeFromBuild"
-
-    filter("Release-VK or Debug-VK")
-        excludes "Frodo-core/**dx*.*"
 
     filter {"Release-DX or Debug-DX", "files:Frodo-core/**VK*.cpp"}
         flags "ExcludeFromBuild"
@@ -145,6 +146,9 @@ project("Sandbox")
     kind("ConsoleApp")
     location "../solution/Sandbox"
     dependson "Frodo-core"
+
+    targetdir "../bin/$(Configuration)/$(Platform)/"
+    objdir "../bin/intermediates"
 
     files {
         "Sandbox/**.cpp",
