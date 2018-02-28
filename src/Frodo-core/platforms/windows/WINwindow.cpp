@@ -33,7 +33,10 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 	wnd.lpszClassName = L"DANK";
 	wnd.style = CS_VREDRAW | CS_HREDRAW;
 
-	FD_ASSERT(RegisterClassEx(&wnd) != ERROR_SUCCESS);
+	if (!RegisterClassEx(&wnd)) {
+		Log::Fatal("[Window] Failed to register class");
+		return;
+	}
 
 	if (Factory::GetAdapters().Find(info->graphicsAdapter) == ~0) {
 		FD_WARN("[Window] Invalid adapter specified!");
@@ -45,7 +48,6 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 		info->outputWindow = Factory::GetOutputs()[0];
 	}
 
-	;
 
 	RECT coord = { 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
 
@@ -60,7 +62,6 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 	coord = info->outputWindow->GetDesktopCoordinates();
 #endif
 
-
 	uint32 monitorWidth = coord.right - coord.left;
 	uint32 monitorHeight = coord.bottom - coord.top;
 
@@ -74,7 +75,7 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 	hwnd = CreateWindow(L"DANK", info->title.GetWCHAR(), WS_OVERLAPPEDWINDOW, xPos, yPos, r.right - r.left, r.bottom - r.top, 0, 0, 0, 0);
 	Log::Debug("%u %u", r.right - r.left, r.bottom - r.top);
 	if (!hwnd) {
-		FD_FATAL("[Window] Failed to create window!");
+		FD_FATAL("[Window] Failed to create window! %u", GetLastError());
 		return;
 	}
 
