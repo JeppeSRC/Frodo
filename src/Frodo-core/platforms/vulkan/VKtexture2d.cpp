@@ -10,9 +10,7 @@ using namespace utils;
 using namespace buffer;
 using namespace core::video;
 
-Texture2D::Texture2D(uint32 width, uint32 height, VkImageView imageView) : Texture(width, height, nullptr, nullptr, imageView) { }
-
-Texture2D::Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageFlags usage, VkImageLayout layout) : Texture(width, height) {
+Texture2D::Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageFlags usage, VkImageLayout layout) : Texture(width, height), format(format) {
 
 	CreateImage(width, height, 0, VK_IMAGE_TYPE_2D, format, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, layout);
 

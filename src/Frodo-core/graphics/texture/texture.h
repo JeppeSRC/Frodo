@@ -42,11 +42,13 @@ public:
 
 class Texture2D : public Texture {
 protected:
+	VkFormat format;
 	
-	Texture2D(uint32 width, uint32 height, VkImageView imageView);
 	Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageFlags usage, VkImageLayout layout);
 public:
 	Texture2D(const utils::String& filename);
+
+	inline VkFormat GetFormat() const { return format; }
 };
 
 #endif
