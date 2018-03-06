@@ -45,6 +45,9 @@ public:
 	RenderPass(const RenderPassInfo* info);
 	~RenderPass();
 
+	inline uint32 GetWidth() const { return framebuffers[0]->GetWidth(); }
+	inline uint32 GetHeight() const { return framebuffers[0]->GetHeight(); }
+
 	inline VkRenderPass GetRenderPass() const { return renderPass; }
 	inline VkFramebuffer GetFramebuffer(uint_t index) const { return framebufferObjects[index]; }
 };
