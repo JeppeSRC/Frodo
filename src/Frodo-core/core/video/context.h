@@ -99,7 +99,7 @@ private:
 	static Output* output;
 
 private:
-	static const graphics::pipeline::Pipeline* currentRenderPass;
+	static bool renderPassActive;
 	static const graphics::buffer::IndexBuffer* currentIndexBuffer;
 
 	static VkSubmitInfo submitInfo;
@@ -115,7 +115,7 @@ public:
 	static void BeginCommandBuffers();
 	static void EndCommandBuffers();
 
-	static void BeginRenderPass(const graphics::pipeline::Pipeline* const pipeline);
+	static void BindRenderPass(const graphics::pipeline::RenderPass* const pipeline);
 	static void EndRenderPass();
 
 	static void Bind(const graphics::buffer::VertexBuffer* const buffer, uint32 slot);

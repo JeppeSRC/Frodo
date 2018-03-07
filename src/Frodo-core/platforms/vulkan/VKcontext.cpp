@@ -469,9 +469,7 @@ void Context::BeginCommandBuffers() {
 }
 
 void Context::EndCommandBuffers() {
-	if (currentRenderPass) {
-		EndRenderPass();
-	}
+	if (renderPassActive) EndRenderPass();
 
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
 		VK(vkEndCommandBuffer(cmdbuffers[i]));
@@ -480,33 +478,26 @@ void Context::EndCommandBuffers() {
 
 static VkClearValue gay{ 0.0f, 0.0f, 0.0f, 0.0f };
 
-void Context::BeginRenderPass(const Pipeline* const pipeline) {
+void Context::BindRenderPass(const RenderPass* const renderPass) {
 
 	VkRenderPassBeginInfo rinfo; 
 
 	rinfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	rinfo.pNext = nullptr;
 	rinfo.renderArea.offset = { 0, 0 };
-	rinfo.renderArea.extent = swapchainExtent;
-	rinfo.renderPass = pipeline->GetRenderPass()->GetRenderPass();
+	rinfo.renderArea.extent.width = renderPass->GetWidth();
+	rinfo.renderArea.extent.height = renderPass->GetHeight();
+	rinfo.renderPass = renderPass->GetRenderPass();
 	rinfo.clearValueCount = 1;
 	rinfo.pClearValues = &gay;
 
-	if (currentRenderPass) {
-		EndRenderPass();
-	}
-
-	currentRenderPass = pipeline;
-
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		rinfo.framebuffer = pipeline->GetRenderPass()->GetFramebuffer(i);
+		rinfo.framebuffer = renderPass->GetFramebuffer(i);
 
 		vkCmdBeginRenderPass(cmdbuffers[i], &rinfo, VK_SUBPASS_CONTENTS_INLINE);
-
-		vkCmdBindPipeline(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
-
-		vkCmdBindDescriptorSets(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipelineLayout()->GetPipelineLayout(), 0, 1, &pipeline->GetPipelineLayout()->GetDescriptorSets()[0], 0, 0);
 	}
+
+	renderPassActive = true;
 }
 
 void Context::EndRenderPass() {
@@ -514,7 +505,7 @@ void Context::EndRenderPass() {
 		vkCmdEndRenderPass(cmdbuffers[i]);
 	}
 
-	currentRenderPass = nullptr;
+	renderPassActive = false;
 }
 
 void Context::Bind(const VertexBuffer* const buffer, uint32 slot) {
