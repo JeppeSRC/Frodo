@@ -514,6 +514,14 @@ void Context::BindPipeline(const Pipeline* const pipeline) {
 	}
 }
 
+void Context::BindPipelineLayout(const PipelineLayout* const layout) {
+	const List<VkDescriptorSet>& sets = layout->GetDescriptorSets();
+
+	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
+		vkCmdBindDescriptorSets(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, layout->GetPipelineLayout(), 0, sets.GetSize(), sets.GetData(), 0, 0);
+	}
+}
+
 void Context::Bind(const VertexBuffer* const buffer, uint32 slot) {
 	uint64 offset = 0;
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
