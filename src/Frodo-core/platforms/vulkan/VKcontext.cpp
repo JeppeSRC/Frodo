@@ -508,6 +508,12 @@ void Context::EndRenderPass() {
 	renderPassActive = false;
 }
 
+void Context::BindPipeline(const Pipeline* const pipeline) {
+	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
+		vkCmdBindPipeline(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
+	}
+}
+
 void Context::Bind(const VertexBuffer* const buffer, uint32 slot) {
 	uint64 offset = 0;
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {

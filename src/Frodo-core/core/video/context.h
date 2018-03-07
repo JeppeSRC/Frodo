@@ -118,6 +118,8 @@ public:
 	static void BindRenderPass(const graphics::pipeline::RenderPass* const pipeline);
 	static void EndRenderPass();
 
+	static void BindPipeline(const graphics::pipeline::Pipeline* const pipeline);
+
 	static void Bind(const graphics::buffer::VertexBuffer* const buffer, uint32 slot);
 	static void Bind(const graphics::buffer::IndexBuffer* const buffer);
 
