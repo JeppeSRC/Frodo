@@ -218,6 +218,44 @@ void PipelineLayout::SetTexture(uint32 set, uint32* slots, uint32 num, Texture* 
 	vkUpdateDescriptorSets(Context::GetDevice(), num, winfo, 0, 0);
 }
 
+void PipelineLayout::SetTexture(uint32 set, uint32 slot, VkImageView view) {
+	SetTexture(set, &slot, 1, &view);
+}
+
+void PipelineLayout::SetTexture(uint32 set, uint32* slots, uint32 num, VkImageView* views) {
+	VkWriteDescriptorSet* winfo = new VkWriteDescriptorSet[num];
+
+	VkDescriptorImageInfo* iinfo = new VkDescriptorImageInfo[num];
+
+	for (uint32 i = 0; i < num; i++) {
+		uint32 slot = slots[i];
+		DescriptorBinding& binding = descriptors[setOffsets[set] + slot];
+
+		FD_ASSERT(binding.type == DescriptorType::TextureSampler);
+
+		winfo[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		winfo[i].pNext = nullptr;
+		winfo[i].descriptorType = (VkDescriptorType)binding.type;
+		winfo[i].dstSet = descriptorSets[set];
+		winfo[i].dstBinding = slot;
+		winfo[i].dstArrayElement = 0;
+		winfo[i].descriptorCount = 1;
+		winfo[i].pBufferInfo = nullptr;
+		winfo[i].pTexelBufferView = nullptr;
+
+		winfo[i].pImageInfo = iinfo + i;
+
+		iinfo[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		iinfo[i].imageView = views[i];
+		iinfo[i].sampler = nullptr;
+
+		binding.texture = nullptr;
+		binding.sampler = nullptr;
+	}
+
+	vkUpdateDescriptorSets(Context::GetDevice(), num, winfo, 0, 0);
+}
+
 }
 }
 }

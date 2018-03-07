@@ -59,6 +59,8 @@ public:
 	void UpdateUniform(uint32 set, uint32 slot, const void* const data, uint_t size, uint_t offset = 0);
 	void SetTexture(uint32 set, uint32 slot, graphics::texture::Texture* texture, graphics::texture::Sampler* sampler);
 	void SetTexture(uint32 set, uint32* slots, uint32 num, graphics::texture::Texture* textures, graphics::texture::Sampler* samplers);
+	void SetTexture(uint32 set, uint32 slot, VkImageView view);
+	void SetTexture(uint32 set, uint32* slot, uint32 num, VkImageView* view);
 
 	inline VkPipelineLayout GetPipelineLayout() const { return layout; }
 	inline VkDescriptorPool GetDescriptorPool() const { return descriptorPool; }
