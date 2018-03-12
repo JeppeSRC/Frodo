@@ -7,6 +7,14 @@
 #include <graphics/buffer/vertexbuffer.h>
 #include "adapter.h"
 
+#ifdef FD_VK
+#define FD_COMMAND_BUFFER_ONE_TIME VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+#define FD_COMMAND_BUFFER_SIMULTANEOUS VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
+#else
+#define FD_COMMAND_BUFFER_ONE_TIME 0x01
+#define FD_COMMAND_BUFFER_SIMULTANEOUS 0x02
+#endif
+
 namespace fd {
 namespace core {
 namespace video {
@@ -112,7 +120,7 @@ public:
 
 public:
 	//These method will also exist in the D3D implementation
-	static void BeginCommandBuffers();
+	static void BeginCommandBuffers(uint32 usage);
 	static void EndCommandBuffers();
 
 	static void BindRenderPass(const graphics::pipeline::RenderPass* const pipeline);

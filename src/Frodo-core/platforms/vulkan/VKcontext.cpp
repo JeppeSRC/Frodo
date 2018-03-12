@@ -43,7 +43,7 @@ Window* Context::window = nullptr;
 Adapter* Context::adapter = nullptr;
 Output* Context::output = nullptr;
 
-const Pipeline* Context::currentRenderPass = nullptr;
+bool Context::renderPassActive = false;
 const IndexBuffer* Context::currentIndexBuffer = nullptr;
 
 VkSubmitInfo Context::submitInfo;
@@ -455,12 +455,14 @@ void Context::CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBu
 	VK(vkQueueWaitIdle(graphicsQueue));
 }
 
-void Context::BeginCommandBuffers() {
+void Context::BeginCommandBuffers(uint32 usage) {
 	VkCommandBufferBeginInfo info;
+
+	FD_ASSERT((usage & FD_COMMAND_BUFFER_SIMULTANEOUS) || (usage & FD_COMMAND_BUFFER_ONE_TIME));
 
 	info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	info.pNext = nullptr;
-	info.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+	info.flags = usage;
 	info.pInheritanceInfo = nullptr;
 
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
