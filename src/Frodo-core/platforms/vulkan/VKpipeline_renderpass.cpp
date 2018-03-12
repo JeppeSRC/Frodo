@@ -92,8 +92,8 @@ RenderPass::RenderPass() : renderPass(nullptr) {
 		info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		info.pNext = nullptr;
 		info.flags = 0;
-		info.width = Context::GetSwapchainExtent().width;
-		info.height = Context::GetSwapchainExtent().height;
+		info.width = width = Context::GetSwapchainExtent().width;
+		info.height = height = Context::GetSwapchainExtent().height;
 		info.layers = 1;
 		info.renderPass = renderPass;
 		info.attachmentCount = 1;
@@ -271,8 +271,8 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 	finfo.pAttachments = imageViews;
 	
 	if (usesSwapchainImage) {
-		finfo.width = Context::GetSwapchainExtent().width;
-		finfo.height = Context::GetSwapchainExtent().height;
+		finfo.width = width = Context::GetSwapchainExtent().width;
+		finfo.height = height = Context::GetSwapchainExtent().height;
 		finfo.attachmentCount = framebuffers.GetSize() + 1;
 
 		List<VkImageView> swapViews = Context::GetSwapchainImageViews();
@@ -289,8 +289,8 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 
 	} else {
 		CheckFramebuffers(framebuffers);
-		finfo.width = framebuffers[0]->GetWidth();
-		finfo.height = framebuffers[0]->GetHeight();
+		finfo.width = width = framebuffers[0]->GetWidth();
+		finfo.height = height = framebuffers[0]->GetHeight();
 		finfo.attachmentCount = framebuffers.GetSize();
 
 		VkFramebuffer framebuffer;

@@ -35,6 +35,9 @@ class RenderPass {
 private:
 	VkRenderPass renderPass;
 
+	uint32 width;
+	uint32 height;
+
 	utils::List<texture::Framebuffer*> framebuffers;
 
 	utils::List<VkFramebuffer> framebufferObjects;
@@ -45,8 +48,8 @@ public:
 	RenderPass(const RenderPassInfo* info);
 	~RenderPass();
 
-	inline uint32 GetWidth() const { return framebuffers[0]->GetWidth(); }
-	inline uint32 GetHeight() const { return framebuffers[0]->GetHeight(); }
+	inline uint32 GetWidth() const { return width; }
+	inline uint32 GetHeight() const { return height; }
 
 	inline VkRenderPass GetRenderPass() const { return renderPass; }
 	inline VkFramebuffer GetFramebuffer(uint_t index) const { return framebufferObjects[index]; }
