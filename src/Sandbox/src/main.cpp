@@ -50,7 +50,7 @@ int main() {
 	winfo.graphicsAdapter = Factory::GetAdapters()[0];
 	winfo.outputWindow = nullptr;
 	winfo.width = 1280;
-	winfo.height = 1280;
+	winfo.height = 720;
 	winfo.refreshRate = 60;
 	winfo.title = "Dank Title";
 
@@ -125,15 +125,16 @@ int main() {
 	VertexBuffer vbo(vertices, sizeof(vertices));
 	IndexBuffer ibo(indices, 3); 
 
-	Context::BeginCommandBuffers();
-	Context::BeginRenderPass(&pipeline);  
+	Context::BeginCommandBuffers(FD_COMMAND_BUFFER_SIMULTANEOUS);
+	Context::BindPipeline(&pipeline);
+	Context::BindRenderPass(&renderPass); 
+	Context::BindPipelineLayout(&layout);
 	 
 	Context::Bind(&vbo, 0);
 	Context::Bind(&ibo);
 	 
 	Context::DrawIndexed();
-
-		 
+		
 	Context::EndCommandBuffers();
 	  
 	unsigned int shit2 = clock();
