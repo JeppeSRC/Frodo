@@ -538,23 +538,7 @@ void Context::Bind(const IndexBuffer* const buffer) {
 
 	currentIndexBuffer = buffer;
 }
-/*
-void Context::UpdateUniform(const Pipeline* pipeline, uint32 slot, const void* const data, uint64 offset, uint64 size) {
-	pipeline->UpdateUniformBuffer(slot, data, offset, size);
-}
 
-void Context::SetUniformBuffer(Pipeline* pipeline, uint32 slot, const UniformBuffer* buffer) {
-	pipeline->SetUniformBuffer(buffer);
-}
-
-void Context::SetTexture(const Pipeline* pipeline, uint32 slot, const Texture* texture, const Sampler* sampler) {
-	pipeline->SetTexture(slot, texture, sampler);
-}
-
-void Context::SetTexture(const Pipeline* pipeline, uint32* slots, uint32 num, const Texture* textures, const Sampler* samplers) {
-	pipeline->SetTexture(slots, num, textures, samplers);
-}
-*/
 void Context::DrawIndexed() {
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
 		vkCmdDrawIndexed(cmdbuffers[i], currentIndexBuffer->GetCount(), 1, 0, 0, 0);
