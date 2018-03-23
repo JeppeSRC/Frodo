@@ -203,11 +203,11 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 			attachmentReferences.Push_back(ref);
 		}
 
-		if (subpass.inputAttachmentCount == -1) {
+		if (subpass.inputAttachmentCount == ~0) {
 			subpass.inputAttachmentCount = FD_MAX_ATTACHMENTS;
 		}
 
-		subpass.pInputAttachments = &attachmentReferences[attachmentReferences.GetSize() - subpass.inputAttachmentCount];
+		if (subpass.inputAttachmentCount != 0) subpass.pInputAttachments = &attachmentReferences[attachmentReferences.GetSize() - subpass.inputAttachmentCount];
 
 		if (subInfo.depthStencilAttachment != FD_NO_ATTACHMENT) {
 			ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
