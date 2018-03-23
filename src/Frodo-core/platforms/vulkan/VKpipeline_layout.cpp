@@ -214,7 +214,7 @@ void PipelineLayout::SetTexture(uint32 set, uint32* slots, uint32 num, Texture* 
 		iinfo[i].imageView = textures[i].GetImageView();
 		binding.texture = textures + i;
 
-		if (binding.type != DescriptorType::TextureSampler) {
+		if (binding.type == DescriptorType::TextureSampler) {
 			iinfo[i].sampler = samplers[i].GetSampler();
 			binding.sampler = samplers + i;
 		}
