@@ -193,7 +193,10 @@ void PipelineLayout::SetTexture(uint32 set, uint32* slots, uint32 num, Texture* 
 		uint32 slot = slots[i];
 		DescriptorBinding& binding = descriptors[setOffsets[set] + slot];
 
-		FD_ASSERT(binding.type == DescriptorType::TextureSampler);
+		if (binding.type != DescriptorType::TextureSampler || binding.type != DescriptorType::InputAttachment) {
+			Log::Fatal("[PipelineLayout] binding %u in set %u is not a \"TextureSampler\" or \"InputAttachment\"", slot, set);
+			break;
+		}
 
 		winfo[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		winfo[i].pNext = nullptr;
@@ -209,10 +212,12 @@ void PipelineLayout::SetTexture(uint32 set, uint32* slots, uint32 num, Texture* 
 
 		iinfo[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 		iinfo[i].imageView = textures[i].GetImageView();
-		iinfo[i].sampler = samplers[i].GetSampler();
-
 		binding.texture = textures + i;
-		binding.sampler = samplers + i;
+
+		if (binding.type != DescriptorType::TextureSampler) {
+			iinfo[i].sampler = samplers[i].GetSampler();
+			binding.sampler = samplers + i;
+		}
 	}
 
 	vkUpdateDescriptorSets(Context::GetDevice(), num, winfo, 0, 0);
