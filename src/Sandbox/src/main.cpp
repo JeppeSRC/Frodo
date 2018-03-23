@@ -101,8 +101,19 @@ int main() {
 	layout.CreateLayout();
 
 	layout.SetTexture(0, 1, &texture, &sampler);
+	 
+	RenderSubPassInfo pass;
 
-	RenderPass renderPass;
+	pass.colorAttachments[0] = FD_SWAPCHAIN_ATTACHMENT_INDEX;
+	pass.colorAttachments[1] = FD_NO_ATTACHMENT;
+	pass.depthStencilAttachment = FD_NO_ATTACHMENT;
+	pass.inputAttachments[0] = FD_NO_ATTACHMENT;
+
+	RenderPassInfo passInfo;
+
+	passInfo.subpasses.Push_back(pass);
+
+	RenderPass renderPass(&passInfo);
 
 	Pipeline pipeline(&info, &renderPass, &layout);
 
@@ -141,14 +152,11 @@ int main() {
  	unsigned int dankFps = 0;
 	float aa = 0; 
 	while (window.IsOpen()) {
-		if (GetAsyncKeyState('A'))
-			aa -= 0.005f;
-		else if (GetAsyncKeyState('D'))
-			aa += 0.005f;
+		aa += 0.005f;
 
 		vec3 tmp(0, 0, aa);
 
-		mat4 m = mat4::Perspective(1.0f, 85.0f, 0.01f, 100.0f) * mat4::Rotate(tmp);
+		mat4 m = mat4::Perspective(1280.0f / 720.0f, 85.0f, 0.01f, 100.0f) * mat4::Rotate(tmp);
 
 		layout.UpdateUniform(0, 0, &m, sizeof(mat4));
 
