@@ -193,7 +193,7 @@ void PipelineLayout::SetTexture(uint32 set, uint32* slots, uint32 num, Texture* 
 		uint32 slot = slots[i];
 		DescriptorBinding& binding = descriptors[setOffsets[set] + slot];
 
-		if (binding.type != DescriptorType::TextureSampler || binding.type != DescriptorType::InputAttachment) {
+		if (binding.type != DescriptorType::TextureSampler && binding.type != DescriptorType::InputAttachment) {
 			Log::Fatal("[PipelineLayout] binding %u in set %u is not a \"TextureSampler\" or \"InputAttachment\"", slot, set);
 			break;
 		}
