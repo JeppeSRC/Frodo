@@ -109,7 +109,7 @@ project("Frodo-core")
         "Frodo-core/**.c"
     }
 
-    targetdir "../bin/$(Configuration)/$(Platform)/"
+    targetdir "../bin/%{cfg.buildcfg}/%{cfg.platform}/"
     objdir "../bin/intermediates"
   
 
@@ -123,7 +123,7 @@ project("Frodo-core")
         targetprefix "VK-"
 
     filter("Release-DX or Debug-DX")
-        targetprefix "VK-"
+        targetprefix "DX-"
 
     filter {"Release-VK or Debug-VK", "files:Frodo-core/**DX*.cpp"}
         flags "ExcludeFromBuild"
@@ -138,8 +138,8 @@ project("Frodo-core")
         }
 
     elseif _TARGET_OS == "windows" then
-    filter {"system:windows"}
-        removefiles "Frodo-core/platforms/linux/**.*"
+        filter {"system:windows"}
+            removefiles "Frodo-core/platforms/linux/**.*"
     end
 
 project("Sandbox")
@@ -147,7 +147,7 @@ project("Sandbox")
     location "../solution/Sandbox"
     dependson "Frodo-core"
 
-    targetdir "../bin/$(Configuration)/$(Platform)/"
+    targetdir "../bin/%{cfg.buildcfg}/%{cfg.platform}/"
     objdir "../bin/intermediates"
 
     files {
@@ -169,25 +169,14 @@ project("Sandbox")
 
         postbuildcommands { "call \"$(SolutionDir)../src/post.bat\" \"$(SolutionDir)../src/Sandbox/res\"" }
    
-        filter("configurations:Release-DX")
+        filter("Release-DX or Release-VK")
             links {
                 "D3D11",
                 "DXGI"
             }
-
-        filter("configurations:Debug-DX")
-            links {
-               "D3D11",
-               "DXGI"
-            }
     end
 
-    filter("configurations:Release-VK")
-        links {
-            "vulkan-1"
-        }
-
-    filter("configurations:Debug-VK")
+    filter("Release-VK or Debug-VK")
         links {
             "vulkan-1"
         }
