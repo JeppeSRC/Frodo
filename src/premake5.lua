@@ -14,7 +14,8 @@ function setupReleaseConfiguration()
     elseif _TARGET_OS == "linux" then
         buildoptions {
             "-msse4.1",
-            "-mfma"
+            "-mfma",
+            "-mavx2"
         }
     end
 
@@ -31,7 +32,8 @@ function setupDebugConfiguration()
     elseif _TARGET_OS == "linux" then
         buildoptions {
             "-msse4.1",
-            "-mfma"
+            "-mfma",
+            "-mavx2"
         }
     end
 
