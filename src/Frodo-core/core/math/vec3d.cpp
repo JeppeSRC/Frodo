@@ -132,7 +132,7 @@ vec3d vec3d::Cross(const vec3d& v) const {
 
 	xmm0 = _mm256_sub_pd(xmm0, xmm1);
 
-	return vec3d(xmm0.m256d_f64[0], xmm0.m256d_f64[1], xmm0.m256d_f64[2]);
+	return vec3d(M256D(xmm0, 0), M256D(xmm0, 1), M256D(xmm0, 2));
 }
 
 float64 vec3d::Dot(const vec3d& v) const {
