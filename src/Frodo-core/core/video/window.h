@@ -29,8 +29,10 @@ struct WindowCreateInfo {
 
 class Window {
 private:
+#ifdef FD_WINDOWS
 	HWND hwnd;
-
+#elif FD_LINUX
+#endif
 	WindowCreateInfo* info;
 
 	bool open;
@@ -44,7 +46,10 @@ public:
 	inline uint32 GetWidth() const { return info->width; }
 	inline uint32 GetHeight() const { return info->height; }
 	inline utils::String GetTitle() const { return info->title; }
+	#ifdef FD_WINDOWS
 	inline HWND GetHandle() const { return hwnd; }
+	#elif FD_LINUX
+	#endif
 	inline const WindowCreateInfo* GetCreateInfo() const { return info; }
 	inline bool IsOpen() const { return open; }
 

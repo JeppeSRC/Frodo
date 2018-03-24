@@ -11,8 +11,13 @@ namespace video {
 using namespace utils;
 using namespace log;
 
+#ifdef FD_WINDOWS
 PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR Adapter::vkGetPhysicalDeviceWin32PresentationSupportKHR = nullptr;
 PFN_vkCreateWin32SurfaceKHR Adapter::vkCreateWin32SurfaceKHR = nullptr;
+#elif FD_LINUX
+
+#endif
+
 bool Adapter::intialized = false;
 
 void Adapter::InitFunctions() {
@@ -99,7 +104,7 @@ bool Adapter::SupportsPresenting(uint32 queue) const {
 uint32 Adapter::GetQueue(VkQueueFlags flag, bool supportsPresenting) const {
 	if (flag != VK_QUEUE_GRAPHICS_BIT) {
 		supportsPresenting = false;
-		FD_WARN("[Adapter] Func: %s, supportsPresenting is only used with VK_QUEUE_GRAPHICS_BIT", __FUNCSIG__);
+		FD_WARN("[Adapter] Func: %s, supportsPresenting is only used with VK_QUEUE_GRAPHICS_BIT", FUNCSIG);
 	}
 
 	for (uint_t i = 0; queueProperties.GetSize(); i++) {

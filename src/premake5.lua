@@ -15,7 +15,8 @@ function setupReleaseConfiguration()
         buildoptions {
             "-msse4.1",
             "-mfma",
-            "-mavx2"
+            "-mavx2",
+            "-fpermissive"
         }
     end
 
@@ -33,7 +34,8 @@ function setupDebugConfiguration()
         buildoptions {
             "-msse4.1",
             "-mfma",
-            "-mavx2"
+            "-mavx2",
+            "-fpermissive"
         }
     end
 
@@ -117,7 +119,6 @@ workspace("Frodo")
 
 project("Frodo-core")
     kind("StaticLib")
-    cppdialect "c++14"
     location "../solution/Frodo-core/"
     
     files {
@@ -148,16 +149,22 @@ project("Frodo-core")
     filter {"Release-DX or Debug-DX", "files:Frodo-core/**VK*.cpp"}
         flags "ExcludeFromBuild"
 
-    if _TARGET_OS == "linux" then
+    filter {"system:linux"}
         removefiles {
-            "Frodo-core/platforms/windows/**.*",
-            "Frodo-core/**dx*.*"
+            "Frodo-core/platforms/**WIN*.h",
+            "Frodo-core/platforms/**WIN*.cpp",
+            "Frodo-core/platforms/**DX*.h",
+            "Frodo-core/platforms/**DX*.cpp"
         }
 
-    elseif _TARGET_OS == "windows" then
-        filter {"system:windows"}
-            removefiles "Frodo-core/platforms/linux/**.*"
-    end
+    filter {"system:windows"}
+        removefiles {
+              "Frodo-core/platforms/linux/**LNX*.h",
+               "Frodo-core/platforms/linux/**LNX*.cpp"
+        }
+
+
+    filter ""
 
 project("Sandbox")
     kind("ConsoleApp")

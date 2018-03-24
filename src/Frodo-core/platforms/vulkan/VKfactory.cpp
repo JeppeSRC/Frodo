@@ -6,6 +6,10 @@ namespace fd {
 namespace core {
 namespace video {
 
+#ifdef FD_LINUX
+#define __stdcall __attribute__((stdcall))
+#endif
+
 using namespace utils;
 using namespace log;
 
@@ -45,7 +49,7 @@ void Factory::CreateFactory() {
 	appInfo.pNext = nullptr;
 
 	uint32 numExtensions = 0;
-
+	
 	VK(vkEnumerateInstanceExtensionProperties(nullptr, &numExtensions, nullptr));
 
 	List<VkExtensionProperties> extensions(numExtensions);

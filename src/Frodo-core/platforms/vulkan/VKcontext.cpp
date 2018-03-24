@@ -525,7 +525,7 @@ void Context::BindPipelineLayout(const PipelineLayout* const layout) {
 }
 
 void Context::Bind(const VertexBuffer* const buffer, uint32 slot) {
-	uint64 offset = 0;
+	uint_t offset = 0;
 	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
 		vkCmdBindVertexBuffers(cmdbuffers[i], slot, 1, &buffer->GetBuffer(), &offset);
 	}

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string.h>
+#include <memory.h>
 #include <string>
 #include <core/types.h>
 
