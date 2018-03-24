@@ -146,7 +146,7 @@ vec3 vec3::Cross(const vec3& v) const {
 
 	xmm0 = _mm_sub_ps(xmm0, xmm1);
 
-	return vec3(xmm0.m128_f32[0], xmm0.m128_f32[1], xmm0.m128_f32[2]);
+	return vec3(M128(xmm, 0), M128(xmm, 1), M128(xmm, 2));
 }
 
 float32 vec3::Dot(const vec3& v) const {
