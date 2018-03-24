@@ -17,8 +17,8 @@ vec2& vec2::Add(const vec2& v) {
 	__m128 xmm = _mm_set_ps(0, 0, y, x);
 	xmm = _mm_add_ps(xmm, vxmm);
 	
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
 
 	return *this;
 }
@@ -30,8 +30,8 @@ vec2& vec2::Sub(const vec2& v) {
 	__m128 xmm = _mm_set_ps(0, 0, y, x);
 	xmm = _mm_sub_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
 
 	return *this;
 }
@@ -43,8 +43,8 @@ vec2& vec2::Mul(const vec2& v) {
 	__m128 xmm = _mm_set_ps(0, 0, y, x);
 	xmm = _mm_mul_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
 
 	return *this;
 }
@@ -56,8 +56,8 @@ vec2& vec2::Div(const vec2& v) {
 	__m128 xmm = _mm_set_ps(0, 0, y, x);
 	xmm = _mm_div_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
 
 	return *this;
 }
@@ -73,8 +73,8 @@ vec2& vec2::Add(float32 v) {
 	__m128 xmm = _mm_set_ps(0, 0, y, x);
 	xmm = _mm_add_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
 
 	return *this;
 }
@@ -86,8 +86,8 @@ vec2& vec2::Sub(float32 v) {
 	__m128 xmm = _mm_set_ps(0, 0, y, x);
 	xmm = _mm_sub_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
 
 	return *this;
 }
@@ -99,8 +99,8 @@ vec2& vec2::Mul(float32 v) {
 	__m128 xmm = _mm_set_ps(0, 0, y, x);
 	xmm = _mm_mul_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
 
 	return *this;
 }
@@ -112,8 +112,8 @@ vec2& vec2::Div(float32 v) {
 	__m128 xmm = _mm_set_ps(0, 0, y, x);
 	xmm = _mm_div_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
 
 	return *this;
 }
