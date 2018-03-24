@@ -21,10 +21,10 @@ vec4l& vec4l::Add(const vec4l& v) {
 	__m256i xmm = _mm256_set_epi64x(d, c, b, a);
 	xmm = _mm256_add_epi64(xmm, vxmm);
 
-	x = xmm.m256i_i64[0];
-	y = xmm.m256i_i64[1];
-	z = xmm.m256i_i64[2];
-	w = xmm.m256i_i64[3];
+	x = M256L(xmm, 0);
+	y = M256L(xmm, 1);
+	z = M256L(xmm, 2);
+	w = M256L(xmm, 3);
 
 	return *this;
 }
@@ -42,10 +42,10 @@ vec4l& vec4l::Sub(const vec4l& v) {
 	__m256i xmm = _mm256_set_epi64x(d, c, b, a);
 	xmm = _mm256_sub_epi64(xmm, vxmm);
 
-	x = xmm.m256i_i64[0];
-	y = xmm.m256i_i64[1];
-	z = xmm.m256i_i64[2];
-	w = xmm.m256i_i64[3];
+	x = M256L(xmm, 0);
+	y = M256L(xmm, 1);
+	z = M256L(xmm, 2);
+	w = M256L(xmm, 3);
 
 	return *this;
 }
@@ -83,10 +83,10 @@ vec4l& vec4l::Add(int64 v) {
 	__m256i xmm = _mm256_set_epi64x(d, c, b, a);
 	xmm = _mm256_add_epi64(xmm, vxmm);
 
-	x = xmm.m256i_i64[0];
-	y = xmm.m256i_i64[1];
-	z = xmm.m256i_i64[2];
-	w = xmm.m256i_i64[3];
+	x = M256L(xmm, 0);
+	y = M256L(xmm, 1);
+	z = M256L(xmm, 2);
+	w = M256L(xmm, 3);
 
 	return *this;
 }
@@ -105,10 +105,10 @@ vec4l& vec4l::Sub(int64 v) {
 	__m256i xmm = _mm256_set_epi64x(d, c, b, a);
 	xmm = _mm256_sub_epi64(xmm, vxmm);
 
-	x = xmm.m256i_i64[0];
-	y = xmm.m256i_i64[1];
-	z = xmm.m256i_i64[2];
-	w = xmm.m256i_i64[3];
+	x = M256L(xmm, 0);
+	y = M256L(xmm, 1);
+	z = M256L(xmm, 2);
+	w = M256L(xmm, 3);
 
 	return *this;
 }
