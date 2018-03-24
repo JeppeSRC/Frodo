@@ -14,9 +14,9 @@ vec3d& vec3d::Add(const vec3d& v) {
 	__m256d xmm = _mm256_set_pd(0, z, y, x);
 	xmm = _mm256_add_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
 	
 	return *this;
 }
@@ -27,9 +27,9 @@ vec3d& vec3d::Sub(const vec3d& v) {
 	__m256d xmm = _mm256_set_pd(0, z, y, x);
 	xmm = _mm256_sub_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
 
 	return *this;
 }
@@ -40,9 +40,9 @@ vec3d& vec3d::Mul(const vec3d& v) {
 	__m256d xmm = _mm256_set_pd(0, z, y, x);
 	xmm = _mm256_mul_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
 
 	return *this;
 }
@@ -53,9 +53,9 @@ vec3d& vec3d::Div(const vec3d& v) {
 	__m256d xmm = _mm256_set_pd(0, z, y, x);
 	xmm = _mm256_div_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
 
 	return *this;
 }
@@ -66,9 +66,9 @@ vec3d& vec3d::Add(float64 v) {
 	__m256d xmm = _mm256_set_pd(0, z, y, x);
 	xmm = _mm256_add_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
 
 	return *this;
 }
@@ -79,9 +79,9 @@ vec3d& vec3d::Sub(float64 v) {
 	__m256d xmm = _mm256_set_pd(0, z, y, x);
 	xmm = _mm256_sub_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
 
 	return *this;
 }
@@ -92,9 +92,9 @@ vec3d& vec3d::Mul(float64 v) {
 	__m256d xmm = _mm256_set_pd(0, z, y, x);
 	xmm = _mm256_mul_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
 
 	return *this;
 }
@@ -105,9 +105,9 @@ vec3d& vec3d::Div(float64 v) {
 	__m256d xmm = _mm256_set_pd(0, z, y, x);
 	xmm = _mm256_div_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
 
 	return *this;
 }
@@ -138,7 +138,7 @@ vec3d vec3d::Cross(const vec3d& v) const {
 float64 vec3d::Dot(const vec3d& v) const {
 	__m256d xmm = _mm256_set_pd(0, v.z, v.y, v.x);
 	xmm = _mm256_mul_pd(xmm, _mm256_set_pd(0, y, z, x));
-	return xmm.m256d_f64[0] + xmm.m256d_f64[1] + xmm.m256d_f64[2];
+	return M256D(xmm, 0) + M256D(xmm, 1) + M256D(xmm, 2);
 }
 
 }
