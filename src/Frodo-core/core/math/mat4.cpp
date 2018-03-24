@@ -77,8 +77,8 @@ mat4 mat4::Rotate(const vec3& v) {
 mat4 mat4::Perspective(float32 aspect, float32 fov, float32 zNear, float32 zFar) {
 	mat4 m(1);
 
-	m.m[0 + 0 * 4] = 1.0f / (aspect * (tanh(fov * 0.5f)));
-	m.m[1 + 1 * 4] = 1.0f / (tanh(fov * 0.5f));
+	m.m[0 + 0 * 4] = 1.0f / (aspect * ((float32)tanh(fov * 0.5f)));
+	m.m[1 + 1 * 4] = 1.0f / ((float32)tanh(fov * 0.5f));
 	m.m[2 + 2 * 4] = zFar / (zFar - zNear);
 	m.m[3 + 2 * 4] = 1;
 	m.m[2 + 3 * 4] = -zNear * (zFar / (zFar - zNear));
