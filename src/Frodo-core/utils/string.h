@@ -59,12 +59,14 @@ public:
 
 	inline const char* operator*() const { return c_str(); }
 
+#ifdef FD_WINDOWS
 	inline wchar_t* GetWCHAR() const {
 		wchar_t* tmp = new wchar_t[length() + 1];
 		swprintf_s(tmp, length() + 1, L"%S", **this);
 		tmp[length()] = '\0';
 		return tmp;
 	}
+#endif
 };
 
 }}

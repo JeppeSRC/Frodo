@@ -87,7 +87,13 @@ Adapter::~Adapter() {
 }
 
 bool Adapter::SupportsPresenting(uint32 queue) const {
+#ifdef FD_WINDOWS
 	return vkGetPhysicalDeviceWin32PresentationSupportKHR(device, queue);
+#elif FD_LINUX
+
+#endif
+
+	return false;
 }
 
 uint32 Adapter::GetQueue(VkQueueFlags flag, bool supportsPresenting) const {
@@ -136,7 +142,7 @@ VkSurfaceKHR Adapter::CreateSurface(const Window* window) {
 		FD_FATAL("[Adapter] Failed to create surface on device \"%s\"", *GetName());
 	}
 
-#else
+#elif FD_LINUX
 
 
 #endif

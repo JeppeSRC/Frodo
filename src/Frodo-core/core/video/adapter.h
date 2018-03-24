@@ -48,14 +48,20 @@ public:
 #ifdef FD_WINDOWS
 typedef VkBool32(VKAPI_CALL *PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR)(VkPhysicalDevice physicalDevice, uint32 queueFamilyIndex);
 typedef VkResult(VKAPI_CALL *PFN_vkCreateWin32SurfaceKHR)(VkInstance instance, const vkWin32SurfaceCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSurfaceKHR* pSurface);
+#elif FD_LINUX
 
 #endif
+
 class Window;
 
 class Adapter {
 private:
+#ifdef FD_WINDOWS
 	static PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR vkGetPhysicalDeviceWin32PresentationSupportKHR;
 	static PFN_vkCreateWin32SurfaceKHR vkCreateWin32SurfaceKHR;
+#elif FD_LINUX
+
+#endif
 	static bool intialized;
 	
 public:
