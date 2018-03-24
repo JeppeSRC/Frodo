@@ -17,9 +17,9 @@ vec3& vec3::Add(const vec3& v) {
 	__m128 xmm = _mm_set_ps(0, z, y, x);
 	xmm = _mm_add_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
-	z = xmm.m128_f32[2];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
+	z = M128(xmm, 2);
 
 	return *this;
 }
@@ -31,9 +31,9 @@ vec3& vec3::Sub(const vec3& v) {
 	__m128 xmm = _mm_set_ps(0, z, y, x);
 	xmm = _mm_sub_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
-	z = xmm.m128_f32[2];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
+	z = M128(xmm, 2);
 
 	return *this;
 }
@@ -45,9 +45,9 @@ vec3& vec3::Mul(const vec3& v) {
 	__m128 xmm = _mm_set_ps(0, z, y, x);
 	xmm = _mm_mul_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
-	z = xmm.m128_f32[2];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
+	z = M128(xmm, 2);
 
 	return *this;
 }
@@ -59,9 +59,9 @@ vec3& vec3::Div(const vec3& v) {
 	__m128 xmm = _mm_set_ps(0, z, y, x);
 	xmm = _mm_div_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
-	z = xmm.m128_f32[2];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
+	z = M128(xmm, 2);
 
 	return *this;
 }
@@ -77,9 +77,9 @@ vec3& vec3::Add(float32 v) {
 	__m128 xmm = _mm_set_ps(0, z, y, x);
 	xmm = _mm_add_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
-	z = xmm.m128_f32[2];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
+	z = M128(xmm, 2);
 
 	return *this;
 }
@@ -91,9 +91,9 @@ vec3& vec3::Sub(float32 v) {
 	__m128 xmm = _mm_set_ps(0, z, y, x);
 	xmm = _mm_sub_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
-	z = xmm.m128_f32[2];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
+	z = M128(xmm, 2);
 
 	return *this;
 }
@@ -105,9 +105,9 @@ vec3& vec3::Mul(float32 v) {
 	__m128 xmm = _mm_set_ps(0, z, y, x);
 	xmm = _mm_mul_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
-	z = xmm.m128_f32[2];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
+	z = M128(xmm, 2);
 
 	return *this;
 }
@@ -119,9 +119,9 @@ vec3& vec3::Div(float32 v) {
 	__m128 xmm = _mm_set_ps(0, z, y, x);
 	xmm = _mm_div_ps(xmm, vxmm);
 
-	x = xmm.m128_f32[0];
-	y = xmm.m128_f32[1];
-	z = xmm.m128_f32[2];
+	x = M128(xmm, 0);
+	y = M128(xmm, 1);
+	z = M128(xmm, 2);
 
 	return *this;
 }
@@ -152,7 +152,7 @@ vec3 vec3::Cross(const vec3& v) const {
 float32 vec3::Dot(const vec3& v) const {
 	__m128 xmm = _mm_set_ps(0, v.z, v.y, v.x);
 	xmm = _mm_mul_ps(xmm, _mm_set_ps(0, y, z, x));
-	return xmm.m128_f32[0] + xmm.m128_f32[1] + xmm.m128_f32[2];
+	return M128(xmm, 0) + M128(xmm, 1) + M128(xmm, 2);
 }
 
 #pragma endregion
