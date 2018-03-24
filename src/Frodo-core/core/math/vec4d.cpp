@@ -14,10 +14,10 @@ vec4d& vec4d::Add(const vec4d& v) {
 	__m256d xmm = _mm256_set_pd(w, z, y, x);
 	xmm = _mm256_add_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
-	w = xmm.m256d_f64[3];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
+	w = M256D(xmm, 3);
 
 	return *this;
 }
@@ -28,10 +28,10 @@ vec4d& vec4d::Sub(const vec4d& v) {
 	__m256d xmm = _mm256_set_pd(w, z, y, x);
 	xmm = _mm256_sub_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
-	w = xmm.m256d_f64[3];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
+	w = M256D(xmm, 3);
 
 	return *this;
 }
@@ -42,10 +42,10 @@ vec4d& vec4d::Mul(const vec4d& v) {
 	__m256d xmm = _mm256_set_pd(w, z, y, x);
 	xmm = _mm256_mul_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
-	w = xmm.m256d_f64[3];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
+	w = M256D(xmm, 3);
 
 	return *this;
 }
@@ -56,10 +56,10 @@ vec4d& vec4d::Div(const vec4d& v) {
 	__m256d xmm = _mm256_set_pd(w, z, y, x);
 	xmm = _mm256_div_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
-	w = xmm.m256d_f64[3];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
+	w = M256D(xmm, 3);
 
 	return *this;
 }
@@ -70,10 +70,10 @@ vec4d& vec4d::Add(float64 v) {
 	__m256d xmm = _mm256_set_pd(w, z, y, x);
 	xmm = _mm256_add_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
-	w = xmm.m256d_f64[3];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
+	w = M256D(xmm, 3);
 
 	return *this;
 }
@@ -84,10 +84,10 @@ vec4d& vec4d::Sub(float64 v) {
 	__m256d xmm = _mm256_set_pd(w, z, y, x);
 	xmm = _mm256_sub_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
-	w = xmm.m256d_f64[3];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
+	w = M256D(xmm, 3);
 
 	return *this;
 }
@@ -98,10 +98,10 @@ vec4d& vec4d::Mul(float64 v) {
 	__m256d xmm = _mm256_set_pd(w, z, y, x);
 	xmm = _mm256_mul_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
-	w = xmm.m256d_f64[3];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
+	w = M256D(xmm, 3);
 
 	return *this;
 }
@@ -112,10 +112,10 @@ vec4d& vec4d::Div(float64 v) {
 	__m256d xmm = _mm256_set_pd(w, z, y, x);
 	xmm = _mm256_div_pd(xmm, vxmm);
 
-	x = xmm.m256d_f64[0];
-	y = xmm.m256d_f64[1];
-	z = xmm.m256d_f64[2];
-	w = xmm.m256d_f64[3];
+	x = M256D(xmm, 0);
+	y = M256D(xmm, 1);
+	z = M256D(xmm, 2);
+	w = M256D(xmm, 3);
 
 	return *this;
 }
