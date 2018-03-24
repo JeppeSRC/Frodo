@@ -1,5 +1,6 @@
 #include "mat4.h"
-#include <memory>
+#include <memory.h>
+#include <string.h>
 
 namespace fd {
 namespace core {
@@ -100,11 +101,8 @@ mat4 mat4::operator*(const mat4& r) const {
 	for (uint_t y = 0; y < 4; y++) {
 		for (uint_t x = 0; x < 4; x++) {
 			res = _mm_mul_ps(row[x], col[y]);
-#ifdef FD_WINDOWS
-			tmp.m[x + y * 4] = res.m128_f32[0] + res.m128_f32[1] + res.m128_f32[2] + res.m128_f32[3];
-#elif FD_LINUX
-			tmp.m[x + y * 4] = res[0] + res[1] + res[2] + res[3];
-#endif
+
+			tmp.m[x + y * 4] = M128(res, 0)+ M128(res, 1) + M128(res, 2) + M128(res, 3);
 		}
 	}
 
@@ -124,11 +122,9 @@ vec3 mat4::operator*(const vec3& v) const {
 
 	for (uint_t i = 1; i < 4; i++)
 		res = _mm_fmadd_ps(row[i], col, res);
-#ifdef FD_WINDOWS
-	return vec3(res.m128_f32[0], res.m128_f32[1], res.m128_f32[2]);
-#elif FD_LINUX
-	return vec3(res[0], res[1], res[2]);
-#endif
+
+
+	return vec3(M128(res, 0), M128(res, 1), M128(res, 2));
 }
 
 vec4 mat4::operator*(const vec4& v) const {
@@ -145,11 +141,7 @@ vec4 mat4::operator*(const vec4& v) const {
 	for (uint_t i = 1; i < 4; i++)
 		res = _mm_fmadd_ps(row[i], col, res);
 
-#ifdef FD_WINDOWS
-	return vec4(res.m128_f32[0], res.m128_f32[1], res.m128_f32[2], res.m128_f32[3]);
-#elif FD_LINUX
-	return vec4(res[0], res[1], res[2], res[3]);
-#endif
+	return vec4(M128(res, 0), M128(res, 1), M128(res, 2), M128(res, 3));
 }
 
 mat4 mat4::Transpose(mat4 m) {

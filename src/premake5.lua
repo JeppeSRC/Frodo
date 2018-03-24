@@ -11,6 +11,11 @@ function setupReleaseConfiguration()
         linkoptions {
             "/LTCG:incremental"
         }
+    elseif _TARGET_OS == "linux" then
+        buildoptions {
+            "-msse4.1",
+            "-mfma"
+        }
     end
 
     optimize "Speed"
@@ -22,6 +27,11 @@ function setupDebugConfiguration()
         buildoptions {
             "/sdl",
             "/arch:AVX2"
+        }
+    elseif _TARGET_OS == "linux" then
+        buildoptions {
+            "-msse4.1",
+            "-mfma"
         }
     end
 
@@ -49,7 +59,7 @@ if (vk_path == nil) then
 
 workspace("Frodo")
     location "../solution/"
-   
+    cppdialect "c++14"
     startproject "Sandbox"
 
     configurations {
@@ -105,6 +115,7 @@ workspace("Frodo")
 
 project("Frodo-core")
     kind("StaticLib")
+    cppdialect "c++14"
     location "../solution/Frodo-core/"
     
     files {

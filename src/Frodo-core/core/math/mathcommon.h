@@ -5,8 +5,14 @@
 #include <core/types.h>
 #ifdef FD_WINDOWS
 #include <intrin.h>
+
+#define M128(x, i) x.m128_f32[i]
+
 #elif FD_LINUX
 #include <x86intrin.h>
+
+#define M128(x, i) x[i]
+
 #endif
 
 #define FD_PRE_TO_RADIANS 0.01745329251994329576923690768489
