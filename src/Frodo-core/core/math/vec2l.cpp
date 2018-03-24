@@ -17,8 +17,8 @@ vec2l& vec2l::Add(const vec2l& v) {
 	__m128i xmm = _mm_set_epi64x(b, a);
 	xmm = _mm_add_epi64(xmm, vxmm);
 
-	x = xmm.m128i_i64[0];
-	y = xmm.m128i_i64[1];
+	x = M128L(xmm, 0);
+	y = M128L(xmm, 1);
 
 	return *this;
 }
@@ -32,8 +32,8 @@ vec2l& vec2l::Sub(const vec2l& v) {
 	__m128i xmm = _mm_set_epi64x(b, a);
 	xmm = _mm_sub_epi64(xmm, vxmm);
 
-	x = xmm.m128i_i64[0];
-	y = xmm.m128i_i64[1];
+	x = M128L(xmm, 0);
+	y = M128L(xmm, 1);
 
 	return *this;
 }
@@ -63,8 +63,8 @@ vec2l& vec2l::Add(int64 v) {
 	__m128i xmm = _mm_set_epi64x(b, a);
 	xmm = _mm_add_epi64(xmm, vxmm);
 
-	x = xmm.m128i_i64[0];
-	y = xmm.m128i_i64[1];
+	x = M128L(xmm, 0);
+	y = M128L(xmm, 1);
 
 	return *this;
 }
@@ -79,8 +79,8 @@ vec2l& vec2l::Sub(int64 v) {
 	__m128i xmm = _mm_set_epi64x(b, a);
 	xmm = _mm_sub_epi64(xmm, vxmm);
 
-	x = xmm.m128i_i64[0];
-	y = xmm.m128i_i64[1];
+	x = M128L(xmm, 0);
+	y = M128L(xmm, 1);
 
 	return *this;
 }
