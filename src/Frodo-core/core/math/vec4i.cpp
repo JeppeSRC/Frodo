@@ -14,10 +14,10 @@ vec4i& vec4i::Add(const vec4i& v) {
 	__m128i xmm = _mm_set_epi32(w, z, y, x);
 	xmm = _mm_add_epi32(xmm, vxmm);
 
-	x = xmm.m128i_i32[0];
-	y = xmm.m128i_i32[1];
-	z = xmm.m128i_i32[2];
-	w = xmm.m128i_i32[3];
+	x = M128I(xmm, 0);
+	y = M128I(xmm, 1);
+	z = M128I(xmm, 2);
+	w = M128I(xmm, 3);
 
 	return *this;
 }
@@ -28,10 +28,10 @@ vec4i& vec4i::Sub(const vec4i& v) {
 	__m128i xmm = _mm_set_epi32(w, z, y, x);
 	xmm = _mm_sub_epi32(xmm, vxmm);
 
-	x = xmm.m128i_i32[0];
-	y = xmm.m128i_i32[1];
-	z = xmm.m128i_i32[2];
-	w = xmm.m128i_i32[3];
+	x = M128I(xmm, 0);
+	y = M128I(xmm, 1);
+	z = M128I(xmm, 2);
+	w = M128I(xmm, 3);
 
 	return *this;
 }
@@ -42,10 +42,10 @@ vec4i& vec4i::Mul(const vec4i& v) {
 	__m256i xmm = _mm256_set_epi32(0, w, 0, z, 0, y, 0, x);
 	xmm = _mm256_mul_epi32(xmm, vxmm);
 
-	x = xmm.m256i_i32[0];
-	y = xmm.m256i_i32[2];
-	z = xmm.m256i_i32[4];
-	w = xmm.m256i_i32[6];
+	x = M256I(xmm, 0);
+	y = M256I(xmm, 2);
+	z = M256I(xmm, 4);
+	w = M256I(xmm, 6);
 
 	return *this;
 }
@@ -66,10 +66,10 @@ vec4i& vec4i::Add(int32 v) {
 	__m128i xmm = _mm_set_epi32(w, z, y, x);
 	xmm = _mm_add_epi32(xmm, vxmm);
 
-	x = xmm.m128i_i32[0];
-	y = xmm.m128i_i32[1];
-	z = xmm.m128i_i32[2];
-	w = xmm.m128i_i32[3];
+	x = M128I(xmm, 0);
+	y = M128I(xmm, 1);
+	z = M128I(xmm, 2);
+	w = M128I(xmm, 3);
 
 	return *this;
 }
@@ -80,10 +80,10 @@ vec4i& vec4i::Sub(int32 v) {
 	__m128i xmm = _mm_set_epi32(w, z, y, x);
 	xmm = _mm_sub_epi32(xmm, vxmm);
 
-	x = xmm.m128i_i32[0];
-	y = xmm.m128i_i32[1];
-	z = xmm.m128i_i32[2];
-	w = xmm.m128i_i32[3];
+	x = M128I(xmm, 0);
+	y = M128I(xmm, 1);
+	z = M128I(xmm, 2);
+	w = M128I(xmm, 3);
 
 	return *this;
 }
@@ -94,10 +94,10 @@ vec4i& vec4i::Mul(int32 v) {
 	__m256i xmm = _mm256_set_epi32(0, w, 0, z, 0, y, 0, x);
 	xmm = _mm256_mul_epi32(xmm, vxmm);
 
-	x = xmm.m256i_i32[0];
-	y = xmm.m256i_i32[2];
-	z = xmm.m256i_i32[4];
-	w = xmm.m256i_i32[6];
+	x = M256I(xmm, 0);
+	y = M256I(xmm, 2);
+	z = M256I(xmm, 4);
+	w = M256I(xmm, 6);
 
 	return *this;
 }
