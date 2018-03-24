@@ -6,12 +6,27 @@
 #ifdef FD_WINDOWS
 #include <intrin.h>
 
-#define M128(x, i) x.m128_f32[i]
+#define M128(x, i)  x.m128_f32[i]
+#define M128D(x, i) x.m128d_f64[i]
+#define M128I(x, i) x.m128i_i32[i]
+#define M128L(x, i) x.m128i_i64[i]
+
+#define M256D(x, i) x.m256d_f64[i]
+#define M256I(x, i) x.m256i_i32[i]
+#define M256L(x, i) x.m256i_i64[i]
 
 #elif FD_LINUX
 #include <x86intrin.h>
 
-#define M128(x, i) x[i]
+#define M128(x, i)  x[i]
+#define M128D(x, i) M128(x, i)
+#define M128I(x, i) (((int32*)&x)[i])
+#define M128L(x, i) M128(x, i)
+
+#define M256(x, i)  M128(x, i)
+#define M256D(x, i) M256(x, i)
+#define M256I(x, i) (((int32*)&x)[i])
+#define M256L(x, i) M256(x, i)
 
 #endif
 
