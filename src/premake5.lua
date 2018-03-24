@@ -1,25 +1,29 @@
 function setupReleaseConfiguration()
-    buildoptions {
-        "/GL",
-        "/sdl-",
-        "/Ot",
-        "/GS-",
-        "/arch:AVX2"
-    }
+    if _TARGET_OS == "windows" then
+        buildoptions {
+            "/GL",
+            "/sdl-",
+            "/Ot",
+            "/GS-",
+            "/arch:AVX2"
+        }
 
-    linkoptions {
-        "/LTCG:incremental"
-    }
+        linkoptions {
+            "/LTCG:incremental"
+        }
+    end
 
     optimize "Speed"
     inlining "Auto"
 end
 
-function setupDebugConfiguration() 
-    buildoptions {
-        "/sdl",
-        "/arch:AVX2"
-    }
+function setupDebugConfiguration()
+    if _TARGET_OS == "windows" then
+        buildoptions {
+            "/sdl",
+            "/arch:AVX2"
+        }
+    end
 
     optimize "Off"
     inlining "Disabled"
@@ -114,7 +118,7 @@ project("Frodo-core")
   
 
     includedirs {
-        "Frodo-core/",
+        "Frodo-core/"
     }
 
     filter("Release-VK or Debug-VK")
