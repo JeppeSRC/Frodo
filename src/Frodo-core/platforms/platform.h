@@ -1,17 +1,18 @@
 #pragma once
 
-
-#ifdef FD_WINDOWS
-#include <Windows.h>
 #ifdef FD_DX
 #include <d3d11.h>
 #include <d3d10.h>
 #include <dxgi.h>
 #include <d3dcompiler.h>
-#elif defined(FD_VK)
+#elif FD_VK
 #include <vulkan.h>
 #include <vk_platform.h>
 #include <vk_layer.h>
+#endif
+
+#ifdef FD_WINDOWS
+#include <Windows.h>
 
 typedef VkFlags VkWin32SurfaceCreateFlagsKHR;
 
@@ -23,8 +24,10 @@ struct vkWin32SurfaceCreateInfoKHR {
 	HWND hwnd;
 };
 
-#endif
-#elif defined(FD_LINUX) 
+
+#elif FD_LINUX
+
+#include <xcb/xcb.h>
 
 typedef VkFlags VkXcbSurfaceCreateFlagsKHR;
 
@@ -35,4 +38,5 @@ struct VkXcbSurfaceCreateInfoKHR {
 	xcb_connection_t*           connection;
 	xcb_window_t                window;
 } VkXcbSurfaceCreateInfoKHR;
+
 #endif

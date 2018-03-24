@@ -3,7 +3,11 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <core/types.h>
+#ifdef FD_WINDOWS
 #include <intrin.h>
+#elif FD_LINUX
+#include <x86intrin.h>
+#endif
 
 #define FD_PRE_TO_RADIANS 0.01745329251994329576923690768489
 #define FD_PRE_TO_DEGREES 57.295779513082320876798154814105

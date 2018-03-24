@@ -1,5 +1,6 @@
 #pragma once
 #include "log.h"
+#include <stdarg.h>
 
 namespace fd { 
 namespace core { 
