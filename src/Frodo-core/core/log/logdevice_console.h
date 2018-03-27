@@ -17,7 +17,9 @@ private:
 
 public:
 	LogDeviceConsole();
+	#ifdef FD_WINDOWS
 	LogDeviceConsole(HANDLE consoleHandle);
+	#endif
 
 	void Log(LogLevel logLevel, const char* const message, va_list list) override;
 };
