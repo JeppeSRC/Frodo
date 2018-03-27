@@ -137,7 +137,12 @@ project("Frodo-core")
 
     filter("Release-VK or Debug-VK")
         includedirs { vk_path .. "/include/vulkan" }
-        libdirs { vk_path ..  "/Lib" }
+        if _TARGET_OS == "windows" then
+            libdirs { vk_path ..  "/Lib" }
+        end
+        if _TARGET_OS == "linux" then
+            libdirs { vk_path ..  "/lib" }
+        end
         targetprefix "VK-"
 
     filter("Release-DX or Debug-DX")
@@ -151,16 +156,16 @@ project("Frodo-core")
 
     filter {"system:linux"}
         removefiles {
-            "Frodo-core/platforms/**WIN*.h",
-            "Frodo-core/platforms/**WIN*.cpp",
-            "Frodo-core/platforms/**DX*.h",
-            "Frodo-core/platforms/**DX*.cpp"
+            "Frodo-core/platforms/windows/**.h",
+            "Frodo-core/platforms/windows/**.cpp",
+            "Frodo-core/platforms/directx/**.h",
+            "Frodo-core/platforms/directx/**.cpp"
         }
 
     filter {"system:windows"}
         removefiles {
-              "Frodo-core/platforms/linux/**LNX*.h",
-               "Frodo-core/platforms/linux/**LNX*.cpp"
+              "Frodo-core/platforms/linux/**.h",
+               "Frodo-core/platforms/linux/**.cpp"
         }
 
 
@@ -178,29 +183,32 @@ project("Sandbox")
         "Sandbox/**.cpp",
         "Sandbox/**.h"
     }
-    
-    filter("Release-VK or Debug-VK")
-        libdirs { vk_path ..  "/Lib" }
-        includedirs { vk_path .. "/include/vulkan" }
-
-    filter {}
 
     includedirs {"Frodo-core/", "Sandbox/"}
 
     links {"Frodo-core"}
+    
+    filter {"Release-VK or Debug-VK", "system:windows"}
+        libdirs { vk_path ..  "/Lib" }
+        includedirs { vk_path .. "/include/vulkan" }
+        links "vulkan-1"
 
-    if _TARGET_OS == "windows" then
+    filter {"Release-VK or Debug-VK", "system:linux"}
+        libdirs { vk_path ..  "/lib" }
+        includedirs { vk_path .. "/include/vulkan" }
+        links "vulkan"
+
+    filter ""
+        
+        if _TARGET_OS == "windows" then
 
         postbuildcommands { "call \"$(SolutionDir)../src/post.bat\" \"$(SolutionDir)../src/Sandbox/res\"" }
    
-        filter("Release-DX or Release-VK")
+        filter ("Release-DX or Release-VK")
             links {
                 "D3D11",
                 "DXGI"
             }
     end
 
-    filter("Release-VK or Debug-VK")
-        links {
-            "vulkan-1"
-        }
+    filter ""
