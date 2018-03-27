@@ -20,7 +20,7 @@ void LogDeviceConsole::Log(LogLevel level, const char* message, va_list list) {
             printf("\033[1;33mWARNING: ");
             break;
         case LogLevel::Fatal:
-            printf("\033[1;31mINFO: ");
+            printf("\033[1;31mFATAL: ");
             break;
     }
 
