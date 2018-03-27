@@ -37,6 +37,6 @@ struct VkXcbSurfaceCreateInfoKHR {
 	VkXcbSurfaceCreateFlagsKHR  flags;
 	xcb_connection_t*           connection;
 	xcb_window_t                window;
-} VkXcbSurfaceCreateInfoKHR;
+};
 
 #endif
