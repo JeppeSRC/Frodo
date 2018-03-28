@@ -32,6 +32,8 @@ private:
 #ifdef FD_WINDOWS
 	HWND hwnd;
 #elif FD_LINUX
+	Display* display;
+	Window window;
 #endif
 	WindowCreateInfo* info;
 

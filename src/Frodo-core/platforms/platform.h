@@ -27,8 +27,21 @@ struct vkWin32SurfaceCreateInfoKHR {
 
 #elif FD_LINUX
 
-#include <xcb/xcb.h>
+#define XLIB_ILLEGAL_ACCESS
+#include <X11/Xlib.h>
 
+#ifdef None
+#undef None
+#endif
+
+#ifdef Always
+#undef Always
+#endif
+
+#ifdef Never
+#undef Never
+#endif
+/*
 typedef VkFlags VkXcbSurfaceCreateFlagsKHR;
 
 struct VkXcbSurfaceCreateInfoKHR {
@@ -37,6 +50,16 @@ struct VkXcbSurfaceCreateInfoKHR {
 	VkXcbSurfaceCreateFlagsKHR  flags;
 	xcb_connection_t*           connection;
 	xcb_window_t                window;
+};*/
+
+typedef VkFlags VkXlibSurfaceCreateFlagsKHR;
+
+struct VkXlibSurfaceCreateInfoKHR {
+    VkStructureType                sType;
+    const void*                    pNext;
+    VkXlibSurfaceCreateFlagsKHR    flags;
+    Display*                       dpy;
+    Window                         window;
 };
 
 #endif

@@ -196,7 +196,11 @@ project("Sandbox")
     filter {"Release-VK or Debug-VK", "system:linux"}
         libdirs { vk_path ..  "/lib" }
         includedirs { vk_path .. "/include/vulkan" }
-        links "vulkan"
+        links {
+            "vulkan",
+            "X11",
+            "xcb"
+        }
 
     filter ""
         

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <utils/list.h>
 #include <core/enums.h>
+#include <utils/list.h>
 
 #ifdef FD_WINDOWS
 #define FUNCSIG __FUNCSIG__
