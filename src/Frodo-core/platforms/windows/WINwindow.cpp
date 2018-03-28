@@ -1,4 +1,4 @@
-#include <core/video/window.h>
+#include "WINwindow.h"
 #include <core/video/context.h>
 #include <core/log/log.h>
 
@@ -8,10 +8,10 @@ namespace video {
 
 using namespace log;
 
-std::unordered_map<HWND, Window*> Window::windowHandles;
+std::unordered_map<HWND, WINWindow*> WINWindow::windowHandles;
 
-LRESULT Window::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
-	Window* window = windowHandles[hwnd];
+LRESULT WINWindow::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
+	WINWindow* window = windowHandles[hwnd];
 
 	switch (msg) {
 		case WM_CLOSE:
@@ -22,7 +22,7 @@ LRESULT Window::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
 	return DefWindowProc(hwnd, msg, w, l);
 }
 
-Window::Window(WindowCreateInfo* info) : info(info), open(false) {
+WINWindow::WINWindow(WindowCreateInfo* info) : Window(info) {
 
 	WNDCLASSEX wnd = { 0 };
 
@@ -34,17 +34,17 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 	wnd.style = CS_VREDRAW | CS_HREDRAW;
 
 	if (!RegisterClassEx(&wnd)) {
-		Log::Fatal("[Window] Failed to register class");
+		Log::Fatal("[WINWindow] Failed to register class");
 		return;
 	}
 
 	if (Factory::GetAdapters().Find(info->graphicsAdapter) == ~0) {
-		FD_WARN("[Window] Invalid adapter specified!");
+		FD_WARN("[WINWindow] Invalid adapter specified!");
 		info->graphicsAdapter = Factory::GetAdapters()[0];
 	}
 
 	if (Factory::GetOutputs().Find(info->outputWindow) == ~0) {
-		FD_WARN("[Window] Invalid output specified!");
+		FD_WARN("[WINWindow] Invalid output specified!");
 		info->outputWindow = Factory::GetOutputs()[0];
 	}
 
@@ -75,7 +75,7 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 	hwnd = CreateWindow(L"DANK", info->title.GetWCHAR(), WS_OVERLAPPEDWINDOW, xPos, yPos, r.right - r.left, r.bottom - r.top, 0, 0, 0, 0);
 	Log::Debug("%u %u", r.right - r.left, r.bottom - r.top);
 	if (!hwnd) {
-		FD_FATAL("[Window] Failed to create window! %u", GetLastError());
+		FD_FATAL("[WINWindow] Failed to create window! %u", GetLastError());
 		return;
 	}
 
@@ -91,7 +91,7 @@ Window::Window(WindowCreateInfo* info) : info(info), open(false) {
 	windowHandles[hwnd] = this;
 }
 
-void Window::Update() const {
+void WINWindow::Update() const {
 
 	MSG msg;
 
@@ -102,7 +102,7 @@ void Window::Update() const {
 
 }
 
-void Window::SetVisible(bool state) {
+void WINWindow::SetVisible(bool state) {
 	ShowWindow(hwnd, state ? SW_SHOW : SW_HIDE);
 }
 

@@ -28,40 +28,48 @@ struct WindowCreateInfo {
 };
 
 class Window {
-private:
-#ifdef FD_WINDOWS
-	HWND hwnd;
-#elif FD_LINUX
-	Display* display;
-	Window window;
-#endif
+protected:
 	WindowCreateInfo* info;
 
 	bool open;
-public:
-	Window(WindowCreateInfo* info);
-	
-	void Update() const;
 
-	void SetVisible(bool state);
+	Window(WindowCreateInfo* info);
+public:
+	
+	virtual void Update() const = 0;
+
+	virtual void SetVisible(bool state) = 0;
 
 	inline uint32 GetWidth() const { return info->width; }
 	inline uint32 GetHeight() const { return info->height; }
 	inline utils::String GetTitle() const { return info->title; }
-	#ifdef FD_WINDOWS
-	inline HWND GetHandle() const { return hwnd; }
-	#elif FD_LINUX
-	#endif
 	inline const WindowCreateInfo* GetCreateInfo() const { return info; }
 	inline bool IsOpen() const { return open; }
+};
 
-
-private:
 #ifdef FD_WINDOWS
-	static std::unordered_map<HWND, Window*> windowHandles;
+
+class WINWindow : public Window {
+private:
+	HWND hwnd;
+
+public:
+	WINWindow(WindowCreateInfo* info);
+
+	void Update() const override;
+
+	void SetVisible(bool state) override;
+
+	inline HWND GetHandle() const { return hwnd; }
+private:
+	static std::unordered_map<HWND, WINWindow*> windowHandles;
 
 	static LRESULT __stdcall WndProc(HWND, UINT, WPARAM, LPARAM);
-#endif
+
 };
+
+#elif FD_LINUX
+
+#endif
 
 } } }
