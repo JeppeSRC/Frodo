@@ -8,7 +8,7 @@ namespace log {
 
 LogDeviceFile::LogDeviceFile(const char* const filename) : LogDevice(LogDeviceType::File) {
 	if (filename) {
-		file = fopen(filename, "w");
+		file = fopen(filename, "a+");
 	} else {
 		time_t time = std::time(0);
 		struct tm* now = localtime(&time);
@@ -20,7 +20,7 @@ LogDeviceFile::LogDeviceFile(const char* const filename) : LogDevice(LogDeviceTy
 		char str[128];
 		sprintf(str, "log-%u-%u-%u.txt\0", year, month, day);
 
-		file = fopen(str, "w");
+		file = fopen(str, "a+");
 	}
 }
 
