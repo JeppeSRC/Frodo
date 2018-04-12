@@ -1,55 +1,3 @@
-function setupReleaseConfiguration()
-    if _TARGET_OS == "windows" then
-        buildoptions {
-            "/GL",
-            "/sdl-",
-            "/Ot",
-            "/GS-",
-            "/arch:AVX2"
-        }
-
-        linkoptions {
-            "/LTCG:incremental"
-        }
-    elseif _TARGET_OS == "linux" then
-        buildoptions {
-            "-msse4.1",
-            "-mfma",
-            "-mavx2",
-            "-fpermissive"
-        }
-    end
-
-    optimize "Speed"
-    inlining "Auto"
-end
-
-function setupDebugConfiguration()
-    if _TARGET_OS == "windows" then
-        buildoptions {
-            "/sdl",
-            "/arch:AVX2"
-        }
-    elseif _TARGET_OS == "linux" then
-        buildoptions {
-            "-msse4.1",
-            "-mfma",
-            "-mavx2",
-            "-fpermissive"
-        }
-    end
-
-    optimize "Off"
-    inlining "Disabled"
-end
-
-function setupX64Platform()
-    architecture "x86_64"
-    defines "FD_PLATFORM_X64"
-
-    callingconvention "FastCall"
-end
-
 vk_path = os.getenv("VULKAN_SDK");
 
 if (vk_path == nil) then
@@ -61,158 +9,148 @@ if (vk_path == nil) then
     os.exit()
  end
 
-workspace("Frodo")
+ workspace("Frodo")
+    startproject "Sandbox"
     location "../solution/"
     cppdialect "c++14"
-    startproject "Sandbox"
+
+    platforms "x64"
 
     configurations {
+        "Release",
+        "Debug",
         "Release-VK",
         "Debug-VK"
     }
 
-    platforms {
-        "x64"
-    }
+    if (__TARGET_OS == "windows") then
+        configurations {
+            "Release-DX",
+            "Debug-DX"
+        }
+    end
 
-    defines "FD_LINUX"
+    includedirs "Frodo-core/"
 
+    -- Global
     floatingpoint "Fast"
     intrinsics "on"
 
-    if _TARGET_OS == "windows" then
-        removedefines "FD_LINUX"
-        defines { 
+    architecture "x86_64"
+    defines "FD_PLATFORM_X64"
+
+    callingconvention "FastCall"
+
+    filter {"Release or Release-VK or Release-DX"}
+        optimize "Speed"
+        inlining "Auto"
+
+    filter {"Debug or Debug-VK or Debug-DX"}
+        optimize "Off"
+        inlining "Disabled"       
+
+    -- Windows Specific
+    filter("system:windows")
+        defines {
             "FD_WINDOWS",
             "_CRT_NON_CONFORMING_SWPRINTFS",
             "_CRT_SECURE_NO_WARNINGS"
         }
 
-        configurations {
-            "Release-DX",
-            "Debug-DX",
-        }
-
+    filter {"system:windows", "Release or Release-VK or Release-DX"}
         buildoptions {
-            "/wd4251"
+            "/GL",
+            "/sdl-",
+            "/Ot",
+            "/GS-",
+            "/arch:AVX2"
         }
 
-        filter("configurations:Release-DX")
-            defines {"FD_RELEASE", "FD_DX" }
-            setupReleaseConfiguration()
+        linkoptions {
+            "/LTCG:incremental"
+        }
 
-        filter("configurations:Debug-DX")
-            defines {"FD_DEBUG", "FD_DX" }
-            setupDebugConfiguration()
-    end
+    filter {"system:windows", "Debug or Debug-VK or Debug-DX"}
+        buildoptions {
+            "/sdl",
+            "/arch:AVX2"
+        }
 
-    filter("configurations:Release-VK")
-        defines {"FD_RELEASE", "FD_VK" }
-        setupReleaseConfiguration()
+    -- Linux Specific
+    filter("system:linux")
+        defines {
+            "FD_LINUX"
+        }
 
-    filter("configurations:Debug-VK")
-        defines {"FD_DEBUG", "FD_VK" }
-        setupDebugConfiguration()
+    filter {"system:linux", "Release or Release-VK"}
+        buildoptions {
+            "-msse4.1",
+            "-mfma",
+            "-mavx2",
+            "-fpermissive"
+        }
 
-    filter("platforms:x64")
-        setupX64Platform()
+    filter {"system:linux", "Debug or Debug-VK"}
+        buildoptions {
+            "-msse4.1",
+            "-mfma",
+            "-mavx2",
+            "-fpermissive"
+        }
+
+    filter ""
+
+    targetdir "../bin/%{cfg.buildcfg}/%{cfg.platform}/"
+    objdir "../bin/%{cfg.buildcfg}/%{cfg.platform}/intermediates"
 
 project("Frodo-core")
-    kind("StaticLib")
+    kind "StaticLib"
     location "../solution/Frodo-core/"
-    
+
     files {
         "Frodo-core/**.cpp",
         "Frodo-core/**.h",
         "Frodo-core/**.c"
     }
 
-    targetdir "../bin/%{cfg.buildcfg}/%{cfg.platform}/"
-    objdir "../bin/intermediates"
-  
-
-    includedirs {
-        "Frodo-core/"
-    }
-
-    filter("Release-VK or Debug-VK")
-        includedirs { vk_path .. "/include/vulkan" }
-        if _TARGET_OS == "windows" then
-            libdirs { vk_path ..  "/Lib" }
-        end
-        if _TARGET_OS == "linux" then
-            libdirs { vk_path ..  "/lib" }
-        end
-        targetprefix "VK-"
-
-    filter("Release-DX or Debug-DX")
-        targetprefix "DX-"
-
-    filter {"Release-VK or Debug-VK", "files:Frodo-core/**DX*.cpp"}
-        flags "ExcludeFromBuild"
-
-    filter {"Release-DX or Debug-DX", "files:Frodo-core/**VK*.cpp"}
-        flags "ExcludeFromBuild"
-
     filter {"system:linux"}
         removefiles {
-            "Frodo-core/platforms/windows/**.h",
-            "Frodo-core/platforms/windows/**.cpp",
-            "Frodo-core/platforms/directx/**.h",
-            "Frodo-core/platforms/directx/**.cpp"
+            "Frodo-core/**DX*.*",
+            "Frodo-core/**WIN*.*"
         }
-
+    
     filter {"system:windows"}
         removefiles {
-              "Frodo-core/platforms/linux/**.h",
-               "Frodo-core/platforms/linux/**.cpp"
+            "Frodo-core/**LNX*.*"
         }
 
+    filter {"system:windows", "Release-VK or Debug-VK", "files:Frodo-core/**DX*.cpp"}
+        flags "ExcludeFromBuild"
+
+    filter {"Release-DX or Debug-DX", "files:Frodo-core/**VK*.cpp"} 
+        flags "ExcludeFromBuild"
 
     filter ""
 
 project("Sandbox")
-    kind("ConsoleApp")
+    kind "ConsoleApp"
     location "../solution/Sandbox"
     dependson "Frodo-core"
-
-    targetdir "../bin/%{cfg.buildcfg}/%{cfg.platform}/"
-    objdir "../bin/intermediates"
 
     files {
         "Sandbox/**.cpp",
         "Sandbox/**.h"
     }
 
-    includedirs {"Frodo-core/", "Sandbox/"}
+    includedirs "Sandbox/"
 
-    links {"Frodo-core"}
-    
-    filter {"Release-VK or Debug-VK", "system:windows"}
-        libdirs { vk_path ..  "/Lib" }
-        includedirs { vk_path .. "/include/vulkan" }
-        links "vulkan-1"
+    links "Frodo-core"
 
-    filter {"Release-VK or Debug-VK", "system:linux"}
-        libdirs { vk_path ..  "/lib" }
-        includedirs { vk_path .. "/include/vulkan" }
-        links {
-            "vulkan",
-            "X11",
-            "xcb"
-        }
-
-    filter ""
-        
-        if _TARGET_OS == "windows" then
-
+    filter {"system:windows"}
         postbuildcommands { "call \"$(SolutionDir)../src/post.bat\" \"$(SolutionDir)../src/Sandbox/res\"" }
-   
-        filter ("Release-DX or Release-VK")
-            links {
-                "D3D11",
-                "DXGI"
-            }
-    end
 
-    filter ""
+    filter {"system:windows", "Release or Debug or Release-DX or Debug-DX"}
+        links {
+            "DXGI",
+            "D3D11"
+        }
