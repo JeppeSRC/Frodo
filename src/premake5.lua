@@ -18,20 +18,13 @@ if (vk_path == nil) then
 
     configurations {
         "Release",
-        "Debug",
-        "Release-VK",
-        "Debug-VK"
+        "Debug"
     }
 
-    if (__TARGET_OS == "windows") then
-        configurations {
-            "Release-DX",
-            "Debug-DX"
-        }
-    end
-
-    includedirs "Frodo-core/"
-
+    includedirs {
+        "Frodo-core/",
+        vk_path .. "/Include/vulkan/"
+    }
     -- Global
     floatingpoint "Fast"
     intrinsics "on"
@@ -41,11 +34,11 @@ if (vk_path == nil) then
 
     callingconvention "FastCall"
 
-    filter {"Release or Release-VK or Release-DX"}
+    filter {"Release"}
         optimize "Speed"
         inlining "Auto"
 
-    filter {"Debug or Debug-VK or Debug-DX"}
+    filter {"Debug"}
         optimize "Off"
         inlining "Disabled"       
 
@@ -57,7 +50,7 @@ if (vk_path == nil) then
             "_CRT_SECURE_NO_WARNINGS"
         }
 
-    filter {"system:windows", "Release or Release-VK or Release-DX"}
+    filter {"system:windows", "Release"}
         buildoptions {
             "/GL",
             "/sdl-",
@@ -70,7 +63,7 @@ if (vk_path == nil) then
             "/LTCG:incremental"
         }
 
-    filter {"system:windows", "Debug or Debug-VK or Debug-DX"}
+    filter {"system:windows", "Debug"}
         buildoptions {
             "/sdl",
             "/arch:AVX2"
@@ -82,7 +75,7 @@ if (vk_path == nil) then
             "FD_LINUX"
         }
 
-    filter {"system:linux", "Release or Release-VK"}
+    filter {"system:linux", "Release"}
         buildoptions {
             "-msse4.1",
             "-mfma",
@@ -90,7 +83,7 @@ if (vk_path == nil) then
             "-fpermissive"
         }
 
-    filter {"system:linux", "Debug or Debug-VK"}
+    filter {"system:linux", "Debug"}
         buildoptions {
             "-msse4.1",
             "-mfma",
@@ -115,7 +108,6 @@ project("Frodo-core")
 
     filter {"system:linux"}
         removefiles {
-            "Frodo-core/**DX*.*",
             "Frodo-core/**WIN*.*"
         }
     
@@ -123,12 +115,6 @@ project("Frodo-core")
         removefiles {
             "Frodo-core/**LNX*.*"
         }
-
-    filter {"system:windows", "Release-VK or Debug-VK", "files:Frodo-core/**DX*.cpp"}
-        flags "ExcludeFromBuild"
-
-    filter {"Release-DX or Debug-DX", "files:Frodo-core/**VK*.cpp"} 
-        flags "ExcludeFromBuild"
 
     filter ""
 
@@ -142,15 +128,14 @@ project("Sandbox")
         "Sandbox/**.h"
     }
 
-    includedirs "Sandbox/"
+    includedirs {
+        "Sandbox/"
+    }
+    
+    libdirs { vk_path .. "/Lib/" }
 
     links "Frodo-core"
+    links "vulkan-1"
 
     filter {"system:windows"}
         postbuildcommands { "call \"$(SolutionDir)../src/post.bat\" \"$(SolutionDir)../src/Sandbox/res\"" }
-
-    filter {"system:windows", "Release or Debug or Release-DX or Debug-DX"}
-        links {
-            "DXGI",
-            "D3D11"
-        }
