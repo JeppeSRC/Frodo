@@ -45,6 +45,8 @@ public:
 	inline utils::String GetTitle() const { return info->title; }
 	inline const WindowCreateInfo* GetCreateInfo() const { return info; }
 	inline bool IsOpen() const { return open; }
+
+	static Window* Create(WindowCreateInfo* info);
 };
 
 #ifdef FD_WINDOWS
