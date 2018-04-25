@@ -9,9 +9,7 @@ namespace app {
 
 class Application {
 private:
-	utils::String appName;
-
-	void Run();
+	void OnInitInternal();
 protected:
 	virtual void OnWindowCreate(video::WindowCreateInfo* info) = 0;
 	virtual void OnInit() = 0;
@@ -19,7 +17,13 @@ protected:
 	virtual void OnUpdate(float delta) = 0;
 	virtual void OnRender() = 0;
 	virtual void OnExit() = 0;
+	
 
+	utils::String appName;
+
+	video::Window* window;
+
+	bool running;
 public:
 	Application(const utils::String& name);
 	~Application();

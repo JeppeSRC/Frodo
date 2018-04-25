@@ -141,7 +141,7 @@ VkSurfaceKHR Adapter::CreateSurface(const Window* window) {
 	info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	info.pNext = nullptr;
 	info.instance = 0;
-	info.hwnd = window->GetHandle();
+	info.hwnd = ((WINWindow*)window)->GetHandle();
 
 	if (vkCreateWin32SurfaceKHR(Factory::GetInstance(), &info, nullptr, &surface) != VK_SUCCESS) {
 		FD_FATAL("[Adapter] Failed to create surface on device \"%s\"", *GetName());
