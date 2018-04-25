@@ -35,12 +35,6 @@ struct Vertex {
 
 int main() {
 
-	vec3d test(1, 0, 0);
-
-	test = test.Cross(vec3d(0, 1, 0));
-
-	printf("%f %f %f\n", test.x, test.y, test.z);
-
 	Log::AddDevice(new LogDeviceConsole());
 
 	Factory::CreateFactory();
@@ -54,7 +48,7 @@ int main() {
 	winfo.refreshRate = 60;
 	winfo.title = "Dank Title";
 
-	Window window(&winfo);
+	Window* window = Window::Create(&winfo);
 
 	ViewportInfo viewInfo = { 0, 0, winfo.width, winfo.height, 0.0f, 1.0f };
 	ScissorInfo scissorInfo = { 0, 0, viewInfo.width, viewInfo.height };
@@ -138,7 +132,7 @@ int main() {
 
 	Context::BeginCommandBuffers(FD_COMMAND_BUFFER_SIMULTANEOUS);
 	Context::BindPipeline(&pipeline);
-	Context::BindRenderPass(&renderPass); 
+	Context::BindRenderPass(&renderPass);
 	Context::BindPipelineLayout(&layout);
 	 
 	Context::Bind(&vbo, 0);
@@ -151,7 +145,7 @@ int main() {
 	unsigned int shit2 = clock();
  	unsigned int dankFps = 0;
 	float aa = 0; 
-	while (window.IsOpen()) {
+	while (window->IsOpen()) {
 		aa += 0.005f;
 
 		vec3 tmp(0, 0, aa);
@@ -162,7 +156,7 @@ int main() {
 
 		Context::Present();
 
-		window.Update(); 
+		window->Update(); 
 
 		dankFps++;
 		
