@@ -184,4 +184,9 @@ enum class CommandBufferType {
 	Secondary = VK_COMMAND_BUFFER_LEVEL_SECONDARY
 };
 
+enum class CommandBufferUsage {
+	Simultaneous = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+	OneTime = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+};
+
 }
