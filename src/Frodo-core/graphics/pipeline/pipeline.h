@@ -82,14 +82,6 @@ struct PipelineInfo {
 	FrontFace frotFace;
 };
 
-#ifdef FD_DX
-
-class Pipeline {
-private:
-};
-
-#else 
-
 class Pipeline {
 private:
 	PipelineInfo* info;
@@ -108,7 +100,5 @@ public:
 	inline RenderPass* GetRenderPass() const { return renderPass; }
 	inline PipelineLayout* GetPipelineLayout() const { return pipelineLayout; }
 };
-
-#endif
 
 } } }

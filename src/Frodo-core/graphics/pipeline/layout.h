@@ -32,10 +32,6 @@ struct DescriptorBinding {
 	texture::Sampler* sampler;
 };
 
-#ifdef FD_DX
-
-#else
-
 class PipelineLayout {
 private:
 	VkPipelineLayout layout;
@@ -69,8 +65,6 @@ public:
 	inline const utils::List<DescriptorBinding>& GetDescriptors() const { return descriptors; }
 
 };
-
-#endif
 
 }
 }

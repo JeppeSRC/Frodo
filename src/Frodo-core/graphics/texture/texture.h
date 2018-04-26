@@ -11,10 +11,6 @@ namespace fd {
 namespace graphics {
 namespace texture {
 
-#ifdef FD_DX
-
-#else
-
 class Texture {
 protected:
 	uint32 width;
@@ -50,8 +46,6 @@ public:
 
 	inline VkFormat GetFormat() const { return format; }
 };
-
-#endif
 
 }
 }

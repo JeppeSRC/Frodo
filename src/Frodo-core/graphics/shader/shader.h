@@ -7,9 +7,6 @@ namespace fd {
 namespace graphics {
 namespace shader {
 
-#ifdef FD_DX 
-
-#else
 
 class Shader {
 private:
@@ -26,6 +23,5 @@ public:
 	inline VkShaderModule GetGeometryShader() const { return geometryShader; }
 };
 
-#endif
 
 } } }

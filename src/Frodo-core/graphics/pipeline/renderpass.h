@@ -27,10 +27,6 @@ struct RenderPassInfo {
 
 };
 
-#ifdef FD_DX
-
-#else 
-
 class RenderPass {
 private:
 	VkRenderPass renderPass;
@@ -55,7 +51,6 @@ public:
 	inline VkFramebuffer GetFramebuffer(uint_t index) const { return framebufferObjects[index]; }
 };
 
-#endif
 
 
 }

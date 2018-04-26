@@ -6,9 +6,6 @@ namespace fd {
 namespace graphics {
 namespace buffer {
 
-#ifdef FD_DX
-
-#else
 
 class UniformBuffer : public Buffer {
 public:
@@ -16,8 +13,6 @@ public:
 	~UniformBuffer();
 
 };
-
-#endif
 
 }
 }
