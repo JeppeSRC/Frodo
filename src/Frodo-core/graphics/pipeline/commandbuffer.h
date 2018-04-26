@@ -12,11 +12,13 @@ namespace pipeline {
 class CommandBuffer {
 private:
 	CommandBufferType type;
-	utils::List<VkCommandBuffer> cmdBuffers;
+	VkCommandBuffer commandBuffer;
 
 public:
-	CommandBuffer(uint32 numBuffers, VkCommandPool pool, CommandBufferType type);
+	CommandBuffer(VkCommandPool pool, CommandBufferType type);
 	~CommandBuffer();
+
+	void Begin()
 
 };
 

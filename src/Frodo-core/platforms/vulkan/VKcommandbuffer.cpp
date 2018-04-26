@@ -7,18 +7,16 @@ namespace pipeline {
 
 using namespace core::video;
 
-CommandBuffer::CommandBuffer(uint32 numBuffers, VkCommandPool pool, CommandBufferType type) : type(type) {
+CommandBuffer::CommandBuffer(VkCommandPool pool, CommandBufferType type) : type(type) {
 	VkCommandBufferAllocateInfo info;
-
-	cmdBuffers.Resize(numBuffers);
 
 	info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	info.pNext = nullptr;
 	info.level = (VkCommandBufferLevel)type;
 	info.commandPool = pool;
-	info.commandBufferCount = numBuffers;
+	info.commandBufferCount = 1;
 
-	VK(vkAllocateCommandBuffers(Context::GetDevice(), &info, cmdBuffers.GetData()));
+	VK(vkAllocateCommandBuffers(Context::GetDevice(), &info, &commandBuffer));
 	
 }
 
