@@ -119,7 +119,6 @@ public:
 	static void CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBuffer buffer);
 
 public:
-	//These method will also exist in the D3D implementation
 	static void BeginCommandBuffers(uint32 usage);
 	static void EndCommandBuffers();
 
