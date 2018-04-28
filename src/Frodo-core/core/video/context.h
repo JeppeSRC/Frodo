@@ -152,6 +152,8 @@ public:
 	inline static VkQueue GetGraphicsQueue() { return graphicsQueue; }
 	inline static VkQueue GetPresentQueue() { return presentQueue; }
 
+	inline static VkCommandPool GetCommandPool() { return cmdPool; }
+
 	inline static const VkSemaphore& GetImageSemaphore() { return imageSemaphore; }
 	inline static const VkSemaphore& GetRenderSemaphore() { return renderSemaphore; }
 
