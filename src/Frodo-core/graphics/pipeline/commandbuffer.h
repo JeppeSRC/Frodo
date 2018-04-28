@@ -6,6 +6,8 @@
 #include <core/enums.h>
 #include <graphics/buffer/vertexbuffer.h>
 #include <graphics/buffer/indexbuffer.h>
+#include <graphics/pipeline/renderpass.h>
+#include <graphics/pipeline/pipeline.h>
 
 namespace fd {
 namespace graphics {
