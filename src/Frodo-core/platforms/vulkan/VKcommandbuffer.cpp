@@ -70,7 +70,7 @@ void CommandBuffer::BindPipeline(const Pipeline* const pipeline) {
 void CommandBuffer::BindPipelineLayout(const PipelineLayout* const pipelineLayout) {
 	const List<VkDescriptorSet>& sets = pipelineLayout->GetDescriptorSets();
 
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout->GetPipelineLayout(), 0, sets.GetSize(), sets.GetData(), 0, 0);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout->GetPipelineLayout(), 0, (uint32)sets.GetSize(), sets.GetData(), 0, 0);
 }
 
 
