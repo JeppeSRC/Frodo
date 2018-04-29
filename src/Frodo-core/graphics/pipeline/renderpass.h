@@ -15,20 +15,16 @@ namespace pipeline {
 
 struct RenderSubPassInfo {
 	uint32 colorAttachments[FD_MAX_ATTACHMENTS];
-
 	uint32 inputAttachments[FD_MAX_ATTACHMENTS];
 };
 
-
-
 struct RenderPassInfo {
 	utils::List<texture::Framebuffer*> framebuffers;
-	
 	utils::List<RenderSubPassInfo> subpasses;
 
 	uint32 depthAttachment;
 
-	core::math::vec4 colorAttachmentClearColor[FD_MAX_ATTACHMENTS];
+	core::math::vec4 clearColor;
 	float32 depthClearValue;
 };
 
@@ -38,6 +34,8 @@ private:
 
 	uint32 width;
 	uint32 height;
+
+	utils::List<VkClearValue> clearValues;
 
 	utils::List<texture::Framebuffer*> framebuffers;
 

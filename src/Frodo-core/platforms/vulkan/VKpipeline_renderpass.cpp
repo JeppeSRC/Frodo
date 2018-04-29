@@ -180,7 +180,10 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 		for (uint32 j = 0; j < FD_MAX_ATTACHMENTS; j++) {
 			ref.attachment = subInfo.colorAttachments[j];
 
-			if (ref.attachment == FD_NO_ATTACHMENT) {
+		if (ref.attachment == info->depthAttachment) {
+			Log::Fatal("[RenderPass] Color attachment can't use the same framebuffer as depth/stencil attachment");
+			return;
+		}  else if (ref.attachment == FD_NO_ATTACHMENT) {
 				subpass.colorAttachmentCount = j;
 				break;
 			} else if (ref.attachment == FD_SWAPCHAIN_ATTACHMENT_INDEX) {
@@ -224,6 +227,21 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 		}
 		
 		subpassDescriptions.Push_back(subpass);
+	}
+
+	clearValues.Resize(framebuffers.GetSize());
+
+	for (uint_t i = 0; framebuffers.GetSize(); i++) {
+		if (i == info->depthAttachment) {
+			clearValues[i].depthStencil.depth = info->depthClearValue;
+		} else {
+			memcpy(&clearValues[i].color, &info->clearColor, sizeof(vec4));
+		}
+	}
+
+	if (usesSwapchainImage) {
+		clearValues.Resize(clearValues.GetSize() + 1);
+		memcpy(&clearValues[swapchainIndex].color, &info->clearColor, sizeof(vec4));
 	}
 
 	List<VkSubpassDependency> dependencies;
@@ -318,7 +336,8 @@ RenderPass::~RenderPass() {
 }
 
 void RenderPass::InitializeRenderPass(VkRenderPassBeginInfo* const info) const {
-
+	info->clearValueCount = clearValues.GetSize();
+	info->pClearValues = clearValues.GetData();
 }
 
 }
