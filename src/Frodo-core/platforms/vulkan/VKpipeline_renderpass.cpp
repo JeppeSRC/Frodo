@@ -11,6 +11,7 @@ using namespace video;
 using namespace utils;
 using namespace texture;
 using namespace log;
+using namespace math;
 
 static bool CheckFramebuffers(const List<Framebuffer*>& framebuffers) {
 
@@ -148,6 +149,15 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 
 	bool usesSwapchainImage = false;
 
+	if (info->depthAttachment != FD_NO_ATTACHMENT) {
+		VkAttachmentReference ref;
+
+		ref.attachment = info->depthAttachment;
+		ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+		attachmentReferences.Push_back(ref);
+	}
+
 	for (uint_t i = 0; i < info->subpasses.GetSize(); i++) {
 		RenderSubPassInfo subInfo = info->subpasses[i];
 		
@@ -209,15 +219,10 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 
 		if (subpass.inputAttachmentCount != 0) subpass.pInputAttachments = &attachmentReferences[attachmentReferences.GetSize() - subpass.inputAttachmentCount];
 
-		if (subInfo.depthStencilAttachment != FD_NO_ATTACHMENT) {
-			ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			ref.attachment = subInfo.depthStencilAttachment;
-
-			attachmentReferences.Push_back(ref);
-
-			subpass.pDepthStencilAttachment = &attachmentReferences[attachmentReferences.GetSize() - 1];
+		if (info->depthAttachment != FD_NO_ATTACHMENT) {
+			subpass.pDepthStencilAttachment = &attachmentReferences[0];
 		}
-
+		
 		subpassDescriptions.Push_back(subpass);
 	}
 
@@ -310,6 +315,10 @@ RenderPass::~RenderPass() {
 	vkDestroyRenderPass(Context::GetDevice(), renderPass, nullptr);
 
 	delete info;
+}
+
+void RenderPass::InitializeRenderPass(VkRenderPassBeginInfo* const info) const {
+
 }
 
 }

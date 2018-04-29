@@ -3,6 +3,7 @@
 #include <platforms/platform.h>
 #include <utils/list.h>
 #include <graphics/texture/framebuffer.h>
+#include <core/math/vec4.h>
 
 #define FD_MAX_ATTACHMENTS 0x08
 #define FD_NO_ATTACHMENT (~(uint32)0)
@@ -14,17 +15,21 @@ namespace pipeline {
 
 struct RenderSubPassInfo {
 	uint32 colorAttachments[FD_MAX_ATTACHMENTS];
-	uint32 depthStencilAttachment;
 
 	uint32 inputAttachments[FD_MAX_ATTACHMENTS];
 };
 
+
+
 struct RenderPassInfo {
 	utils::List<texture::Framebuffer*> framebuffers;
-
+	
 	utils::List<RenderSubPassInfo> subpasses;
 
+	uint32 depthAttachment;
 
+	core::math::vec4 colorAttachmentClearColor[FD_MAX_ATTACHMENTS];
+	float32 depthClearValue;
 };
 
 class RenderPass {
@@ -43,6 +48,8 @@ public:
 	RenderPass();
 	RenderPass(const RenderPassInfo* info);
 	~RenderPass();
+
+	void InitializeRenderPass(VkRenderPassBeginInfo* const info) const;
 
 	inline uint32 GetWidth() const { return width; }
 	inline uint32 GetHeight() const { return height; }
