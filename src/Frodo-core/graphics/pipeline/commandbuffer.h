@@ -30,8 +30,8 @@ public:
 
 	void BindPipeline(const Pipeline* const pipeline);
 	void BindPipelineLayout(const PipelineLayout* const pipelineLayout);
-//	void Bind(const buffer::VertexBuffer* const vertexBuffer);
-//	void Bind(const buffer::IndexBuffer* const indexBuffer);
+	void Bind(const buffer::VertexBuffer* const vertexBuffer);
+	void Bind(const buffer::IndexBuffer* const indexBuffer);
 
 };
 

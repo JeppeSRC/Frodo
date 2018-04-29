@@ -18,7 +18,6 @@ CommandBuffer::CommandBuffer(VkCommandPool pool, CommandBufferType type) : type(
 	info.commandBufferCount = 1;
 
 	VK(vkAllocateCommandBuffers(Context::GetDevice(), &info, &commandBuffer));
-	
 }
 
 CommandBuffer::~CommandBuffer() {
@@ -71,6 +70,14 @@ void CommandBuffer::BindPipelineLayout(const PipelineLayout* const pipelineLayou
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout->GetPipelineLayout(), 0, (uint32)sets.GetSize(), sets.GetData(), 0, 0);
 }
 
+void CommandBuffer::Bind(const buffer::VertexBuffer* const vertexBuffer) {
+	VkDeviceSize offset = 0;
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vertexBuffer->GetBuffer(), &offset);
+}
+
+void CommandBuffer::Bind(const buffer::IndexBuffer* const indexBuffer) {
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->GetBuffer(), 0, indexBuffer->GetFormat());
+}
 
 }
 }
