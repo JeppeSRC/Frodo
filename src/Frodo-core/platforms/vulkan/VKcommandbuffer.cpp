@@ -40,8 +40,6 @@ void CommandBuffer::End() {
 	VK(vkEndCommandBuffer(commandBuffer));
 }
 
-VkClearColorValue clearColor = { 0.0f, 0.0f, 0.0f, 0.0f };
-
 void CommandBuffer::BeginRenderPass(const RenderPass* const renderPass, uint_t framebufferIndex) {
 	VkRenderPassBeginInfo info;
 
@@ -53,8 +51,8 @@ void CommandBuffer::BeginRenderPass(const RenderPass* const renderPass, uint_t f
 	info.renderArea.extent.height = renderPass->GetHeight();
 	info.renderPass = renderPass->GetRenderPass();
 	info.framebuffer = renderPass->GetFramebuffer(framebufferIndex);
-	info.clearValueCount = 1;
-	info.pClearValues = (VkClearValue*)&clearColor;
+	
+	renderPass->InitializeRenderPass(&info);
 	
 	vkCmdBeginRenderPass(commandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
 }
