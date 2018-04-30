@@ -18,7 +18,7 @@ CommandBufferArray::CommandBufferArray(VkCommandPool pool, CommandBufferType typ
 }
 
 CommandBufferArray::~CommandBufferArray() {
-
+	
 }
 
 
@@ -31,6 +31,12 @@ void CommandBufferArray::Begin(CommandBufferUsage usage) {
 void CommandBufferArray::End() {
 	for (uint32 i = 0; i < count; i++) {
 		commandBuffers[i].End();
+	}
+}
+
+void CommandBufferArray::ExecuteCommandBuffer(const CommandBuffer* const buffer) {
+	for (uint32 i = 0; i < count; i++) {
+		commandBuffers[i].ExecuteCommandBuffer(buffer);
 	}
 }
 

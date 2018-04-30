@@ -26,6 +26,8 @@ public:
 	void Begin(CommandBufferUsage usage);
 	void End();
 
+	void ExecuteCommandBuffer(const CommandBuffer* const buffer);
+
 	void BeginRenderPass(const RenderPass* const renderPass, uint_t framebufferIndex = 0);
 	void EndRenderPass();
 
@@ -35,7 +37,7 @@ public:
 	void Bind(const buffer::IndexBuffer* const indexBuffer);
 
 	inline CommandBufferType GetType() const { return type; }
-	inline VkCommandBuffer GetCommandBuffer() const { return commandBuffer; }
+	inline const VkCommandBuffer& GetCommandBuffer() const { return commandBuffer; }
 
 };
 
@@ -49,6 +51,8 @@ public:
 
 	void Begin(CommandBufferUsage usage);
 	void End();
+
+	void ExecuteCommandBuffer(const CommandBuffer* const buffer);
 
 	void BeginRenderPass(const RenderPass* const renderPass);
 	void EndRenderPass();
