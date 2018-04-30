@@ -19,6 +19,7 @@ private:
 	VkCommandBuffer commandBuffer;
 
 public:
+	CommandBuffer();
 	CommandBuffer(VkCommandPool pool, CommandBufferType type);
 	~CommandBuffer();
 
@@ -33,10 +34,32 @@ public:
 	void Bind(const buffer::VertexBuffer* const vertexBuffer);
 	void Bind(const buffer::IndexBuffer* const indexBuffer);
 
+	inline CommandBufferType GetType() const { return type; }
+	inline VkCommandBuffer GetCommandBuffer() const { return commandBuffer; }
+
 };
 
+class CommandBufferArray {
+private:
+	utils::List<CommandBuffer> commandBuffers;
+	uint32 count;
+public:
+	CommandBufferArray(VkCommandPool pool, CommandBufferType type, uint32 count);
+	~CommandBufferArray();
 
+	void Begin(CommandBufferUsage usage);
+	void End();
 
+	void BeginRenderPass(const RenderPass* const renderPass);
+	void EndRenderPass();
+
+	void BindPipeline(const Pipeline* const pipeline);
+	void BindPipelineLayout(const PipelineLayout* const pipelineLayout);
+	void Bind(const buffer::VertexBuffer* const vertexBuffer);
+	void Bind(const buffer::IndexBuffer* const indexBuffer);
+
+	inline uint32 GetCount() const { return count; }
+};
 }
 }
 }

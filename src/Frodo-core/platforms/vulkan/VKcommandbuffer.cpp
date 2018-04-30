@@ -1,12 +1,19 @@
 #include <graphics/pipeline/commandbuffer.h>
 #include <core/video/context.h>
+#include <core/log/log.h>
 
 namespace fd {
 namespace graphics {
 namespace pipeline {
 
-using namespace core::video;
+using namespace core;
+using namespace video;
 using namespace utils;
+using namespace log;
+
+CommandBuffer::CommandBuffer() : commandBuffer(nullptr), type(CommandBufferType::Unknown) {
+	Log::Warning("[CommandBuffer] default constructor should not be used");
+}
 
 CommandBuffer::CommandBuffer(VkCommandPool pool, CommandBufferType type) : type(type) {
 	VkCommandBufferAllocateInfo info;
