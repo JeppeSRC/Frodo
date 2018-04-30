@@ -180,6 +180,7 @@ enum class Format {
 };
 
 enum class CommandBufferType {
+	Unknown = ~0,
 	Primary = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 	Secondary = VK_COMMAND_BUFFER_LEVEL_SECONDARY
 };
