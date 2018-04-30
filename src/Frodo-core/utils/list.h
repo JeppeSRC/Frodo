@@ -13,6 +13,8 @@ private:
 public:
 	List(uint_t reserved = 0) : std::vector<T>(reserved) { }
 
+	template<class... Args>
+	inline void Emaplace_back(Args&&... args) { emplace_back(args); }
 	inline void Push_back(const T& item) { std::vector<T>::push_back(item); }
 	inline void Remove(const T& item) { for (uint_t i = 0; i < std::vector<T>::size(); i++) { if (std::vector<T>::at(i) == item) std::vector<T>::erase(std::vector<T>::begin() + i); } }
 	inline void RemoveIndex(uint_t index) { std::vector<T>::erase(std::vector<T>::begin() + index); }
