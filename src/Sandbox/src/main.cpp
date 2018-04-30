@@ -100,10 +100,11 @@ int main() {
 
 	pass.colorAttachments[0] = FD_SWAPCHAIN_ATTACHMENT_INDEX;
 	pass.colorAttachments[1] = FD_NO_ATTACHMENT;
-	pass.depthStencilAttachment = FD_NO_ATTACHMENT;
 	pass.inputAttachments[0] = FD_NO_ATTACHMENT;
 
 	RenderPassInfo passInfo;
+
+	passInfo.depthAttachment = FD_NO_ATTACHMENT;
 
 	passInfo.subpasses.Push_back(pass);
 
@@ -129,8 +130,8 @@ int main() {
 
 	VertexBuffer vbo(vertices, sizeof(vertices));
 	IndexBuffer ibo(indices, 3); 
-
-	Context::BeginCommandBuffers(FD_COMMAND_BUFFER_SIMULTANEOUS);
+	
+	Context::BeginCommandBuffers((uint32)VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
 	Context::BindPipeline(&pipeline);
 	Context::BindRenderPass(&renderPass);
 	Context::BindPipelineLayout(&layout);
