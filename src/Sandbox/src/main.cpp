@@ -129,19 +129,21 @@ int main() {
 	uint32 indices[]{ 0, 1, 2 };
 
 	VertexBuffer vbo(vertices, sizeof(vertices));
-	IndexBuffer ibo(indices, 3); 
+	IndexBuffer ibo(indices, 3);
+
+	CommandBufferArray cmd = Context::GetCommandBuffers();
 	
-	Context::BeginCommandBuffers((uint32)VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
-	Context::BindPipeline(&pipeline);
-	Context::BindRenderPass(&renderPass);
-	Context::BindPipelineLayout(&layout);
+	cmd.Begin(CommandBufferUsage::Simultaneous);
+	cmd.BindPipeline(&pipeline);
+	cmd.BeginRenderPass(&renderPass);
+	cmd.BindPipelineLayout(&layout);
 	 
-	Context::Bind(&vbo, 0);
-	Context::Bind(&ibo);
+	cmd.Bind(&vbo);
+	cmd.Bind(&ibo);
 	 
-	Context::DrawIndexed();
+	cmd.DrawIndexed(ibo.GetCount());
 		
-	Context::EndCommandBuffers();
+	cmd.End();
 	  
 	unsigned int shit2 = clock();
  	unsigned int dankFps = 0;
@@ -155,7 +157,7 @@ int main() {
 
 		layout.UpdateUniform(0, 0, &m, sizeof(mat4));
 
-		Context::Present();
+		Context::Present(&cmd);
 
 		window->Update(); 
 
