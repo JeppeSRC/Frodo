@@ -62,8 +62,6 @@ private:
 	static Output* output;
 
 private:
-	static bool renderPassActive;
-	static const graphics::buffer::IndexBuffer* currentIndexBuffer;
 
 	static VkSubmitInfo submitInfo;
 	static VkPresentInfoKHR presentInfo;
