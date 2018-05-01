@@ -76,6 +76,12 @@ void CommandBufferArray::Bind(const buffer::IndexBuffer* const indexBuffer) {
 	}
 }
 
+void CommandBufferArray::DrawIndexed(uint32 count) {
+	for (uint32 i = 0; i < count; i++) {
+		commandBuffers[i].DrawIndexed(count);
+	}
+}
+
 }
 }
 }

@@ -64,6 +64,8 @@ public:
 	void Bind(const buffer::VertexBuffer* const vertexBuffer);
 	void Bind(const buffer::IndexBuffer* const indexBuffer);
 
+	void DrawIndexed(uint32 count);
+
 	inline uint32 GetCount() const { return count; }
 };
 }
