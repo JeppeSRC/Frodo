@@ -74,21 +74,7 @@ public:
 	static void CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBuffer buffer);
 
 public:
-	static void BeginCommandBuffers(uint32 usage);
-	static void EndCommandBuffers();
-
-	static void BindRenderPass(const graphics::pipeline::RenderPass* const pipeline);
-	static void EndRenderPass();
-
-	static void BindPipeline(const graphics::pipeline::Pipeline* const pipeline);
-	static void BindPipelineLayout(const graphics::pipeline::PipelineLayout* const layout);
-
-	static void Bind(const graphics::buffer::VertexBuffer* const buffer, uint32 slot);
-	static void Bind(const graphics::buffer::IndexBuffer* const buffer);
-
-	static void DrawIndexed();
-
-	static void Present();
+		static void Present();
 
 public:
 	static bool Init(Window* const window);
