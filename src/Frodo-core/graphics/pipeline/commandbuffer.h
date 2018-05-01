@@ -36,6 +36,8 @@ public:
 	void Bind(const buffer::VertexBuffer* const vertexBuffer);
 	void Bind(const buffer::IndexBuffer* const indexBuffer);
 
+	void DrawIndexed(uint32 count);
+
 	inline CommandBufferType GetType() const { return type; }
 	inline const VkCommandBuffer& GetCommandBuffer() const { return commandBuffer; }
 

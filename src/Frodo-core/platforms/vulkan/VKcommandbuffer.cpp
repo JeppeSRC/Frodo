@@ -90,6 +90,10 @@ void CommandBuffer::Bind(const buffer::IndexBuffer* const indexBuffer) {
 	vkCmdBindIndexBuffer(commandBuffer, indexBuffer->GetBuffer(), 0, indexBuffer->GetFormat());
 }
 
+void CommandBuffer::DrawIndexed(uint32 count) {
+	vkCmdDrawIndexed(commandBuffer, count, 1, 0, 0, 0);
+}
+
 }
 }
 }
