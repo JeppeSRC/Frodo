@@ -455,12 +455,12 @@ void Context::CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBu
 	VK(vkQueueWaitIdle(graphicsQueue));
 }
 
-void Context::Present() {
+void Context::Present(const CommandBufferArray* const commandBuffer) {
 	uint32 imageIndex;
 
 	VK(vkAcquireNextImageKHR(device, swapChain, ~0L, imageSemaphore, nullptr, &imageIndex));
 
-	submitInfo.pCommandBuffers = &cmdbuffers[imageIndex];
+	submitInfo.pCommandBuffers = &commandBuffer->GetCommandBuffer(imageIndex);
 
 	VK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr));
 
