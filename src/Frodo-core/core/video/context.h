@@ -11,43 +11,6 @@ namespace fd {
 namespace core {
 namespace video {
 
-#ifdef FD_DX
-
-class Context {
-private:
-	friend class Window;
-	friend struct PipelineInfo;
-
-private:
-	static ID3D11Device* device;
-	static ID3D11DeviceContext* deviceContext;
-	static ID3D11RenderTargetView* targetView;
-	static ID3D11DepthStencilView* depthView;
-	static IDXGISwapChain* swapChain;
-
-	static Window* window;
-	static Adapter* adapter;
-	static Output* output;
-
-public:
-	static bool Init(Window* window);
-	static void InitPipeline(PipelineInfo* pipeInfo, uint32 num);
-	static void Dispose();
-
-	static void SetFullscreen(bool state);
-	static void Present(uint32 syncInterval, uint32 flags);
-	static void Clear();
-
-	__forceinline static ID3D11Device* GetDevice() { return device; }
-	__forceinline static ID3D11DeviceContext* GetDeviceContext() { return deviceContext; }
-	
-	__forceinline static Window* GetWindow() { return window; }
-	__forceinline static Adapter* GetAdapter() { return adapter; }
-	__forceinline static Output* GetOutput() { return output; }
-};
-
-#else
-
 #ifdef FD_DEBUG
 #define VK(dankFunction) VkFunctionLogBullshit(dankFunction, __FILE__, #dankFunction, __FUNCTION__, __LINE__)
 #else
@@ -156,7 +119,5 @@ public:
 	inline static Adapter* GetAdapter() { return adapter; }
 	inline static Output* GetOutputs() { return output; }
 };
-
-#endif
 
 } } }
