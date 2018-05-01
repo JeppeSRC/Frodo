@@ -37,7 +37,6 @@ VkSemaphore Context::renderSemaphore;
 
 List<VkImage> Context::swapchainImages;
 List<VkImageView> Context::swapchainViews;
-List<VkCommandBuffer> Context::cmdbuffers;
 
 Window* Context::window = nullptr;
 Adapter* Context::adapter = nullptr;
@@ -252,17 +251,7 @@ bool Context::Init(Window* const window) {
 	VK(vkCreateCommandPool(device, &poolInfo, nullptr, &cmdPool));
 	VK(vkCreateCommandPool(device, &poolInfo, nullptr, &auxPool));
 
-	cmdbuffers.Resize(swapchainImages.GetSize());
-
 	VkCommandBufferAllocateInfo cmdInfo;
-
-	cmdInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	cmdInfo.pNext = nullptr;
-	cmdInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	cmdInfo.commandBufferCount = (uint32)cmdbuffers.GetSize();
-	cmdInfo.commandPool = cmdPool;
-
-	VK(vkAllocateCommandBuffers(device, &cmdInfo, cmdbuffers.GetData()));
 
 	cmdInfo.commandBufferCount = 1;
 	cmdInfo.commandPool = auxPool;

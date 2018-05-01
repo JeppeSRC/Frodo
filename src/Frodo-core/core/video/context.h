@@ -56,7 +56,6 @@ private:
 
 	static utils::List<VkImage> swapchainImages;
 	static utils::List<VkImageView> swapchainViews;
-	static utils::List<VkCommandBuffer> cmdbuffers;
 	
 	static Window* window;
 	static Adapter* adapter;
