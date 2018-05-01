@@ -74,7 +74,7 @@ public:
 	static void CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBuffer buffer);
 
 public:
-		static void Present(const graphics::pipeline::CommandBufferArray* const commandBuffer);
+	static void Present(const graphics::pipeline::CommandBufferArray* const commandBuffer);
 
 public:
 	static bool Init(Window* const window);
