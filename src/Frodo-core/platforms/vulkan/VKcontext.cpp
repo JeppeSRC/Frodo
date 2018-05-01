@@ -444,6 +444,10 @@ void Context::CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBu
 	VK(vkQueueWaitIdle(graphicsQueue));
 }
 
+CommandBufferArray Context::GetCommandBuffers() {
+	return CommandBufferArray(cmdPool, CommandBufferType::Primary, swapchainImages.GetSize());
+}
+
 void Context::Present(const CommandBufferArray* const commandBuffer) {
 	uint32 imageIndex;
 
