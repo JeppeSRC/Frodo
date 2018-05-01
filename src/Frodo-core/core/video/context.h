@@ -99,7 +99,6 @@ public:
 	inline static const VkSemaphore& GetRenderSemaphore() { return renderSemaphore; }
 
 	inline static const utils::List<VkImageView>& GetSwapchainImageViews() { return swapchainViews; }
-	inline static const utils::List<VkCommandBuffer>& GetCmdBuffers() { return cmdbuffers; }
 
 	inline static Window* GetWindow() { return window; }
 	inline static Adapter* GetAdapter() { return adapter; }
