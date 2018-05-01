@@ -13,7 +13,7 @@ CommandBufferArray::CommandBufferArray(VkCommandPool pool, CommandBufferType typ
 	FD_ASSERT(count != 0);
 
 	for (uint32 i = 0; i < count; i++) {
-		commandBuffers.Emaplace_back(pool, type);
+		commandBuffers.Push_back(CommandBuffer(pool, type));
 	}
 }
 
