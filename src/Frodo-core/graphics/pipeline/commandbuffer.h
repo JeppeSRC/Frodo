@@ -67,6 +67,11 @@ public:
 	void DrawIndexed(uint32 count);
 
 	inline uint32 GetCount() const { return count; }
+
+	inline const utils::List<CommandBuffer>& GetCommandBuffers() const { return commandBuffers; }
+	inline const VkCommandBuffer& GetCommandBuffer(uint32 index) const { return commandBuffers[index].GetCommandBuffer(); }
+
+	inline const VkCommandBuffer& operator[](uint32 index) const { return GetCommandBuffer(index); }
 };
 }
 }
