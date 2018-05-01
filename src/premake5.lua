@@ -37,10 +37,12 @@ if (vk_path == nil) then
     filter {"Release"}
         optimize "Speed"
         inlining "Auto"
+        defines "FD_RELEASE"
 
     filter {"Debug"}
         optimize "Off"
-        inlining "Disabled"       
+        inlining "Disabled"
+        defines "FD_DEBUG"
 
     -- Windows Specific
     filter("system:windows")
