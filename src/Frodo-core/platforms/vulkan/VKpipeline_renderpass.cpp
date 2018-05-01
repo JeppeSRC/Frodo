@@ -180,15 +180,17 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 		for (uint32 j = 0; j < FD_MAX_ATTACHMENTS; j++) {
 			ref.attachment = subInfo.colorAttachments[j];
 
-		if (ref.attachment == info->depthAttachment) {
-			Log::Fatal("[RenderPass] Color attachment can't use the same framebuffer as depth/stencil attachment");
-			return;
-		}  else if (ref.attachment == FD_NO_ATTACHMENT) {
+			if (ref.attachment == FD_NO_ATTACHMENT) {
 				subpass.colorAttachmentCount = j;
 				break;
 			} else if (ref.attachment == FD_SWAPCHAIN_ATTACHMENT_INDEX) {
 				ref.attachment = swapchainIndex;
 				usesSwapchainImage = true;
+			}
+
+			if (ref.attachment == info->depthAttachment) {
+				Log::Fatal("[RenderPass] Color attachment can't use the same framebuffer as depth/stencil attachment");
+				return;
 			}
 
 			attachmentReferences.Push_back(ref);
