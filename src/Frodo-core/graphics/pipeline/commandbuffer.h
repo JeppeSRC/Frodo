@@ -27,6 +27,7 @@ public:
 	void End();
 
 	void ExecuteCommandBuffer(const CommandBuffer* const buffer);
+	void ExecuteCommandBuffer(VkCommandBuffer buffer);
 
 	void BeginRenderPass(const RenderPass* const renderPass, uint_t framebufferIndex = 0);
 	void EndRenderPass();
@@ -55,6 +56,7 @@ public:
 	void End();
 
 	void ExecuteCommandBuffer(const CommandBuffer* const buffer);
+	void ExecuteCommandBuffer(const CommandBufferArray* const buffer);
 
 	void BeginRenderPass(const RenderPass* const renderPass);
 	void EndRenderPass();

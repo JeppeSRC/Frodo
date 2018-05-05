@@ -50,6 +50,10 @@ void CommandBuffer::ExecuteCommandBuffer(const CommandBuffer* const buffer) {
 	vkCmdExecuteCommands(commandBuffer, 1, &buffer->GetCommandBuffer());
 }
 
+void CommandBuffer::ExecuteCommandBuffer(VkCommandBuffer buffer) {
+	vkCmdExecuteCommands(commandBuffer, 1, &buffer);
+}
+
 void CommandBuffer::BeginRenderPass(const RenderPass* const renderPass, uint_t framebufferIndex) {
 	VkRenderPassBeginInfo info;
 

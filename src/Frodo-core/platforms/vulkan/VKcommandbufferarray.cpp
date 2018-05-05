@@ -42,6 +42,12 @@ void CommandBufferArray::ExecuteCommandBuffer(const CommandBuffer* const buffer)
 	}
 }
 
+void CommandBufferArray::ExecuteCommandBuffer(const CommandBufferArray* const buffer) {
+	for (uint32 i = 0; i < count; i++) {
+		commandBuffers[i].ExecuteCommandBuffer(buffer->GetCommandBuffer(i));
+	}
+}
+
 void CommandBufferArray::BeginRenderPass(const RenderPass* const renderPass) {
 	for (uint32 i = 0; i < count; i++) {
 		commandBuffers[i].BeginRenderPass(renderPass, i);
