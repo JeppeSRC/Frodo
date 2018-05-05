@@ -120,7 +120,7 @@ bool VerifyPipelineInfo(PipelineInfo* const info) {
 }
 
 
-Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* pipelineLayout) : info(info), renderPass(renderPass), pipelineLayout(pipelineLayout) {
+Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint32 subpassIndex, const PipelineLayout* const pipelineLayout, const Pipeline* const derivativePipeline) : info(info) {
 
 	if (!VerifyPipelineInfo(info)) {
 		FD_FATAL("[Pipeline] Pipeline creation failed");
@@ -299,11 +299,13 @@ Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* p
 	pipeInfo.pDynamicState = nullptr;
 	pipeInfo.layout = pipelineLayout->GetPipelineLayout();
 	pipeInfo.renderPass = renderPass->GetRenderPass();
-	pipeInfo.subpass = 0;
-	pipeInfo.basePipelineHandle = nullptr;
+	pipeInfo.subpass = subpassIndex;
+	pipeInfo.basePipelineHandle = derivativePipeline ? derivativePipeline->GetPipeline() : nullptr;
 	pipeInfo.basePipelineIndex = -1;
 	
-	VK(vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &pipeline));
+	VkPipeline tmpPipeline = nullptr;
+
+	VK(vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &tmpPipeline));
 }
 
 Pipeline::~Pipeline() {

@@ -87,18 +87,12 @@ private:
 	PipelineInfo* info;
 
 	VkPipeline pipeline;
-
-	RenderPass* renderPass;
-	PipelineLayout* pipelineLayout;
-
 public:
-	Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* pipelineLayout);
+	Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint32 subpassIndex, const PipelineLayout* const pipelineLayout, const Pipeline* const derivativePipeline = nullptr);
 	~Pipeline();
 
 
 	inline VkPipeline GetPipeline() const { return pipeline; }
-	inline RenderPass* GetRenderPass() const { return renderPass; }
-	inline PipelineLayout* GetPipelineLayout() const { return pipelineLayout; }
 };
 
 } } }
