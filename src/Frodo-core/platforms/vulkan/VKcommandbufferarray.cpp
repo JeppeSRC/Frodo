@@ -24,9 +24,9 @@ CommandBufferArray::~CommandBufferArray() {
 }
 
 
-void CommandBufferArray::Begin(CommandBufferUsage usage) {
+void CommandBufferArray::Begin(CommandBufferUsage usage, const RenderPass* const renderPass) {
 	for (uint32 i = 0; i < count; i++) {
-		commandBuffers[i].Begin(usage);
+		commandBuffers[i].Begin(usage, renderPass, i);
 	}
 }
 

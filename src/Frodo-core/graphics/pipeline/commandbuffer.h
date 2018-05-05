@@ -23,7 +23,7 @@ public:
 	CommandBuffer(VkCommandPool pool, CommandBufferType type);
 	~CommandBuffer();
 
-	void Begin(CommandBufferUsage usage);
+	void Begin(CommandBufferUsage usage, const RenderPass* const renderPass = nullptr, uint32 framebufferIndex = 0);
 	void End();
 
 	void ExecuteCommandBuffer(const CommandBuffer* const buffer);
@@ -52,7 +52,7 @@ public:
 	CommandBufferArray(VkCommandPool pool, CommandBufferType type, uint32 count);
 	~CommandBufferArray();
 
-	void Begin(CommandBufferUsage usage);
+	void Begin(CommandBufferUsage usage, const RenderPass* const renderPass = nullptr);
 	void End();
 
 	void ExecuteCommandBuffer(const CommandBuffer* const buffer);
