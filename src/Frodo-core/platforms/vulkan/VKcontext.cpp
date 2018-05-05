@@ -42,9 +42,6 @@ Window* Context::window = nullptr;
 Adapter* Context::adapter = nullptr;
 Output* Context::output = nullptr;
 
-bool Context::renderPassActive = false;
-const IndexBuffer* Context::currentIndexBuffer = nullptr;
-
 VkSubmitInfo Context::submitInfo;
 VkPresentInfoKHR Context::presentInfo;
 
