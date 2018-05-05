@@ -110,7 +110,7 @@ int main() {
 
 	RenderPass renderPass(&passInfo);
 
-	Pipeline pipeline(&info, &renderPass, &layout);
+	Pipeline pipeline(&info, &renderPass, 0, &layout);
 
 	Vertex vertices[3];
 	
