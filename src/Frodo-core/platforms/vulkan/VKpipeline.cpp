@@ -303,9 +303,7 @@ Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint3
 	pipeInfo.basePipelineHandle = derivativePipeline ? derivativePipeline->GetPipeline() : nullptr;
 	pipeInfo.basePipelineIndex = -1;
 	
-	VkPipeline tmpPipeline = nullptr;
-
-	VK(vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &tmpPipeline));
+	VK(vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &pipeline));
 }
 
 Pipeline::~Pipeline() {
