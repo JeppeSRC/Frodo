@@ -106,6 +106,15 @@ void WINWindow::SetVisible(bool state) {
 	ShowWindow(hwnd, state ? SW_SHOW : SW_HIDE);
 }
 
+void WINWindow::Resize(const WindowCreateInfo* const newInfo) {
+	info = *newInfo;
+	RECT r = { 0, 0, (LONG)info.width, (LONG)info.height };
+
+	AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, FALSE);
+
+	SetWindowPos(hwnd, HWND_TOP, 0, 0, r.right - r.left, r.bottom - r.top, SWP_NOMOVE | SWP_SHOWWINDOW);
+}
+
 }
 }
 }

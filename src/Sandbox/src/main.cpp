@@ -45,7 +45,6 @@ int main() {
 	winfo.outputWindow = nullptr;
 	winfo.width = 1280;
 	winfo.height = 720;
-	winfo.refreshRate = 60;
 	winfo.title = "Dank Title";
 
 	Window* window = Window::Create(&winfo);
@@ -157,6 +156,18 @@ int main() {
 
 		layout.UpdateUniform(0, 0, &m, sizeof(mat4));
 
+		cmd.Begin(CommandBufferUsage::Simultaneous);
+		cmd.BindPipeline(&pipeline);
+		cmd.BeginRenderPass(&renderPass);
+		cmd.BindPipelineLayout(&layout);
+
+		cmd.Bind(&vbo);
+		cmd.Bind(&ibo);
+
+		cmd.DrawIndexed(ibo.GetCount());
+
+		cmd.End();
+
 		Context::Present(&cmd);
 
 		window->Update(); 
@@ -167,6 +178,10 @@ int main() {
 			shit2 = clock();
 			Log::Info("%u", dankFps);
 			dankFps = 0;
+			if (GetAsyncKeyState('A')) {
+				winfo.width = 1920;
+				window->Resize(&winfo);
+			}
 		}
 	
 	}

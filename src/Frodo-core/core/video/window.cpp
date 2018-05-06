@@ -5,7 +5,7 @@ namespace fd {
 namespace core {
 namespace video {
 
-Window::Window(WindowCreateInfo* info) : info(info), open(false) { }
+Window::Window(WindowCreateInfo* info) : info(*info), open(false) { }
 
 Window* Window::Create(WindowCreateInfo* info) {
 #ifdef FD_WINDOWS
