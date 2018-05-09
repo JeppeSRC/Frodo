@@ -28,9 +28,13 @@ class Event {
 public:
 	EventType type;
 
-	Event(EventType type) : type(type) {}
+	Event* event;
+
+	Event(EventType type) : type(type), event(this) {}
 };
 
+
+// Window events
 class WindowEvent : public Event {
 public:
 	EventAction action;
@@ -65,6 +69,18 @@ public:
 
 	WindowEventVisibility(bool visible) : WindowEvent(EventAction::MinimizeMaximize), visible(visible) { }
 };
+
+
+// Keyboard events
+class KeyboardEvent : public Event {
+public:
+	EventAction action;
+
+	uint32 key;
+
+	KeyboardEvent(EventAction action, uint32 key) : Event(EventType::InputKeyboard), action(action), key(key) { }
+};
+
 
 }
 }
