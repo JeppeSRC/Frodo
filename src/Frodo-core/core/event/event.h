@@ -67,7 +67,7 @@ public:
 
 	uint32 button;
 
-	MouseEvent(EventAction action, math::vec2i absolute, math::vec2i relative, uint32 button) : Event(EventType::InputMouse), action(action), absolute(absolute), relative(relative), button(button) { }
+	MouseEvent(EventAction action, const math::vec2i& absolute, const math::vec2i& relative, uint32 button) : Event(EventType::InputMouse), action(action), absolute(absolute), relative(relative), button(button) { }
 };
 
 }
