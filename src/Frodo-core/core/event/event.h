@@ -81,6 +81,18 @@ public:
 	KeyboardEvent(EventAction action, uint32 key) : Event(EventType::InputKeyboard), action(action), key(key) { }
 };
 
+//Nouse events
+class MouseEvent : public Event {
+public:
+	EventAction action;
+
+	math::vec2i absolute;
+	math::vec2i relative;
+
+	uint32 button;
+
+	MouseEvent(EventAction action, math::vec2i absolute, math::vec2i relative, uint32 button) : Event(EventType::InputMouse), action(action), absolute(absolute), relative(relative), button(button) { }
+};
 
 }
 }
