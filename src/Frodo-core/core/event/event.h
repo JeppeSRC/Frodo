@@ -33,43 +33,19 @@ public:
 	Event(EventType type) : type(type), event(this) {}
 };
 
-
 // Window events
 class WindowEvent : public Event {
 public:
 	EventAction action;
 
-	WindowEvent(EventAction action) : Event(EventType::Window), action(action) { }
-};
-
-class WindowEventResize : public WindowEvent {
-public:
 	math::vec2i size;
-
-	WindowEventResize(const math::vec2i& size) : WindowEvent(EventAction::Resize), size(size) { }
-};
-
-class WindowEventMove : public WindowEvent {
-public:
 	math::vec2i position;
 
-	WindowEventMove(const math::vec2i& position) : WindowEvent(EventAction::Move), position(position) { }
-};
-
-class WindowEventFocus : public WindowEvent {
-public:
 	bool focus;
+	bool visibility;
 
-	WindowEventFocus(bool value) : WindowEvent(EventAction::Focus), focus(focus) { }
+	WindowEvent(EventAction action, const math::vec2i& size, const math::vec2i& position, bool focus, bool visibility) : Event(EventType::Window), action(action), size(size), position(position), focus(focus), visibility(visibility) {}
 };
-
-class WindowEventVisibility : public WindowEvent {
-public:
-	bool visible;
-
-	WindowEventVisibility(bool visible) : WindowEvent(EventAction::MinimizeMaximize), visible(visible) { }
-};
-
 
 // Keyboard events
 class KeyboardEvent : public Event {
