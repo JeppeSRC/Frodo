@@ -18,8 +18,8 @@ public:
 
 	virtual void OnkeyboardEvent(const KeyboardEvent* const event) { }
 	virtual void OnKeyboardEventPressed(uint32 key) { }
-	virtual void OnKeyboardEventReleased(uint32 key) {}
-	virtual void OnKeyboardEventHold(uint32 key) {}
+	virtual void OnKeyboardEventReleased(uint32 key) { }
+	virtual void OnKeyboardEventHold(uint32 key) { }
 
 	virtual void OnMouseEvent(const MouseEvent* const event) { }
 	virtual void OnMouseEventMove(const math::vec2i& absolute, const math::vec2i& relative) { }
