@@ -10,7 +10,10 @@ namespace event {
 
 class EventDispatcher {
 private:
-	static utils::List<EventListener*> listeners;
+	static utils::List<EventListener*> allListeners;
+	static utils::List<EventListener*> windowListeners;
+	static utils::List<EventListener*> mouseListeners;
+	static utils::List<EventListener*> keyboardListeners;
 
 	static bool OnEvent(const Event* const event);
 	static bool OnWindowEvent(EventListener* const listener, const WindowEvent* const event);
@@ -19,6 +22,8 @@ private:
 
 public:
 	static void DispatchEvent(const Event* const event);
+	static void RegisterListener(EventListener* listener, EventListenerTypes events);
+	static void UnRegisterListener(EventListener* listener, EventListenerTypes events);
 };
 
 }

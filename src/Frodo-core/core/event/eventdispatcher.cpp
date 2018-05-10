@@ -8,17 +8,20 @@ namespace event {
 using namespace utils;
 using namespace log;
 
-List<EventListener*> EventDispatcher::listeners;
+List<EventListener*> EventDispatcher::allListeners;
+List<EventListener*> EventDispatcher::windowListeners;
+List<EventListener*> EventDispatcher::mouseListeners;
+List<EventListener*> EventDispatcher::keyboardListeners;
 
 void EventDispatcher::DispatchEvent(const Event* const event) {
 	OnEvent(event);
 }
 
 bool EventDispatcher::OnEvent(const Event* const event) {
-	uint_t size = listeners.GetSize();
+	uint_t size = allListeners.GetSize();
 
 	for (uint_t i = 0; i < size; i++) {
-		EventListener* listener = listeners[i];
+		EventListener* listener = allListeners[i];
 
 		bool handled = listener->OnEvent(event);
 
@@ -37,6 +40,32 @@ bool EventDispatcher::OnEvent(const Event* const event) {
 			case EventType::Window:
 				handled = OnWindowEvent(listener, (WindowEvent*)event);
 				break;
+		}
+	}
+
+	if (event->type == EventType::Window) {
+		size = windowListeners.GetSize();
+
+		for (uint_t i = 0; i < size; i++) {
+			EventListener* listener = windowListeners[i];
+
+			OnWindowEvent(listener, (WindowEvent*)event);
+		}
+	} else if (event->type == EventType::InputMouse) {
+		size = mouseListeners.GetSize();
+
+		for (uint_t i = 0; i < size; i++) {
+			EventListener* listener = mouseListeners[i];
+
+			OnMouseEvent(listener, (MouseEvent*)event);
+		}
+	} else if (event->type == EventType::InputKeyboard) {
+		size = keyboardListeners.GetSize();
+
+		for (uint_t i = 0; i < size; i++) {
+			EventListener* listener = keyboardListeners[i];
+
+			OnKeyboardEvent(listener, (KeyboardEvent*)event);
 		}
 	}
 }
@@ -101,6 +130,45 @@ bool EventDispatcher::OnMouseEvent(EventListener* const listener, const MouseEve
 	}
 
 	return handled;
+}
+
+void EventDispatcher::RegisterListener(EventListener* listener, EventListenerTypes events) {
+	
+	if (events == EventAll) {
+		allListeners.Push_back(listener);
+		return;
+	}
+
+	if (events & EventWindow) {
+		windowListeners.Push_back(listener);
+	} 
+
+	if (events & EventMouse) {
+		mouseListeners.Push_back(listener);
+	} 
+
+	if (events & EventKeyboard) {
+		keyboardListeners.Push_back(listener);
+	}
+}
+
+void EventDispatcher::UnRegisterListener(EventListener* listener, EventListenerTypes events) {
+	if (events == EventAll) {
+		allListeners.Remove(listener);
+		return;
+	}
+
+	if (events & EventWindow) {
+		windowListeners.Remove(listener);
+	}
+
+	if (events & EventMouse) {
+		mouseListeners.Remove(listener);
+	}
+
+	if (events & EventKeyboard) {
+		keyboardListeners.Remove(listener);
+	}
 }
 
 }

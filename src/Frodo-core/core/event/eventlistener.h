@@ -6,7 +6,21 @@ namespace fd {
 namespace core {
 namespace event {
 
+enum EventListenerTypes {
+	EventWindow = 0x01,
+	EventMouse = 0x02,
+	EventKeyboard = 0x04,
+
+	EventAll = EventWindow | EventMouse | EventKeyboard,
+	EventInput = EventMouse | EventKeyboard
+};
+
 class EventListener {
+protected:
+	EventListenerTypes events;
+
+	EventListener(EventListenerTypes events);
+	~EventListener();
 public:
 	virtual bool OnEvent(const Event* const event) { return false; }
 			
