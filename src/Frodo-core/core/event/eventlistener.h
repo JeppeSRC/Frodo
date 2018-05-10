@@ -16,7 +16,7 @@ public:
 	virtual void OnWindowEventFocus(bool focus) { }
 	virtual void OnWindowEventVisiblity(bool visibility) { }
 
-	virtual void OnkeyboardEvent(const KeyboardEvent* const event) { }
+	virtual void OnKeyboardEvent(const KeyboardEvent* const event) { }
 	virtual void OnKeyboardEventPressed(uint32 key) { }
 	virtual void OnKeyboardEventReleased(uint32 key) { }
 	virtual void OnKeyboardEventHold(uint32 key) { }
