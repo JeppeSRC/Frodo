@@ -178,10 +178,6 @@ int main() {
 			shit2 = clock();
 			Log::Info("%u", dankFps);
 			dankFps = 0;
-			if (GetAsyncKeyState('A')) {
-				winfo.width = 1920;
-				window->Resize(&winfo);
-			}
 		}
 	
 	}

@@ -95,12 +95,12 @@ if (vk_path == nil) then
 
     filter ""
 
-    targetdir "../bin/%{cfg.buildcfg}/%{cfg.platform}/"
-    objdir "../bin/%{cfg.buildcfg}/%{cfg.platform}/intermediates"
-
 project("Frodo-core")
     kind "StaticLib"
     location "../solution/Frodo-core/"
+
+    targetdir "%{sln.location}/../bin/%{cfg.buildcfg}/Frodo-core/"
+    objdir "%{sln.location}/../bin/%{cfg.buildcfg}/intermediates/Frodo-core/"
 
     files {
         "Frodo-core/**.cpp",
@@ -124,6 +124,9 @@ project("Sandbox")
     kind "ConsoleApp"
     location "../solution/Sandbox"
     dependson "Frodo-core"
+
+    targetdir "%{sln.location}/../bin/%{cfg.buildcfg}/Sandbox/"
+    objdir "%{sln.location}/../bin/%{cfg.buildcfg}/intermediates/Sandbox/"
 
     files {
         "Sandbox/**.cpp",
