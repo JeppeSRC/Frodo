@@ -289,7 +289,9 @@ bool Context::Init(Window* const window) {
 
 bool Context::Resize(uint32 width, uint32 height) {
 
-	sinfo.imageExtent = { width, height };
+	swapchainExtent = { width, height };
+
+	sinfo.imageExtent = swapchainExtent;
 	sinfo.oldSwapchain = swapChain;
 
 	if (VK(vkCreateSwapchainKHR(device, &sinfo, nullptr, &swapChain)) != VK_SUCCESS) {
