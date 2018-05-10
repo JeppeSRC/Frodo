@@ -8,7 +8,7 @@ namespace event {
 
 class EventListener {
 public:
-	virtual bool OnEvent(const Event* const event) { }
+	virtual bool OnEvent(const Event* const event) { return false; }
 			
 	virtual bool OnWindowEvent(const WindowEvent* const event) { return false; }
 	virtual bool OnWindowEventResize(const math::vec2i& size) { return false; }
