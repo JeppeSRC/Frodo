@@ -8,24 +8,24 @@ namespace event {
 
 class EventListener {
 public:
-	virtual void OnEvent(const Event* const event) { }
-
-	virtual void OnWindowEvent(const WindowEvent* const event) { }
-	virtual void OnWindowEventResize(const math::vec2i& size) { }
-	virtual void OnWindowEventMove(const math::vec2i& position) { }
-	virtual void OnWindowEventFocus(bool focus) { }
-	virtual void OnWindowEventVisiblity(bool visibility) { }
-
-	virtual void OnKeyboardEvent(const KeyboardEvent* const event) { }
-	virtual void OnKeyboardEventPressed(uint32 key) { }
-	virtual void OnKeyboardEventReleased(uint32 key) { }
-	virtual void OnKeyboardEventHold(uint32 key) { }
-
-	virtual void OnMouseEvent(const MouseEvent* const event) { }
-	virtual void OnMouseEventMove(const math::vec2i& absolute, const math::vec2i& relative) { }
-	virtual void OnMouseEventPressed(uint32 button) { }
-	virtual void OnMouseEventReleased(uint32 button) { }
-	virtual void OnMouseEventHold(uint32 button) { }
+	virtual bool OnEvent(const Event* const event) { }
+			
+	virtual bool OnWindowEvent(const WindowEvent* const event) { }
+	virtual bool OnWindowEventResize(const math::vec2i& size) { }
+	virtual bool OnWindowEventMove(const math::vec2i& position) { }
+	virtual bool OnWindowEventFocus(bool focus) { }
+	virtual bool OnWindowEventVisiblity(bool visibility) { }
+			
+	virtual bool OnKeyboardEvent(const KeyboardEvent* const event) { }
+	virtual bool OnKeyboardEventPressed(uint32 key) { }
+	virtual bool OnKeyboardEventReleased(uint32 key) { }
+	virtual bool OnKeyboardEventHold(uint32 key) { }
+			
+	virtual bool OnMouseEvent(const MouseEvent* const event) { }
+	virtual bool OnMouseEventMove(const math::vec2i& absolute, const math::vec2i& relative) { }
+	virtual bool OnMouseEventPressed(uint32 button) { }
+	virtual bool OnMouseEventReleased(uint32 button) { }
+	virtual bool OnMouseEventHold(uint32 button) { }
 };
 
 }
