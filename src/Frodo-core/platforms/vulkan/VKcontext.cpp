@@ -45,6 +45,8 @@ Output* Context::output = nullptr;
 VkSubmitInfo Context::submitInfo;
 VkPresentInfoKHR Context::presentInfo;
 
+VkSwapchainCreateInfoKHR Context::sinfo;
+
 static const VkPipelineStageFlags st[]{ VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
 bool Context::Init(Window* const window) {
@@ -175,12 +177,10 @@ bool Context::Init(Window* const window) {
 
 	if (imageCount > capabilities.maxImageCount) imageCount = capabilities.maxImageCount;
 
-	const uint32 queueIndices[]{
-		graphicsQueueIndex,
-		presentQueueIndex
-	};
+	uint32* queueIndices = new uint32[2];
 
-	VkSwapchainCreateInfoKHR sinfo;
+	queueIndices[0] = graphicsQueueIndex;
+	queueIndices[1] = presentQueueIndex;
 
 	sinfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	sinfo.pNext = nullptr;
@@ -283,6 +283,60 @@ bool Context::Init(Window* const window) {
 	presentInfo.pSwapchains = &swapChain;
 	presentInfo.waitSemaphoreCount = 1;
 	presentInfo.pWaitSemaphores = &renderSemaphore;
+
+	return true;
+}
+
+bool Context::Resize(uint32 width, uint32 height) {
+
+	sinfo.imageExtent = { width, height };
+	sinfo.oldSwapchain = swapChain;
+
+	if (VK(vkCreateSwapchainKHR(device, &sinfo, nullptr, &swapChain)) != VK_SUCCESS) {
+		FD_FATAL("[Context] Swapchain recreation failed!");
+		return false;
+	}
+
+	uint32 numImages = 0;
+
+	for (uint_t i = 0; i < swapchainViews.GetSize(); i++) {
+		vkDestroyImageView(Context::GetDevice(), swapchainViews[i], nullptr);
+	}
+
+	vkDestroySwapchainKHR(device, sinfo.oldSwapchain, nullptr);
+
+	swapchainViews.Clear();
+	swapchainImages.Clear();
+
+	VK(vkGetSwapchainImagesKHR(device, swapChain, &numImages, nullptr));
+	swapchainImages.Resize(numImages);
+	VK(vkGetSwapchainImagesKHR(device, swapChain, &numImages, swapchainImages.GetData()));
+
+	VkImageViewCreateInfo vinfo;
+
+	vinfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	vinfo.pNext = nullptr;
+	vinfo.flags = 0;
+	vinfo.format = swapchainFormat;
+	vinfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	vinfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	vinfo.subresourceRange.levelCount = 1;
+	vinfo.subresourceRange.layerCount = 1;
+	vinfo.subresourceRange.baseMipLevel = 0;
+	vinfo.subresourceRange.baseArrayLayer = 0;
+	vinfo.components.r = VK_COMPONENT_SWIZZLE_R;
+	vinfo.components.g = VK_COMPONENT_SWIZZLE_G;
+	vinfo.components.b = VK_COMPONENT_SWIZZLE_B;
+	vinfo.components.a = VK_COMPONENT_SWIZZLE_A;
+
+	for (uint_t i = 0; i < swapchainImages.GetSize(); i++) {
+		vinfo.image = swapchainImages[i];
+
+		VkImageView view;
+		VK(vkCreateImageView(device, &vinfo, nullptr, &view));
+
+		swapchainViews.Push_back(view);
+	}
 
 	return true;
 }

@@ -66,6 +66,7 @@ private:
 	static VkSubmitInfo submitInfo;
 	static VkPresentInfoKHR presentInfo;
 
+	static VkSwapchainCreateInfoKHR sinfo;
 public:
 	static void CopyBuffers(VkBuffer* dst, VkBuffer* src, uint64* size, uint64 num);
 	static void TransitionImage(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -78,6 +79,7 @@ public:
 
 public:
 	static bool Init(Window* const window);
+	static bool Resize(uint32 width, uint32 height);
 	static void Dispose();
 
 	inline static const VkSwapchainKHR& GetSwapchain() { return swapChain; }
