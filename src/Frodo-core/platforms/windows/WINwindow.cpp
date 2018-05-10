@@ -1,23 +1,40 @@
 #include <core/video/window.h>
 #include <core/video/context.h>
 #include <core/log/log.h>
+#include <core/event/eventdispatcher.h>
 
 namespace fd {
 namespace core {
 namespace video {
 
 using namespace log;
+using namespace event;
+using namespace math;
 
 std::unordered_map<HWND, WINWindow*> WINWindow::windowHandles;
 
 LRESULT WINWindow::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
 	WINWindow* window = windowHandles[hwnd];
 
+	if (!window) goto end;
+
 	switch (msg) {
 		case WM_CLOSE:
 			window->open = false;
 			break;
+		case WM_MOVE: {
+			WindowEvent e(EventAction::Move, vec2i(window->GetWidth(), window->GetHeight()), vec2i(LOWORD(l), HIWORD(l)), false, false);
+			EventDispatcher::DispatchEvent(&e);
+			}
+			break;
+		case WM_SIZE: {
+			WindowEvent e(EventAction::Resize, vec2i(LOWORD(l), HIWORD(l)), vec2i(), false, false);
+			EventDispatcher::DispatchEvent(&e);
+			}
+			break;
 	}
+
+	end:
 
 	return DefWindowProc(hwnd, msg, w, l);
 }

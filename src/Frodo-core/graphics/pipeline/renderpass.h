@@ -4,6 +4,7 @@
 #include <utils/list.h>
 #include <graphics/texture/framebuffer.h>
 #include <core/math/vec4.h>
+#include <core/event/eventlistener.h>
 
 #define FD_MAX_ATTACHMENTS 0x08
 #define FD_NO_ATTACHMENT (~(uint32)0)
@@ -28,12 +29,16 @@ struct RenderPassInfo {
 	float32 depthClearValue;
 };
 
-class RenderPass {
+class RenderPass : public core::event::EventListener {
 private:
 	VkRenderPass renderPass;
 
 	uint32 width;
 	uint32 height;
+
+	bool usesSwapchainImage;
+
+	VkFramebufferCreateInfo finfo;
 
 	utils::List<VkClearValue> clearValues;
 
@@ -41,7 +46,10 @@ private:
 
 	utils::List<VkFramebuffer> framebufferObjects;
 
-	RenderPassInfo* info;
+	RenderPassInfo* info = nullptr;
+
+private:
+	bool OnWindowEventResize(const core::math::vec2i& size) override;
 public:
 	RenderPass();
 	RenderPass(const RenderPassInfo* info);

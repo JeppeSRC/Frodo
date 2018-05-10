@@ -12,6 +12,7 @@ using namespace utils;
 using namespace texture;
 using namespace log;
 using namespace math;
+using namespace event;
 
 static bool CheckFramebuffers(const List<Framebuffer*>& framebuffers) {
 
@@ -29,7 +30,7 @@ static bool CheckFramebuffers(const List<Framebuffer*>& framebuffers) {
 	return true;
 }
 
-RenderPass::RenderPass() : renderPass(nullptr) {
+RenderPass::RenderPass() : EventListener(EventWindow), renderPass(nullptr) {
 
 	VkAttachmentDescription colorAttachment;
 
@@ -109,7 +110,7 @@ RenderPass::RenderPass() : renderPass(nullptr) {
 
 }
 
-RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(new RenderPassInfo), framebuffers(info->framebuffers) {
+RenderPass::RenderPass(const RenderPassInfo* info) : EventListener(EventWindow, false), renderPass(nullptr), info(new RenderPassInfo), framebuffers(info->framebuffers) {
 	memcpy(this->info, info, sizeof(RenderPassInfo));
 
 	VkAttachmentDescription* attachments = new VkAttachmentDescription[framebuffers.GetSize() + 1];
@@ -147,7 +148,7 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 
 	attachmentReferences.Reserve(info->subpasses.GetSize() * FD_MAX_ATTACHMENTS + 1);
 
-	bool usesSwapchainImage = false;
+	usesSwapchainImage = false;
 
 	if (info->depthAttachment != FD_NO_ATTACHMENT) {
 		VkAttachmentReference ref;
@@ -287,8 +288,6 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 		imageViews[i] = framebuffers[i]->GetImageView();
 	}
 
-	VkFramebufferCreateInfo finfo;
-
 	finfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 	finfo.flags = 0;
 	finfo.layers = 1;
@@ -311,6 +310,8 @@ RenderPass::RenderPass(const RenderPassInfo* info) : renderPass(nullptr), info(n
 
 			framebufferObjects.Push_back(framebuffer);
 		}
+
+		Register();
 
 	} else {
 		CheckFramebuffers(framebuffers);
@@ -340,6 +341,65 @@ RenderPass::~RenderPass() {
 void RenderPass::InitializeRenderPass(VkRenderPassBeginInfo* const info) const {
 	info->clearValueCount = clearValues.GetSize();
 	info->pClearValues = clearValues.GetData();
+}
+
+bool RenderPass::OnWindowEventResize(const vec2i& size) {
+	if (info == nullptr) {
+		for (uint_t i = 0; i < framebufferObjects.GetSize(); i++) {
+			vkDestroyFramebuffer(Context::GetDevice(), framebufferObjects[i], nullptr);
+		}
+
+		framebufferObjects.Clear();
+
+		const List<VkImageView>& swapchainViews = Context::GetSwapchainImageViews();
+
+		for (uint_t i = 0; i < swapchainViews.GetSize(); i++) {
+			VkFramebufferCreateInfo info;
+
+			info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			info.pNext = nullptr;
+			info.flags = 0;
+			info.width = width = size.x;
+			info.height = height = size.y;
+			info.layers = 1;
+			info.renderPass = renderPass;
+			info.attachmentCount = 1;
+			info.pAttachments = &swapchainViews[i];
+
+			VkFramebuffer tmp = nullptr;
+
+			VK(vkCreateFramebuffer(Context::GetDevice(), &info, nullptr, &tmp));
+
+			framebufferObjects.Push_back(tmp);
+		}
+	} else {
+		for (uint_t i = 0; i < framebufferObjects.GetSize(); i++) {
+			vkDestroyFramebuffer(Context::GetDevice(), framebufferObjects[i], nullptr);
+		}
+
+		framebufferObjects.Clear();
+
+		finfo.width = width = size.x;
+		finfo.height = height = size.y;
+
+		List<VkImageView> swapViews = Context::GetSwapchainImageViews();
+
+		uint64 swapchainIndex = framebuffers.GetSize();
+
+		VkImageView* imageViews = (VkImageView*)finfo.pAttachments;
+
+		for (uint_t i = 0; i < swapViews.GetSize(); i++) {
+			imageViews[swapchainIndex] = swapViews[i];
+
+			VkFramebuffer framebuffer;
+
+			VK(vkCreateFramebuffer(Context::GetDevice(), &finfo, nullptr, &framebuffer));
+
+			framebufferObjects.Push_back(framebuffer);
+		}
+	}
+
+	return true;
 }
 
 }

@@ -1,5 +1,6 @@
 #include "eventdispatcher.h"
 #include <core/log/log.h>
+#include <core/video/context.h>
 
 namespace fd {
 namespace core {
@@ -7,6 +8,7 @@ namespace event {
 
 using namespace utils;
 using namespace log;
+using namespace video;
 
 List<EventListener*> EventDispatcher::allListeners;
 List<EventListener*> EventDispatcher::windowListeners;
@@ -80,6 +82,7 @@ bool EventDispatcher::OnWindowEvent(EventListener* const listener, const WindowE
 			handled = listener->OnWindowEventMove(event->position);
 			break;
 		case EventAction::Resize:
+			Context::Resize(event->size.x, event->size.y);
 			handled = listener->OnWindowEventResize(event->size);
 			break;
 		case EventAction::Focus:
