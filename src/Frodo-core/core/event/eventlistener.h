@@ -19,8 +19,13 @@ class EventListener {
 protected:
 	EventListenerTypes events;
 
-	EventListener(EventListenerTypes events);
+	bool registered;
+
+	EventListener(EventListenerTypes events, bool autoRegister = true);
 	~EventListener();
+
+	void Register();
+	void UnRegister();
 public:
 	virtual bool OnEvent(const Event* const event) { return false; }
 			
