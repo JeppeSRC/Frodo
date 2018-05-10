@@ -28,8 +28,6 @@ class Event {
 public:
 	EventType type;
 
-	Event* event;
-
 	Event(EventType type) : type(type), event(this) {}
 };
 
