@@ -28,7 +28,7 @@ class Event {
 public:
 	EventType type;
 
-	Event(EventType type) : type(type), event(this) {}
+	Event(EventType type) : type(type) { }
 };
 
 // Window events
