@@ -388,6 +388,11 @@ bool RenderPass::OnWindowEventResize(const vec2i& size) {
 
 		VkImageView* imageViews = (VkImageView*)finfo.pAttachments;
 
+		for (uint_t i = 0; i < framebuffers.GetSize(); i++) {
+			framebuffers[i]->Resize(size.x, size.y);
+			imageViews[i] = framebuffers[i]->GetImageView();
+		}
+
 		for (uint_t i = 0; i < swapViews.GetSize(); i++) {
 			imageViews[swapchainIndex] = swapViews[i];
 
