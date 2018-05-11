@@ -1,5 +1,6 @@
 #include <graphics/texture/texture.h>
 #include <core/video/context.h>
+#include <core/log/log.h>
 
 namespace fd {
 namespace graphics {
@@ -8,7 +9,9 @@ namespace texture {
 using namespace FD;
 using namespace utils;
 using namespace buffer;
-using namespace core::video;
+using namespace core;
+using namespace video;
+using namespace log;
 
 Texture2D::Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageFlags usage, VkImageLayout layout) : Texture(width, height), format(format) {
 
@@ -45,6 +48,8 @@ Texture2D::Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageF
 }
 	
 Texture2D::Texture2D(const String& filename) {
+	Log::Debug("[Texture2D] Loading \"%s\"", *filename);
+
 	Header header;
 	TextureHeader texHeader;
 
