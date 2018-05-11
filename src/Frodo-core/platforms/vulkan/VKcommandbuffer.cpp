@@ -91,6 +91,8 @@ void CommandBuffer::EndRenderPass() {
 
 void CommandBuffer::BindPipeline(const Pipeline* const pipeline) {
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
+	vkCmdSetViewport(commandBuffer, 0, pipeline->GetNumViewports(), pipeline->GetViewPorts());
+	vkCmdSetScissor(commandBuffer, 0, pipeline->GetNumScissors(), pipeline->GetScissors());
 }
 
 void CommandBuffer::BindPipelineLayout(const PipelineLayout* const pipelineLayout) {

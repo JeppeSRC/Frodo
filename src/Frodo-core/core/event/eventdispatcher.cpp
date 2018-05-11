@@ -48,6 +48,8 @@ bool EventDispatcher::OnEvent(const Event* const event) {
 	if (event->type == EventType::Window) {
 		size = windowListeners.GetSize();
 
+		WindowEvent* e = (WindowEvent*)event;
+
 		for (uint_t i = 0; i < size; i++) {
 			EventListener* listener = windowListeners[i];
 
@@ -82,7 +84,6 @@ bool EventDispatcher::OnWindowEvent(EventListener* const listener, const WindowE
 			handled = listener->OnWindowEventMove(event->position);
 			break;
 		case EventAction::Resize:
-			Context::Resize(event->size.x, event->size.y);
 			handled = listener->OnWindowEventResize(event->size);
 			break;
 		case EventAction::Focus:

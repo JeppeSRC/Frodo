@@ -8,6 +8,7 @@
 #include <graphics/pipeline/layout.h>
 #include <core/types.h>
 #include <core/enums.h>
+#include <core/event/eventlistener.h>
 
 namespace fd {
 namespace graphics {
@@ -82,17 +83,29 @@ struct PipelineInfo {
 	FrontFace frotFace;
 };
 
-class Pipeline {
+class Pipeline : core::event::EventListener {
 private:
 	PipelineInfo* info;
 
+	VkViewport* viewports;
+	VkRect2D* scissors;
+
 	VkPipeline pipeline;
+
+private:
+	bool OnWindowEventResize(const core::math::vec2i& size) override;
 public:
 	Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint32 subpassIndex, const PipelineLayout* const pipelineLayout, const Pipeline* const derivativePipeline = nullptr);
 	~Pipeline();
 
 
 	inline VkPipeline GetPipeline() const { return pipeline; }
+	inline const VkViewport* GetViewPorts() const { return viewports; }
+	inline const VkRect2D* GetScissors() const { return scissors; }
+
+	inline const PipelineInfo* GetPipelineInfo() const { return info; }
+	inline uint32 GetNumViewports() const { return info->numViewports; }
+	inline uint32 GetNumScissors() const { return info->numScissors; }
 };
 
 } } }

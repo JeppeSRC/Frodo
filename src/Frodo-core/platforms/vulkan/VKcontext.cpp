@@ -13,6 +13,18 @@ using namespace graphics;
 using namespace pipeline;
 using namespace buffer;
 using namespace texture;
+using namespace event;
+using namespace math;
+
+class ContextResizer : public EventListener {
+public:
+	ContextResizer() : EventListener(EventWindow) { }
+
+	bool OnWindowEventResize(const vec2i& size) override {
+		Context::Resize(size.x, size.y);
+		return true;
+	}
+};
 
 VkSwapchainKHR Context::swapChain = nullptr;
 VkDevice Context::device = nullptr;
@@ -50,6 +62,7 @@ VkSwapchainCreateInfoKHR Context::sinfo;
 static const VkPipelineStageFlags st[]{ VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
 bool Context::Init(Window* const window) {
+	new ContextResizer;
 	Context::window = window;
 	Context::adapter = window->GetCreateInfo()->graphicsAdapter;
 	Context::output = window->GetCreateInfo()->outputWindow;

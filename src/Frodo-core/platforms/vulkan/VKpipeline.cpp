@@ -12,6 +12,7 @@ using namespace core;
 using namespace video;
 using namespace log;
 using namespace texture;
+using namespace event;
 
 VkVertexInputBindingDescription* GetBindingDescriptors(const BufferLayout* layouts, uint32 num) {
 	VkVertexInputBindingDescription* binding = new VkVertexInputBindingDescription[num];
@@ -120,7 +121,7 @@ bool VerifyPipelineInfo(PipelineInfo* const info) {
 }
 
 
-Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint32 subpassIndex, const PipelineLayout* const pipelineLayout, const Pipeline* const derivativePipeline) : info(info) {
+Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint32 subpassIndex, const PipelineLayout* const pipelineLayout, const Pipeline* const derivativePipeline) : EventListener(EventWindow), info(info) {
 
 	if (!VerifyPipelineInfo(info)) {
 		FD_FATAL("[Pipeline] Pipeline creation failed");
@@ -171,7 +172,7 @@ Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint3
 	inputInfo.primitiveRestartEnable = VK_FALSE;
 	inputInfo.topology = (VkPrimitiveTopology)info->topology;
 
-	VkViewport* viewports = new VkViewport[info->numViewports];
+	viewports = new VkViewport[info->numViewports];
 
 	for (uint32 i = 0; i < info->numViewports; i++) {
 		VkViewport& v = viewports[i];
@@ -185,7 +186,7 @@ Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint3
 		v.maxDepth = vi.maxDepth;
 	}
 
-	VkRect2D* scissors = new VkRect2D[info->numScissors];
+	scissors = new VkRect2D[info->numScissors];
 
 	for (uint32 i = 0; i < info->numScissors; i++) {
 		VkRect2D& s = scissors[i];
@@ -281,6 +282,16 @@ Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint3
 	blendInfo.attachmentCount = info->numBlends;
 	blendInfo.pAttachments = blends;
 
+	VkPipelineDynamicStateCreateInfo dinfo;
+
+	VkDynamicState state[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+
+	dinfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dinfo.pNext = nullptr;
+	dinfo.flags = 0;
+	dinfo.dynamicStateCount = 2;
+	dinfo.pDynamicStates = state;
+
 	VkGraphicsPipelineCreateInfo pipeInfo;
 	
 	pipeInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -296,7 +307,7 @@ Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint3
 	pipeInfo.pMultisampleState = &multisampleInfo;
 	pipeInfo.pDepthStencilState = &depthInfo;
 	pipeInfo.pColorBlendState = &blendInfo;
-	pipeInfo.pDynamicState = nullptr;
+	pipeInfo.pDynamicState = &dinfo;
 	pipeInfo.layout = pipelineLayout->GetPipelineLayout();
 	pipeInfo.renderPass = renderPass->GetRenderPass();
 	pipeInfo.subpass = subpassIndex;
@@ -310,7 +321,15 @@ Pipeline::~Pipeline() {
 	vkDestroyPipeline(Context::GetDevice(), pipeline, nullptr);
 }
 
+bool Pipeline::OnWindowEventResize(const core::math::vec2i& size) {
+	viewports[0].width = size.x;
+	viewports[0].height = size.y;
 
+	scissors[0].extent.width= size.x;
+	scissors[0].extent.height = size.y;
+
+	return true;
+}
 
 }
 }
