@@ -13,11 +13,9 @@ using namespace core;
 using namespace video;
 using namespace log;
 
-Texture2D::Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageFlags usage, VkImageLayout layout) : Texture(width, height), format(format) {
+Texture2D::Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageFlags usage, VkImageLayout layout) : Texture(width, height), format(format), resizable(true) {
 
 	CreateImage(width, height, 0, VK_IMAGE_TYPE_2D, format, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, layout);
-
-	VkImageViewCreateInfo vinfo;
 
 	VkImageAspectFlags aspect = 0;
 
@@ -47,7 +45,7 @@ Texture2D::Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageF
 
 }
 	
-Texture2D::Texture2D(const String& filename) {
+Texture2D::Texture2D(const String& filename) : resizable(false) {
 	Log::Debug("[Texture2D] Loading \"%s\"", *filename);
 
 	Header header;
@@ -81,8 +79,6 @@ Texture2D::Texture2D(const String& filename) {
 
 	Context::TransitionImage(image, VK_FORMAT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-	VkImageViewCreateInfo vinfo;
-
 	vinfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	vinfo.pNext = nullptr;
 	vinfo.flags = 0;
@@ -100,8 +96,17 @@ Texture2D::Texture2D(const String& filename) {
 	vinfo.subresourceRange.levelCount = 1;
 
 	VK(vkCreateImageView(Context::GetDevice(), &vinfo, nullptr, &imageView));
+}
 
+void Texture2D::Resize(uint32 width, uint32 height) {
+	if (!resizable) {
+		Log::Fatal("[Texture2D] Texture2Ds created from a file can't be resized");
+		return;
+	}
 
+	RecreateImage(width, height);
+
+	VK(vkCreateImageView(Context::GetDevice(), &vinfo, nullptr, &imageView));
 }
 
 }

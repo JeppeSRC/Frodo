@@ -20,7 +20,12 @@ protected:
 	VkDeviceMemory imageMemory;
 	VkImageView imageView;
 
+	VkImageCreateInfo iinfo;
+	VkImageFormatProperties prop;
+	VkMemoryPropertyFlags memoryFlags;
+
 	void CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags, VkImageType imageType, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags memoryFlags, VkImageLayout initialLayout);
+	void RecreateImage(uint32 width, uint32 height);
 
 	Texture(uint32 width = 0, uint32 height = 0, VkImage image = nullptr, VkDeviceMemory memory = nullptr, VkImageView imageView = nullptr);
 public:
@@ -39,10 +44,16 @@ public:
 class Texture2D : public Texture {
 protected:
 	VkFormat format;
+
+	bool resizable;
+
+	VkImageViewCreateInfo vinfo;
 	
 	Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageFlags usage, VkImageLayout layout);
 public:
 	Texture2D(const utils::String& filename);
+
+	void Resize(uint32 width, uint32 height);
 
 	inline VkFormat GetFormat() const { return format; }
 };
