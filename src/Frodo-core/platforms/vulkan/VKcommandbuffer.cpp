@@ -83,6 +83,12 @@ void CommandBuffer::BeginRenderPass(const RenderPass* const renderPass, uint_t f
 	renderPass->InitializeRenderPass(&info);
 	
 	vkCmdBeginRenderPass(commandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
+
+	VkRect2D scissor = { 0, 0, info.renderArea.extent.width , info.renderArea.extent.height };
+	VkViewport viewport = { 0.0f, 0.0f, (float)scissor.extent.width, (float)scissor.extent.height, 0.0f, 1.0f };
+
+	//vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
 void CommandBuffer::EndRenderPass() {
@@ -91,8 +97,6 @@ void CommandBuffer::EndRenderPass() {
 
 void CommandBuffer::BindPipeline(const Pipeline* const pipeline) {
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
-	vkCmdSetViewport(commandBuffer, 0, pipeline->GetNumViewports(), pipeline->GetViewPorts());
-	vkCmdSetScissor(commandBuffer, 0, pipeline->GetNumScissors(), pipeline->GetScissors());
 }
 
 void CommandBuffer::BindPipelineLayout(const PipelineLayout* const pipelineLayout) {
