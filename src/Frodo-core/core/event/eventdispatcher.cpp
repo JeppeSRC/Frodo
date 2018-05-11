@@ -72,6 +72,8 @@ bool EventDispatcher::OnEvent(const Event* const event) {
 			OnKeyboardEvent(listener, (KeyboardEvent*)event);
 		}
 	}
+
+	return true;
 }
 
 bool EventDispatcher::OnWindowEvent(EventListener* const listener, const WindowEvent* const event) {
