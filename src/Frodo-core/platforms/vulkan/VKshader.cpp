@@ -14,17 +14,31 @@ using namespace utils;
 using namespace log;
 
 
-Shader::Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, const utils::String& geometrySrc) : vertexShader(nullptr), pixelShader(nullptr), geometryShader(nullptr) {
+Shader::Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, const utils::String& geometrySrc, bool src) : vertexShader(nullptr), pixelShader(nullptr), geometryShader(nullptr) {
 
-	char* vCode = nullptr;
-	char* pCode = nullptr;
+	const char* vCode = nullptr;
+	const char* pCode = nullptr;
 
 	uint_t vSize = 0;
 	uint_t pSize = 0;
 
-	if (!FileUtils::ReadFile(vertexSrc, (void**)&vCode, &vSize) || !FileUtils::ReadFile(pixelSrc, (void**)&pCode, &pSize)) {
-		FD_FATAL("[Shader] Failed to load shaders");
+	if (!src) {
+		if (!FileUtils::ReadFile(vertexSrc, (void**)&vCode, &vSize) || !FileUtils::ReadFile(pixelSrc, (void**)&pCode, &pSize)) {
+			FD_FATAL("[Shader] Failed to load shaders");
+		}
+	} else {
+		if (!Context::GetAdapter()->IsExtensionSupported("VK_NV_glsl_shader")) {
+			Log::Fatal("[Shader] Failed to load glsl. VK_NV_glsl_shader not supported");
+			return;
+		}
+
+		vCode = *vertexSrc;
+		pCode = *pixelSrc;
+
+		vSize = vertexSrc.GetLength();
+		pSize = pixelSrc.GetLength();
 	}
+	
 
 	VkShaderModuleCreateInfo info;
 
