@@ -10,7 +10,7 @@ protected:
 
 
 public:
-	Framebuffer(uint32 width, uint32 height, Format format);
+	Framebuffer(uint32 width, uint32 height, Format format, bool usedAsInput = false);
 
 };
 
