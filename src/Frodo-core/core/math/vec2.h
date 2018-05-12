@@ -40,6 +40,8 @@ public:
 	inline vec2 operator-(const float32 right) const { return vec2(*this).Sub(right); }
 	inline vec2 operator*(const float32 right) const { return vec2(*this).Mul(right); }
 	inline vec2 operator/(const float32 right) const { return vec2(*this).Div(right); }
+
+	inline vec2 operator-() const { return vec2(-x, -y); }
 };
 
 class vec2d {
@@ -77,6 +79,8 @@ public:
 	inline vec2d operator-(const float64 right) const { return vec2d(*this).Sub(right); }
 	inline vec2d operator*(const float64 right) const { return vec2d(*this).Mul(right); }
 	inline vec2d operator/(const float64 right) const { return vec2d(*this).Div(right); }
+
+	inline vec2d operator-() const { return vec2d(-x, -y); }
 };
 
 class vec2i {
@@ -114,6 +118,8 @@ public:
 	inline vec2i operator-(const int32 right) const { return vec2i(*this).Sub(right); }
 	inline vec2i operator*(const int32 right) const { return vec2i(*this).Mul(right); }
 	inline vec2i operator/(const int32 right) const { return vec2i(*this).Div(right); }
+
+	inline vec2i operator-() const { return vec2i(-x, -y); }
 };
 
 class vec2l {
@@ -151,6 +157,8 @@ public:
 	inline vec2l operator-(const int64 right) const { return vec2l(*this).Sub(right); }
 	inline vec2l operator*(const int64 right) const { return vec2l(*this).Mul(right); }
 	inline vec2l operator/(const int64 right) const { return vec2l(*this).Div(right); }
+
+	inline vec2l operator-() const { return vec2l(-x, -y); }
 };
 
 
