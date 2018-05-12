@@ -60,11 +60,11 @@ struct BlendInfo {
 };
 
 struct PipelineInfo {
-	uint32 numViewports;
+	/*uint32 numViewports;
 	ViewportInfo* viewports;
 
 	uint32 numScissors;
-	ScissorInfo* scissors;
+	ScissorInfo* scissors;*/
 
 	PrimitiveTopology topology;
 	PolygonMode polygonMode;
@@ -83,29 +83,20 @@ struct PipelineInfo {
 	FrontFace frotFace;
 };
 
-class Pipeline : core::event::EventListener {
+class Pipeline {
 private:
 	PipelineInfo* info;
 
-	VkViewport* viewports;
-	VkRect2D* scissors;
-
 	VkPipeline pipeline;
-
-private:
-	bool OnWindowEventResize(const core::math::vec2i& size) override;
 public:
 	Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint32 subpassIndex, const PipelineLayout* const pipelineLayout, const Pipeline* const derivativePipeline = nullptr);
 	~Pipeline();
 
 
 	inline VkPipeline GetPipeline() const { return pipeline; }
-	inline const VkViewport* GetViewPorts() const { return viewports; }
-	inline const VkRect2D* GetScissors() const { return scissors; }
 
 	inline const PipelineInfo* GetPipelineInfo() const { return info; }
-	inline uint32 GetNumViewports() const { return info->numViewports; }
-	inline uint32 GetNumScissors() const { return info->numScissors; }
+
 };
 
 } } }

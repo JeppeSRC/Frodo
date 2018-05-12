@@ -32,6 +32,49 @@ struct Vertex {
 	vec4 color;
 	vec2 texCoords;
 };
+/*
+const char* vs = "#version 450\n"
+""
+"#extension GL_ARB_separate_shader_objects : enable\n"
+""
+"layout(location = 0) in vec3 position;	\n"
+"layout(location = 1) in vec4 colors;	\n"
+"layout(location = 2) in vec2 texCoords;\n"
+""
+"out gl_PerVertex{\n"
+"	vec4 gl_Position;\n"
+"};\n"
+""
+"layout(location = 0) out vec4 color;\n"
+"layout(location = 1) out vec2 texCoord;\n"
+""
+"layout(binding = 0) uniform UniformBuffer {\n"
+"	mat4 matrix;\n"
+"};\n"
+""
+"void main() {\n"
+"	gl_Position = matrix * vec4(position.x, -position.y, position.z, 1.0);\n"
+""
+"	color = colors;\n"
+"	texCoord = texCoords;\n"
+"}\n"
+" ";
+
+const char* ps = "#version 450\n"
+""
+"#extension GL_ARB_separate_shader_objects : enable\n"
+"\n"
+"layout(location = 0) out vec4 Color;\n"
+""
+"layout(location = 0) in vec4 color;\n"
+"layout(location = 1) in vec2 texCoord;\n"
+""
+"layout(binding = 1) uniform sampler2D tex;\n"
+""
+"void main() {\n"
+"	Color = texture(tex, texCoord);\n"
+"}\n"
+" ";*/
 
 int main() {
 
@@ -49,13 +92,13 @@ int main() {
 
 	Window* window = Window::Create(&winfo);
 
-	ViewportInfo viewInfo = { 0, 0, winfo.width, winfo.height, 0.0f, 1.0f };
-	ScissorInfo scissorInfo = { 0, 0, viewInfo.width, viewInfo.height };
 	BlendInfo blendInfo = { false, BlendFactor::One, BlendFactor::One, BlendOp::Add, BlendFactor::One, BlendFactor::One, BlendOp::Add, ColorComponentFlag::All };
 	DepthStencilInfo depthInfo = { };
+	//Shader shader(vs, ps, "", true);
 	Shader shader("./res/vert.spv", "./res/frag.spv", "");
 
 	Texture2D texture("./res/cube.fdf");
+	Texture2D texture2("./res/bricks.fdf");
 	Sampler sampler(SamplerFilter::Linear, SamplerFilter::Linear, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat, true, 16.0f, SamplerBorderColor::Black, true);
 
 	BufferLayout inputLayout(0, BufferInputRate::PerVertex);
@@ -70,10 +113,6 @@ int main() {
 	info.frotFace = FrontFace::Clockwise;
 	info.topology = PrimitiveTopology::TriangleList;
 	info.polygonMode = PolygonMode::Fill;
-	info.numScissors = 1;
-	info.scissors = &scissorInfo;
-	info.numViewports = 1;
-	info.viewports = &viewInfo;
 	info.numBlends = 1;
 	info.blends = &blendInfo; 
 	info.shader = &shader;
@@ -82,19 +121,21 @@ int main() {
 
 	info.depthStencilInfo = depthInfo;
 
-	PipelineLayout layout;
-
-	List<PipelineLayoutElement> elements;
+	List<DescriptorSetBinding> elements;
 
 	elements.Push_back({ DescriptorType::Uniform, 0, sizeof(mat4), 1, ShaderTypeVertex });
 	elements.Push_back({ DescriptorType::TextureSampler, 1, 0, 1, ShaderTypePixel });
 
-	layout.AddSet(elements);
+	DescriptorSetLayout layout(elements, 2);
 
-	layout.CreateLayout();
+	PipelineLayout pipelineLayout(&layout);
 
-	layout.SetTexture(0, 1, &texture, &sampler);
-	 
+	DescriptorSet* set = layout.AllocateDescriptorSet();
+	DescriptorSet* set2 = layout.AllocateDescriptorSet();
+
+	set->SetTexture(1, &texture, &sampler);
+	set2->SetTexture(1, &texture2, &sampler);
+
 	RenderSubPassInfo pass;
 
 	pass.colorAttachments[0] = FD_SWAPCHAIN_ATTACHMENT_INDEX;
@@ -109,20 +150,20 @@ int main() {
 
 	RenderPass renderPass(&passInfo);
 
-	Pipeline pipeline(&info, &renderPass, 0, &layout);
+	Pipeline pipeline(&info, &renderPass, 0, &pipelineLayout);
 
 	Vertex vertices[3];
 	
-	vertices[0].position = vec3(0, 1, 4);
-	vertices[0].color = vec4(1, 1, 1, 1);
+	vertices[0].position = vec3(0, 1, 0);
+	vertices[0].color = vec4(0, 1, 1, 1);
 	vertices[0].texCoords = vec2(0.5f, 0.0f); 
 	
-	vertices[1].position = vec3(1, -1, 4);
-	vertices[1].color = vec4(1, 1, 1, 1); 
+	vertices[1].position = vec3(1, -1, 0);
+	vertices[1].color = vec4(1, 1, 0, 1); 
 	vertices[1].texCoords = vec2(1.0f, 1.0f);
 	
-	vertices[2].position = vec3(-1, -1, 4);
-	vertices[2].color = vec4(1, 1, 1, 1);
+	vertices[2].position = vec3(-1, -1, 0);
+	vertices[2].color = vec4(1, 0, 1, 1);
 	vertices[2].texCoords = vec2(0.0f, 1.0f);
 
 	uint32 indices[]{ 0, 1, 2 };
@@ -135,7 +176,7 @@ int main() {
 	cmd.Begin(CommandBufferUsage::Simultaneous);
 	cmd.BindPipeline(&pipeline);
 	cmd.BeginRenderPass(&renderPass);
-	cmd.BindPipelineLayout(&layout);
+	cmd.BindDescriptorSet(&pipelineLayout, 0, set);
 	 
 	cmd.Bind(&vbo);
 	cmd.Bind(&ibo);
@@ -151,22 +192,23 @@ int main() {
 		aa += 0.005f;
 
 		vec3 tmp(0, 0, aa);
+		
+		mat4 m = mat4::Perspective(1280.0f / 720.0f, 85.0f, 0.01f, 100.0f) * mat4::Translate(vec3(0, 0, 2)) * mat4::Rotate(tmp);
 
-		mat4 m = mat4::Perspective(1280.0f / 720.0f, 85.0f, 0.01f, 100.0f) * mat4::Rotate(tmp);
+		set->UpdateUniform(0, &m, sizeof(mat4));
+		set2->UpdateUniform(0, &m, sizeof(mat4));
 
-		layout.UpdateUniform(0, 0, &m, sizeof(mat4));
-
-		cmd.Begin(CommandBufferUsage::Simultaneous);
+		/*cmd.Begin(CommandBufferUsage::Simultaneous);
 		cmd.BindPipeline(&pipeline);
 		cmd.BeginRenderPass(&renderPass);
-		cmd.BindPipelineLayout(&layout);
+		cmd.BindDescriptorSet(&pipelineLayout, 0, set);
 
 		cmd.Bind(&vbo);
 		cmd.Bind(&ibo);
 
 		cmd.DrawIndexed(ibo.GetCount());
 
-		cmd.End();
+		cmd.End();*/
 
 		Context::Present(&cmd);
 

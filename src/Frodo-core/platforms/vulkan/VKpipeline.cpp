@@ -63,7 +63,7 @@ VkVertexInputAttributeDescription* GetAttributeDescriptors(const BufferLayout* l
 
 bool VerifyPipelineInfo(PipelineInfo* const info) {
 
-	if (info->numViewports == 0 || info->viewports == nullptr) {
+	/*if (info->numViewports == 0 || info->viewports == nullptr) {
 		FD_FATAL("[Pipeline] No viewport(s) specified");
 		return false;
 	}
@@ -72,7 +72,7 @@ bool VerifyPipelineInfo(PipelineInfo* const info) {
 		FD_FATAL("[Pipeline] No scissor(s) specified");
 		return false;
 	}
-
+	*/
 	switch (info->topology) {
 		case PrimitiveTopology::PointList:
 			break;
@@ -121,7 +121,7 @@ bool VerifyPipelineInfo(PipelineInfo* const info) {
 }
 
 
-Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint32 subpassIndex, const PipelineLayout* const pipelineLayout, const Pipeline* const derivativePipeline) : EventListener(EventWindow), info(info) {
+Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint32 subpassIndex, const PipelineLayout* const pipelineLayout, const Pipeline* const derivativePipeline) : info(info) {
 
 	if (!VerifyPipelineInfo(info)) {
 		FD_FATAL("[Pipeline] Pipeline creation failed");
@@ -172,7 +172,7 @@ Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint3
 	inputInfo.primitiveRestartEnable = VK_FALSE;
 	inputInfo.topology = (VkPrimitiveTopology)info->topology;
 
-	viewports = new VkViewport[info->numViewports];
+/*	viewports = new VkViewport[info->numViewports];
 
 	for (uint32 i = 0; i < info->numViewports; i++) {
 		VkViewport& v = viewports[i];
@@ -196,17 +196,17 @@ Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint3
 		s.offset.y = si.y;
 		s.extent.width = si.width;
 		s.extent.height = si.height;
-	}
+	}*/
 	
 	VkPipelineViewportStateCreateInfo viewInfo;
 
 	viewInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	viewInfo.pNext = nullptr;
 	viewInfo.flags = 0;
-	viewInfo.viewportCount = info->numViewports;
-	viewInfo.pViewports = viewports;
-	viewInfo.scissorCount = info->numScissors;
-	viewInfo.pScissors = scissors;
+	viewInfo.viewportCount = 0;// info->numViewports;
+	viewInfo.pViewports = nullptr;// viewports;
+	viewInfo.scissorCount = 0;// info->numScissors;
+	viewInfo.pScissors = nullptr;//scissors;
 
 	VkPipelineRasterizationStateCreateInfo rasterInfo;
 	
@@ -319,16 +319,6 @@ Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint3
 
 Pipeline::~Pipeline() {
 	vkDestroyPipeline(Context::GetDevice(), pipeline, nullptr);
-}
-
-bool Pipeline::OnWindowEventResize(const core::math::vec2i& size) {
-	viewports[0].width = size.x;
-	viewports[0].height = size.y;
-
-	scissors[0].extent.width= size.x;
-	scissors[0].extent.height = size.y;
-
-	return true;
 }
 
 }

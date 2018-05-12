@@ -87,7 +87,7 @@ void CommandBuffer::BeginRenderPass(const RenderPass* const renderPass, uint_t f
 	VkRect2D scissor = { 0, 0, info.renderArea.extent.width , info.renderArea.extent.height };
 	VkViewport viewport = { 0.0f, 0.0f, (float)scissor.extent.width, (float)scissor.extent.height, 0.0f, 1.0f };
 
-	//vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
@@ -99,10 +99,8 @@ void CommandBuffer::BindPipeline(const Pipeline* const pipeline) {
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
 }
 
-void CommandBuffer::BindPipelineLayout(const PipelineLayout* const pipelineLayout) {
-	const List<VkDescriptorSet>& sets = pipelineLayout->GetDescriptorSets();
-
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout->GetPipelineLayout(), 0, (uint32)sets.GetSize(), sets.GetData(), 0, 0);
+void CommandBuffer::BindDescriptorSet(const PipelineLayout* const layout, uint32 set, const DescriptorSet* const descriptorSet) {
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout->GetPipelineLayout(), set, 1, &descriptorSet->GetDescriptorSet(), 0, nullptr);
 }
 
 void CommandBuffer::Bind(const buffer::VertexBuffer* const vertexBuffer) {

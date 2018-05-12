@@ -33,7 +33,7 @@ public:
 	void EndRenderPass();
 
 	void BindPipeline(const Pipeline* const pipeline);
-	void BindPipelineLayout(const PipelineLayout* const pipelineLayout);
+	void BindDescriptorSet(const PipelineLayout* const layout, uint32 set, const DescriptorSet* const descriptorSet);
 	void Bind(const buffer::VertexBuffer* const vertexBuffer);
 	void Bind(const buffer::IndexBuffer* const indexBuffer);
 
@@ -62,7 +62,7 @@ public:
 	void EndRenderPass();
 
 	void BindPipeline(const Pipeline* const pipeline);
-	void BindPipelineLayout(const PipelineLayout* const pipelineLayout);
+	void BindDescriptorSet(const PipelineLayout* const layout, uint32 set, const DescriptorSet* const descriptorSet);
 	void Bind(const buffer::VertexBuffer* const vertexBuffer);
 	void Bind(const buffer::IndexBuffer* const indexBuffer);
 

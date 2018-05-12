@@ -66,9 +66,9 @@ void CommandBufferArray::BindPipeline(const Pipeline* const pipeline) {
 	}
 }
 
-void CommandBufferArray::BindPipelineLayout(const PipelineLayout* const pipelineLayout) {
+void CommandBufferArray::BindDescriptorSet(const PipelineLayout* const layout, uint32 set, const DescriptorSet* const descriptorSet) {
 	for (uint32 i = 0; i < count; i++) {
-		commandBuffers[i].BindPipelineLayout(pipelineLayout);
+		commandBuffers[i].BindDescriptorSet(layout, set, descriptorSet);
 	}
 }
 
