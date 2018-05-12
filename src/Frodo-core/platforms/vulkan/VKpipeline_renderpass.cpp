@@ -134,7 +134,7 @@ RenderPass::RenderPass(const RenderPassInfo* info) : EventListener(EventWindow, 
 
 		desc.flags = 0;
 		desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		desc.finalLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		desc.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		desc.format = info->framebuffers[i]->GetFormat();
 		desc.samples = VK_SAMPLE_COUNT_1_BIT;
 		desc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -234,7 +234,7 @@ RenderPass::RenderPass(const RenderPassInfo* info) : EventListener(EventWindow, 
 
 	clearValues.Resize(framebuffers.GetSize());
 
-	for (uint_t i = 0; framebuffers.GetSize(); i++) {
+	for (uint_t i = 0; i < framebuffers.GetSize(); i++) {
 		if (i == info->depthAttachment) {
 			clearValues[i].depthStencil.depth = info->depthClearValue;
 		} else {
@@ -273,7 +273,7 @@ RenderPass::RenderPass(const RenderPassInfo* info) : EventListener(EventWindow, 
 	rinfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	rinfo.pNext = nullptr;
 	rinfo.flags = 0;
-	rinfo.attachmentCount = info->framebuffers.GetSize() + usesSwapchainImage ?  1 : 0;
+	rinfo.attachmentCount = info->framebuffers.GetSize() + (usesSwapchainImage ?  1 : 0);
 	rinfo.pAttachments = attachments;
 	rinfo.subpassCount = subpassDescriptions.GetSize();
 	rinfo.pSubpasses = &subpassDescriptions[0];

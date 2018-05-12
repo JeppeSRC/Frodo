@@ -17,7 +17,7 @@ void Texture::CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags,
 	this->memoryFlags = memoryFlags;
 
 	bool formatSupported = Context::GetAdapter()->CheckImageFormat(format, imageType, VK_IMAGE_TILING_OPTIMAL, usage, flags, &prop);
-
+	
 	if (!formatSupported) {
 		formatSupported = Context::GetAdapter()->CheckImageFormat(format, imageType, VK_IMAGE_TILING_LINEAR, usage, flags, &prop);
 		if (formatSupported) {

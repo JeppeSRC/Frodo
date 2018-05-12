@@ -237,11 +237,11 @@ Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint3
 	multisampleInfo.alphaToCoverageEnable = VK_FALSE;
 
 	VkPipelineDepthStencilStateCreateInfo depthInfo;
-
 	depthInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	depthInfo.pNext = nullptr;
 	depthInfo.flags = 0;
 	depthInfo.depthTestEnable = info->depthStencilInfo.depthEnable;
+	depthInfo.depthWriteEnable = info->depthStencilInfo.depthWrite;
 	depthInfo.depthCompareOp = (VkCompareOp)info->depthStencilInfo.depthFunc;
 	depthInfo.stencilTestEnable = info->depthStencilInfo.stencilEnable;
 	depthInfo.front.compareOp = (VkCompareOp)info->depthStencilInfo.frontFace.compare;
