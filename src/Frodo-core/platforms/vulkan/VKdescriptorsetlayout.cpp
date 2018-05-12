@@ -1,5 +1,6 @@
 #include <graphics/pipeline/layout.h>
 #include <core/video/context.h>
+#include <core/log/log.h>
 
 namespace fd {
 namespace graphics {
@@ -9,6 +10,7 @@ using namespace core;
 using namespace video;
 using namespace utils;
 using namespace buffer;
+using namespace log;
 
 DescriptorSetLayout::DescriptorSetLayout(const utils::List<DescriptorSetBinding>& setBindings, uint32 numSets) : numSets(numSets), bindings(setBindings), uniformBuffer(nullptr), uniformBufferOffset(0) {
 
@@ -85,7 +87,11 @@ DescriptorSet* DescriptorSetLayout::AllocateDescriptorSet() {
 
 	VkDescriptorSet tmpSet;
 
-	//TODO: handle new pool allocation
+	if (descriptorSets.GetSize() >= numSets) {
+		Log::Fatal("[DescriptorSetLayout] Max descriptorset allocation reached!");
+		return nullptr;
+	}
+
 	VK(vkAllocateDescriptorSets(Context::GetDevice(), &info, &tmpSet));
 
 	List<DescriptorBinding> setBindings;
@@ -126,7 +132,11 @@ DescriptorSet* DescriptorSetLayout::AllocateDescriptorSet() {
 
 	}
 
-	return new DescriptorSet(tmpSet, setBindings);
+	DescriptorSet* tmp = new DescriptorSet(tmpSet, setBindings);
+
+	descriptorSets.Push_back(tmp);
+
+	return tmp;
 }
 
 
