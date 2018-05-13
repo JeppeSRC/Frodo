@@ -36,9 +36,7 @@ void Application::Start() {
 	uint32 lastTime = clock();
 	uint32 lastTime2 = clock();
 
-	running = true;
-
-	while (running) {
+	while (window->IsOpen()) {
 		uint32 now = clock();
 		float delta = float(now - lastTime) / 1000.0f;
 		lastTime = now;
