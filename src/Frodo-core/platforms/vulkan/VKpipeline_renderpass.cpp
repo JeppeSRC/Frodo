@@ -111,7 +111,7 @@ RenderPass::RenderPass() : EventListener(EventWindow), renderPass(nullptr) {
 }
 
 RenderPass::RenderPass(const RenderPassInfo* info) : EventListener(EventWindow, false), renderPass(nullptr), info(new RenderPassInfo), framebuffers(info->framebuffers) {
-	memcpy(this->info, info, sizeof(RenderPassInfo));
+	*this->info = *info;
 
 	VkAttachmentDescription* attachments = new VkAttachmentDescription[framebuffers.GetSize() + 1];
 
