@@ -2,6 +2,7 @@
 #include <core/log/log.h>
 #include <core/log/logdevice_console.h>
 #include <core/log/logdevice_file.h>
+#include <core/video/context.h>
 #include <ctime>
 
 namespace fd {
@@ -13,7 +14,7 @@ using namespace video;
 using namespace log;
 
 Application::Application(const String& name) {
-	Log::AddDevice(new LogDeviceConsole);
+
 }
 
 Application::~Application() {
@@ -22,19 +23,20 @@ Application::~Application() {
 
 void Application::OnInitInternal() {
 	Factory::CreateFactory();
-
-	OnInit();
+	Log::AddDevice(new LogDeviceConsole);
 }
 
 void Application::Start() {
+	OnInitInternal();
 	WindowCreateInfo winfo;
 	OnWindowCreate(&winfo);
 	window = Window::Create(&winfo);
-
-	OnInitInternal();
-
+	OnInit();
+	
 	uint32 lastTime = clock();
 	uint32 lastTime2 = clock();
+
+	running = true;
 
 	while (running) {
 		uint32 now = clock();
@@ -44,11 +46,14 @@ void Application::Start() {
 		OnUpdate(delta);
 		OnRender();
 
+		Context::Present(Context::GetCommandBuffers());
+
 		if ((now = clock()) - lastTime2 > 1000) {
 			OnTick();
 			lastTime2 = now;
 		}
 
+		window->Update();
 	}
 
 	OnExit();
