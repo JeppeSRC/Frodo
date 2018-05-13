@@ -34,6 +34,11 @@ LRESULT WINWindow::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
 			EventDispatcher::DispatchEvent(&e);
 			}
 			break;
+		case WM_MOUSEMOVE: {
+			MouseEvent e(EventAction::Move, vec2i(LOWORD(l), HIWORD(l)), vec2i(), 0);
+			EventDispatcher::DispatchEvent(&e);
+		}
+
 	}
 
 	end:
