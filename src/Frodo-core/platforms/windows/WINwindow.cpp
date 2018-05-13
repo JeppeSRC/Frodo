@@ -110,6 +110,12 @@ WINWindow::WINWindow(WindowCreateInfo* info) : Window(info) {
 	windowHandles[hwnd] = this;
 }
 
+WINWindow::~WINWindow() {
+	Context::Dispose();
+
+	DestroyWindow(hwnd);
+}
+
 void WINWindow::Update() const {
 
 	MSG msg;

@@ -34,7 +34,8 @@ protected:
 
 	Window(WindowCreateInfo* info);
 public:
-	
+	virtual ~Window() { }
+
 	virtual void Update() const = 0;
 
 	virtual void SetVisible(bool state) = 0;
@@ -58,6 +59,7 @@ private:
 
 public:
 	WINWindow(WindowCreateInfo* info);
+	~WINWindow();
 
 	void Update() const override;
 
