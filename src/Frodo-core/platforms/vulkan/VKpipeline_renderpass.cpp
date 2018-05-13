@@ -30,24 +30,49 @@ static bool CheckFramebuffers(const List<Framebuffer*>& framebuffers) {
 	return true;
 }
 
-RenderPass::RenderPass() : EventListener(EventWindow), renderPass(nullptr) {
+RenderPass::RenderPass(Format depthFormat) : EventListener(EventWindow), renderPass(nullptr), depthBuffer(nullptr) {
 
-	VkAttachmentDescription colorAttachment;
+	VkExtent2D e = Context::GetSwapchainExtent();
 
-	colorAttachment.flags = 0;
-	colorAttachment.format = Context::GetSwapchainFormat();
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	switch (depthFormat) {
+		case Format::D16:
+		case Format::D24S8:
+		case Format::D32:
+		case Format::D32S8:
+			depthBuffer = new Depthbuffer(e.width, e.height, depthFormat);
+	}
+
+	VkAttachmentDescription attachments[2];
+
+	attachments[0].flags = 0;
+	attachments[0].format = Context::GetSwapchainFormat();
+	attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
+
+	attachments[1].flags = 0;
+	attachments[1].format = (VkFormat)depthFormat;
+	attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
 
 	VkAttachmentReference ref;
 
 	ref.attachment = 0;
 	ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference dref;
+
+	dref.attachment = 1;
+	dref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 	VkSubpassDescription subDesc;
 
@@ -60,7 +85,7 @@ RenderPass::RenderPass() : EventListener(EventWindow), renderPass(nullptr) {
 	subDesc.pResolveAttachments = nullptr;
 	subDesc.preserveAttachmentCount = 0;
 	subDesc.pPreserveAttachments = nullptr;
-	subDesc.pDepthStencilAttachment = nullptr;
+	subDesc.pDepthStencilAttachment = depthBuffer ? &dref : nullptr;
 
 	VkSubpassDependency dependency;
 
@@ -79,8 +104,8 @@ RenderPass::RenderPass() : EventListener(EventWindow), renderPass(nullptr) {
 	renderInfo.flags = 0;
 	renderInfo.dependencyCount = 1;
 	renderInfo.pDependencies = &dependency;
-	renderInfo.attachmentCount = 1;
-	renderInfo.pAttachments = &colorAttachment;
+	renderInfo.attachmentCount = depthBuffer ? 2 : 1;
+	renderInfo.pAttachments = attachments;
 	renderInfo.subpassCount = 1;
 	renderInfo.pSubpasses = &subDesc;
 
@@ -88,22 +113,42 @@ RenderPass::RenderPass() : EventListener(EventWindow), renderPass(nullptr) {
 
 	const List<VkImageView>& swapchainViews = Context::GetSwapchainImageViews();
 
-	for (uint_t i = 0; i < swapchainViews.GetSize(); i++) {
-		VkFramebufferCreateInfo info;
+	VkImageView* views = new VkImageView[renderInfo.attachmentCount];
 
-		info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		info.pNext = nullptr;
-		info.flags = 0;
-		info.width = width = Context::GetSwapchainExtent().width;
-		info.height = height = Context::GetSwapchainExtent().height;
-		info.layers = 1;
-		info.renderPass = renderPass;
-		info.attachmentCount = 1;
-		info.pAttachments = &swapchainViews[i];
+	clearValues.Reserve(2);
+
+	VkClearValue clear;
+
+	vec4 color(0, 0, 0, 0);
+
+	memcpy(&clear.color, &color, sizeof(vec4));
+
+	clearValues.Push_back(clear);
+
+	if (depthBuffer) {
+		views[1] = depthBuffer->GetImageView();
+
+		clear.depthStencil.depth = 1.0f;
+
+		clearValues.Push_back(clear);
+	}
+
+	for (uint_t i = 0; i < swapchainViews.GetSize(); i++) {
+		views[0] = swapchainViews[i];
+
+		finfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		finfo.pNext = nullptr;
+		finfo.flags = 0;
+		finfo.width = width = e.width;
+		finfo.height = height = e.height;
+		finfo.layers = 1;
+		finfo.renderPass = renderPass;
+		finfo.attachmentCount = renderInfo.attachmentCount;
+		finfo.pAttachments = views;
 
 		VkFramebuffer tmp = nullptr;
 
-		VK(vkCreateFramebuffer(Context::GetDevice(), &info, nullptr, &tmp));
+		VK(vkCreateFramebuffer(Context::GetDevice(), &finfo, nullptr, &tmp));
 
 		framebufferObjects.Push_back(tmp);
 	}
@@ -297,7 +342,7 @@ RenderPass::RenderPass(const RenderPassInfo* info) : EventListener(EventWindow, 
 	if (usesSwapchainImage) {
 		finfo.width = width = Context::GetSwapchainExtent().width;
 		finfo.height = height = Context::GetSwapchainExtent().height;
-		finfo.attachmentCount = framebuffers.GetSize() + 1;
+		finfo.attachmentCount = rinfo.attachmentCount;
 
 		List<VkImageView> swapViews = Context::GetSwapchainImageViews();
 
@@ -335,6 +380,7 @@ RenderPass::~RenderPass() {
 
 	vkDestroyRenderPass(Context::GetDevice(), renderPass, nullptr);
 
+	delete[] finfo.pAttachments;
 	delete info;
 }
 
@@ -351,24 +397,24 @@ bool RenderPass::OnWindowEventResize(const vec2i& size) {
 
 		framebufferObjects.Clear();
 
+		VkImageView* views = (VkImageView*)finfo.pAttachments;
+
 		const List<VkImageView>& swapchainViews = Context::GetSwapchainImageViews();
 
-		for (uint_t i = 0; i < swapchainViews.GetSize(); i++) {
-			VkFramebufferCreateInfo info;
+		if (depthBuffer) {
+			depthBuffer->Resize(size.x, size.y);
+			views[1] = depthBuffer->GetImageView();
+		}
 
-			info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			info.pNext = nullptr;
-			info.flags = 0;
-			info.width = width = size.x;
-			info.height = height = size.y;
-			info.layers = 1;
-			info.renderPass = renderPass;
-			info.attachmentCount = 1;
-			info.pAttachments = &swapchainViews[i];
+		for (uint_t i = 0; i < swapchainViews.GetSize(); i++) {
+			views[0] = swapchainViews[i];
+
+			finfo.width = width = size.x;
+			finfo.height = height = size.y;
 
 			VkFramebuffer tmp = nullptr;
 
-			VK(vkCreateFramebuffer(Context::GetDevice(), &info, nullptr, &tmp));
+			VK(vkCreateFramebuffer(Context::GetDevice(), &finfo, nullptr, &tmp));
 
 			framebufferObjects.Push_back(tmp);
 		}

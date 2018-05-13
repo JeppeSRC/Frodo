@@ -49,9 +49,11 @@ private:
 	RenderPassInfo* info = nullptr;
 
 private:
+	texture::Depthbuffer* depthBuffer;
+private:
 	bool OnWindowEventResize(const core::math::vec2i& size) override;
 public:
-	RenderPass();
+	RenderPass(Format depthFormat);
 	RenderPass(const RenderPassInfo* info);
 	~RenderPass();
 
