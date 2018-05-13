@@ -370,8 +370,8 @@ void Context::Dispose() {
 	}
 
 	vkDestroySurfaceKHR(Factory::GetInstance(), surface, nullptr);
-	vkDestroyDevice(device, nullptr);
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
+	vkDestroyDevice(device, nullptr);
 
 	delete mainCommandBuffer;
 }
