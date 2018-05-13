@@ -106,6 +106,8 @@ void Texture2D::Resize(uint32 width, uint32 height) {
 
 	RecreateImage(width, height);
 
+	vinfo.image = image;
+
 	VK(vkCreateImageView(Context::GetDevice(), &vinfo, nullptr, &imageView));
 }
 
