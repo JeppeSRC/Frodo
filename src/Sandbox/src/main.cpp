@@ -29,6 +29,7 @@ using namespace shader;
 using namespace buffer;
 using namespace texture;
 using namespace app;
+using namespace event;
 
 struct Vertex {
 	vec3 position;
@@ -36,7 +37,7 @@ struct Vertex {
 	vec2 texCoords;
 };
 
-class TestApp : public Application {
+class TestApp : public Application, public EventListener {
 public:
 	Pipeline* pipeline;
 	RenderPass* renderPass;
@@ -44,7 +45,6 @@ public:
 	DescriptorSetLayout* layout;
 	DescriptorSet* set;
 	DescriptorSet* set2;
-	Depthbuffer* depthBuffer;
 	VertexBuffer* vbo;
 	IndexBuffer* ibo;
 	CommandBufferArray* cmd;
@@ -57,7 +57,7 @@ public:
 
 	uint32 fps;
 
-	TestApp() : Application("TestApp") { }
+	TestApp() : Application("TestApp"), EventListener(EventMouse) { }
 
 	~TestApp() {
 		delete shader;
@@ -66,7 +66,6 @@ public:
 		delete sampler;
 		delete ibo;
 		delete vbo;
-		delete depthBuffer;
 		delete layout;
 		delete pipelineLayout;
 		delete renderPass;
@@ -114,7 +113,7 @@ public:
 
 		List<DescriptorSetBinding> elements;
 
-		elements.Push_back({ DescriptorType::Uniform, 0, sizeof(mat4), 1, ShaderTypeVertex });
+		elements.Push_back({ DescriptorType::Uniform, 0, sizeof(mat4) * 2, 1, ShaderTypeVertex });
 		elements.Push_back({ DescriptorType::TextureSampler, 1, 0, 1, ShaderTypePixel });
 
 		layout = new DescriptorSetLayout(elements, 2);
@@ -127,26 +126,7 @@ public:
 		set->SetTexture(1, texture, sampler);
 		set2->SetTexture(1, texture2, sampler);
 
-		RenderSubPassInfo pass;
-
-		pass.colorAttachments[0] = FD_SWAPCHAIN_ATTACHMENT_INDEX;
-		pass.colorAttachments[1] = FD_NO_ATTACHMENT;
-		pass.inputAttachments[0] = FD_NO_ATTACHMENT;
-
-		RenderPassInfo passInfo;
-
-		depthBuffer = new Depthbuffer(1280, 720, Format::D16);
-
-		passInfo.clearColor = vec4(0, 0, 0, 0);
-		passInfo.depthClearValue = 1.0f;
-
-		passInfo.framebuffers.Push_back(depthBuffer);
-
-		passInfo.depthAttachment = 0;
-
-		passInfo.subpasses.Push_back(pass);
-
-		renderPass = new RenderPass(&passInfo);
+		renderPass = new RenderPass(Format::D32);
 
 		pipeline = new Pipeline(&info, renderPass, 0, pipelineLayout);
 
@@ -174,16 +154,34 @@ public:
 
 	float aa = 0;
 
+	vec3 position;
+
+	bool OnMouseEventMove(const math::vec2i& absolute, const math::vec2i& relative) override {
+		float posX = (((float)absolute.x / (float)window->GetWidth()) * 2.0f - 1.0f) * 3.5;
+		float posY = (((float)absolute.y / (float)window->GetHeight()) * 2.0f - 1.0f) * 2;
+
+		position.x = posX;
+		position.y = posY;
+		position.z = 2;
+
+		return true;
+	}
+
 	void OnUpdate(float delta) override {
 		aa += 50.0f * delta;
 
 		vec3 tmp(0, 0, aa);
 
-		mat4 m = mat4::Perspective((float)window->GetWidth() / (float)window->GetHeight(), 85.0f, 0.01f, 100.0f) * mat4::Translate(vec3(-2, 0, 2)) * mat4::Rotate(tmp);
-		mat4 m2 = mat4::Perspective((float)window->GetWidth() / (float)window->GetHeight(), 85.0f, 0.01f, 100.0f) * mat4::Translate(vec3(2, 0, 2)) * mat4::Rotate(-tmp);
+		mat4 projection = mat4::Perspective((float)window->GetWidth() / (float)window->GetHeight(), 85.0f, 0.01f, 100.0f);
 
-		set->UpdateUniform(0, &m, sizeof(mat4));
-		set2->UpdateUniform(0, &m2, sizeof(mat4));
+		mat4 m = mat4::Translate(position) * mat4::Rotate(tmp);
+		mat4 m2 = mat4::Translate(vec3(2, 0, 2.001)) * mat4::Rotate(-tmp);
+
+		set->UpdateUniform(0, &projection, sizeof(mat4));
+		set2->UpdateUniform(0, &projection, sizeof(mat4));
+
+		set->UpdateUniform(0, &m2, sizeof(mat4), sizeof(mat4));
+		set2->UpdateUniform(0, &m, sizeof(mat4), sizeof(mat4));
 	}
 
 	void OnRender() override {
