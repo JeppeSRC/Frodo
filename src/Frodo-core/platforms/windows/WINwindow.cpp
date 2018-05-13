@@ -29,6 +29,8 @@ LRESULT WINWindow::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
 			break;
 		case WM_SIZE: {
 			WindowEvent e(EventAction::Resize, vec2i(LOWORD(l), HIWORD(l)), vec2i(), false, false);
+			window->info.width = e.size.x;
+			window->info.height = e.size.y;
 			EventDispatcher::DispatchEvent(&e);
 			}
 			break;
