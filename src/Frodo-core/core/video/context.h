@@ -67,13 +67,15 @@ private:
 	static VkPresentInfoKHR presentInfo;
 
 	static VkSwapchainCreateInfoKHR sinfo;
+
+	static graphics::pipeline::CommandBufferArray* mainCommandBuffer;
 public:
 	static void CopyBuffers(VkBuffer* dst, VkBuffer* src, uint64* size, uint64 num);
 	static void TransitionImage(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	static void CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBuffer buffer);
 
 public:
-	static graphics::pipeline::CommandBufferArray GetCommandBuffers();
+	static graphics::pipeline::CommandBufferArray* GetCommandBuffers();
 
 	static void Present(const graphics::pipeline::CommandBufferArray* const commandBuffer);
 

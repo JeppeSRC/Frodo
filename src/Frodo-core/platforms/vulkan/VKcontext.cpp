@@ -59,6 +59,8 @@ VkPresentInfoKHR Context::presentInfo;
 
 VkSwapchainCreateInfoKHR Context::sinfo;
 
+CommandBufferArray* Context::mainCommandBuffer = nullptr;
+
 static const VkPipelineStageFlags st[]{ VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
 bool Context::Init(Window* const window) {
@@ -370,6 +372,8 @@ void Context::Dispose() {
 	vkDestroySurfaceKHR(Factory::GetInstance(), surface, nullptr);
 	vkDestroyDevice(device, nullptr);
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
+
+	delete mainCommandBuffer;
 }
 
 void Context::CopyBuffers(VkBuffer* dst, VkBuffer* src, uint64* size, uint64 num) {
@@ -513,8 +517,11 @@ void Context::CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBu
 	VK(vkQueueWaitIdle(graphicsQueue));
 }
 
-CommandBufferArray Context::GetCommandBuffers() {
-	return CommandBufferArray(cmdPool, CommandBufferType::Primary, swapchainImages.GetSize());
+CommandBufferArray* Context::GetCommandBuffers() {
+	if (!mainCommandBuffer) 
+		mainCommandBuffer = new CommandBufferArray(cmdPool, CommandBufferType::Primary, swapchainImages.GetSize());
+
+	return mainCommandBuffer; 
 }
 
 void Context::Present(const CommandBufferArray* const commandBuffer) {
