@@ -179,7 +179,7 @@ RenderPass::RenderPass(const RenderPassInfo* info) : EventListener(EventWindow, 
 
 		desc.flags = 0;
 		desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		desc.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		desc.finalLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		desc.format = info->framebuffers[i]->GetFormat();
 		desc.samples = VK_SAMPLE_COUNT_1_BIT;
 		desc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
