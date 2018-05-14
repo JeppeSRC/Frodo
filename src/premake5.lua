@@ -34,6 +34,10 @@ if (vk_path == nil) then
 
     callingconvention "FastCall"
 
+    flags {
+        "MultiProcessorCompile"
+    }
+
     filter {"Release"}
         optimize "Speed"
         inlining "Auto"
@@ -55,10 +59,13 @@ if (vk_path == nil) then
     filter {"system:windows", "Release"}
         buildoptions {
             "/GL",
-            "/sdl-",
             "/Ot",
-            "/GS-",
+            --"/GS-",
             "/arch:AVX2"
+        }
+
+        flags {
+            "NoBufferSecurityCheck"
         }
 
         linkoptions {
