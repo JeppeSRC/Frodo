@@ -44,7 +44,7 @@ void Application::Start() {
 		OnUpdate(delta);
 		OnRender();
 
-		Context::Present(Context::GetCommandBuffers());
+		Context::Present(Context::GetPrimaryCommandBuffer());
 
 		if ((now = clock()) - lastTime2 > 1000) {
 			OnTick();
