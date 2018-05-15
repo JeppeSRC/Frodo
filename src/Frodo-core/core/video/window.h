@@ -17,7 +17,6 @@ namespace video {
 struct WindowCreateInfo {
 	uint32 width;
 	uint32 height;
-	uint32 refreshRate;
 
 	utils::String title;
 
@@ -29,21 +28,24 @@ struct WindowCreateInfo {
 
 class Window {
 protected:
-	WindowCreateInfo* info;
+	WindowCreateInfo info;
 
 	bool open;
 
 	Window(WindowCreateInfo* info);
 public:
-	
+	virtual ~Window() { }
+
 	virtual void Update() const = 0;
 
 	virtual void SetVisible(bool state) = 0;
 
-	inline uint32 GetWidth() const { return info->width; }
-	inline uint32 GetHeight() const { return info->height; }
-	inline utils::String GetTitle() const { return info->title; }
-	inline const WindowCreateInfo* GetCreateInfo() const { return info; }
+	virtual void Resize(const WindowCreateInfo* const newInfo) = 0;
+
+	inline uint32 GetWidth() const { return info.width; }
+	inline uint32 GetHeight() const { return info.height; }
+	inline utils::String GetTitle() const { return info.title; }
+	inline const WindowCreateInfo* GetCreateInfo() const { return &info; }
 	inline bool IsOpen() const { return open; }
 
 	static Window* Create(WindowCreateInfo* info);
@@ -57,10 +59,13 @@ private:
 
 public:
 	WINWindow(WindowCreateInfo* info);
+	~WINWindow();
 
 	void Update() const override;
 
 	void SetVisible(bool state) override;
+
+	void Resize(const WindowCreateInfo* const newInfo) override;
 
 	inline HWND GetHandle() const { return hwnd; }
 private:

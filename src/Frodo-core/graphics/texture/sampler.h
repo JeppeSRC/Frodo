@@ -8,10 +8,6 @@ namespace fd {
 namespace graphics {
 namespace texture {
 
-#ifdef FD_DX 
-
-#else
-
 class Sampler {
 protected:
 	VkSampler sampler;
@@ -21,8 +17,6 @@ public:
 
 	inline VkSampler GetSampler() const { return sampler; }
 };
-
-#endif
 
 }
 }

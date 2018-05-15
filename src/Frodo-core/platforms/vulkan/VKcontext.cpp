@@ -13,6 +13,18 @@ using namespace graphics;
 using namespace pipeline;
 using namespace buffer;
 using namespace texture;
+using namespace event;
+using namespace math;
+
+class ContextResizer : public EventListener {
+public:
+	ContextResizer() : EventListener(EventWindow) { }
+
+	bool OnWindowEventResize(const vec2i& size) override {
+		Context::Resize(size.x, size.y);
+		return true;
+	}
+};
 
 VkSwapchainKHR Context::swapChain = nullptr;
 VkDevice Context::device = nullptr;
@@ -37,21 +49,22 @@ VkSemaphore Context::renderSemaphore;
 
 List<VkImage> Context::swapchainImages;
 List<VkImageView> Context::swapchainViews;
-List<VkCommandBuffer> Context::cmdbuffers;
 
 Window* Context::window = nullptr;
 Adapter* Context::adapter = nullptr;
 Output* Context::output = nullptr;
 
-bool Context::renderPassActive = false;
-const IndexBuffer* Context::currentIndexBuffer = nullptr;
-
 VkSubmitInfo Context::submitInfo;
 VkPresentInfoKHR Context::presentInfo;
+
+VkSwapchainCreateInfoKHR Context::sinfo;
+
+CommandBufferArray* Context::mainCommandBuffer = nullptr;
 
 static const VkPipelineStageFlags st[]{ VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
 bool Context::Init(Window* const window) {
+	new ContextResizer;
 	Context::window = window;
 	Context::adapter = window->GetCreateInfo()->graphicsAdapter;
 	Context::output = window->GetCreateInfo()->outputWindow;
@@ -179,12 +192,10 @@ bool Context::Init(Window* const window) {
 
 	if (imageCount > capabilities.maxImageCount) imageCount = capabilities.maxImageCount;
 
-	const uint32 queueIndices[]{
-		graphicsQueueIndex,
-		presentQueueIndex
-	};
+	uint32* queueIndices = new uint32[2];
 
-	VkSwapchainCreateInfoKHR sinfo;
+	queueIndices[0] = graphicsQueueIndex;
+	queueIndices[1] = presentQueueIndex;
 
 	sinfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	sinfo.pNext = nullptr;
@@ -252,18 +263,11 @@ bool Context::Init(Window* const window) {
 	VK(vkCreateCommandPool(device, &poolInfo, nullptr, &cmdPool));
 	VK(vkCreateCommandPool(device, &poolInfo, nullptr, &auxPool));
 
-	cmdbuffers.Resize(swapchainImages.GetSize());
-
 	VkCommandBufferAllocateInfo cmdInfo;
 
 	cmdInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	cmdInfo.pNext = nullptr;
 	cmdInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	cmdInfo.commandBufferCount = (uint32)cmdbuffers.GetSize();
-	cmdInfo.commandPool = cmdPool;
-
-	VK(vkAllocateCommandBuffers(device, &cmdInfo, cmdbuffers.GetData()));
-
 	cmdInfo.commandBufferCount = 1;
 	cmdInfo.commandPool = auxPool;
 
@@ -298,6 +302,62 @@ bool Context::Init(Window* const window) {
 	return true;
 }
 
+bool Context::Resize(uint32 width, uint32 height) {
+
+	swapchainExtent = { width, height };
+
+	sinfo.imageExtent = swapchainExtent;
+	sinfo.oldSwapchain = swapChain;
+
+	if (VK(vkCreateSwapchainKHR(device, &sinfo, nullptr, &swapChain)) != VK_SUCCESS) {
+		FD_FATAL("[Context] Swapchain recreation failed!");
+		return false;
+	}
+
+	uint32 numImages = 0;
+
+	for (uint_t i = 0; i < swapchainViews.GetSize(); i++) {
+		vkDestroyImageView(Context::GetDevice(), swapchainViews[i], nullptr);
+	}
+
+	vkDestroySwapchainKHR(device, sinfo.oldSwapchain, nullptr);
+
+	swapchainViews.Clear();
+	swapchainImages.Clear();
+
+	VK(vkGetSwapchainImagesKHR(device, swapChain, &numImages, nullptr));
+	swapchainImages.Resize(numImages);
+	VK(vkGetSwapchainImagesKHR(device, swapChain, &numImages, swapchainImages.GetData()));
+
+	VkImageViewCreateInfo vinfo;
+
+	vinfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	vinfo.pNext = nullptr;
+	vinfo.flags = 0;
+	vinfo.format = swapchainFormat;
+	vinfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	vinfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	vinfo.subresourceRange.levelCount = 1;
+	vinfo.subresourceRange.layerCount = 1;
+	vinfo.subresourceRange.baseMipLevel = 0;
+	vinfo.subresourceRange.baseArrayLayer = 0;
+	vinfo.components.r = VK_COMPONENT_SWIZZLE_R;
+	vinfo.components.g = VK_COMPONENT_SWIZZLE_G;
+	vinfo.components.b = VK_COMPONENT_SWIZZLE_B;
+	vinfo.components.a = VK_COMPONENT_SWIZZLE_A;
+
+	for (uint_t i = 0; i < swapchainImages.GetSize(); i++) {
+		vinfo.image = swapchainImages[i];
+
+		VkImageView view;
+		VK(vkCreateImageView(device, &vinfo, nullptr, &view));
+
+		swapchainViews.Push_back(view);
+	}
+
+	return true;
+}
+
 void Context::Dispose() {
 	vkDestroySemaphore(Context::GetDevice(), imageSemaphore, nullptr);
 	vkDestroySemaphore(Context::GetDevice(), renderSemaphore, nullptr);
@@ -310,8 +370,10 @@ void Context::Dispose() {
 	}
 
 	vkDestroySurfaceKHR(Factory::GetInstance(), surface, nullptr);
-	vkDestroyDevice(device, nullptr);
 	vkDestroySwapchainKHR(device, swapChain, nullptr);
+	vkDestroyDevice(device, nullptr);
+
+	delete mainCommandBuffer;
 }
 
 void Context::CopyBuffers(VkBuffer* dst, VkBuffer* src, uint64* size, uint64 num) {
@@ -455,102 +517,23 @@ void Context::CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBu
 	VK(vkQueueWaitIdle(graphicsQueue));
 }
 
-void Context::BeginCommandBuffers(uint32 usage) {
-	VkCommandBufferBeginInfo info;
+CommandBufferArray* Context::GetPrimaryCommandBuffer() {
+	if (!mainCommandBuffer) 
+		mainCommandBuffer = new CommandBufferArray(cmdPool, CommandBufferType::Primary, swapchainImages.GetSize());
 
-	FD_ASSERT((usage & FD_COMMAND_BUFFER_SIMULTANEOUS) || (usage & FD_COMMAND_BUFFER_ONE_TIME));
-
-	info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	info.pNext = nullptr;
-	info.flags = usage;
-	info.pInheritanceInfo = nullptr;
-
-	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		VK(vkBeginCommandBuffer(cmdbuffers[i], &info));
-	}
+	return mainCommandBuffer; 
 }
 
-void Context::EndCommandBuffers() {
-	if (renderPassActive) EndRenderPass();
-
-	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		VK(vkEndCommandBuffer(cmdbuffers[i]));
-	}
+CommandBufferArray* Context::AllocateCommandBuffer() {
+	return new CommandBufferArray(cmdPool, CommandBufferType::Secondary, swapchainImages.GetSize());;
 }
 
-static VkClearValue gay{ 0.0f, 0.0f, 0.0f, 0.0f };
-
-void Context::BindRenderPass(const RenderPass* const renderPass) {
-
-	VkRenderPassBeginInfo rinfo; 
-
-	rinfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	rinfo.pNext = nullptr;
-	rinfo.renderArea.offset = { 0, 0 };
-	rinfo.renderArea.extent.width = renderPass->GetWidth();
-	rinfo.renderArea.extent.height = renderPass->GetHeight();
-	rinfo.renderPass = renderPass->GetRenderPass();
-	rinfo.clearValueCount = 1;
-	rinfo.pClearValues = &gay;
-
-	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		rinfo.framebuffer = renderPass->GetFramebuffer(i);
-
-		vkCmdBeginRenderPass(cmdbuffers[i], &rinfo, VK_SUBPASS_CONTENTS_INLINE);
-	}
-
-	renderPassActive = true;
-}
-
-void Context::EndRenderPass() {
-	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		vkCmdEndRenderPass(cmdbuffers[i]);
-	}
-
-	renderPassActive = false;
-}
-
-void Context::BindPipeline(const Pipeline* const pipeline) {
-	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		vkCmdBindPipeline(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->GetPipeline());
-	}
-}
-
-void Context::BindPipelineLayout(const PipelineLayout* const layout) {
-	const List<VkDescriptorSet>& sets = layout->GetDescriptorSets();
-
-	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		vkCmdBindDescriptorSets(cmdbuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, layout->GetPipelineLayout(), 0, sets.GetSize(), sets.GetData(), 0, 0);
-	}
-}
-
-void Context::Bind(const VertexBuffer* const buffer, uint32 slot) {
-	uint_t offset = 0;
-	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		vkCmdBindVertexBuffers(cmdbuffers[i], slot, 1, &buffer->GetBuffer(), &offset);
-	}
-}
-
-void Context::Bind(const IndexBuffer* const buffer) {
-	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		vkCmdBindIndexBuffer(cmdbuffers[i], buffer->GetBuffer(), 0, buffer->GetFormat());
-	}
-
-	currentIndexBuffer = buffer;
-}
-
-void Context::DrawIndexed() {
-	for (uint_t i = 0; i < cmdbuffers.GetSize(); i++) {
-		vkCmdDrawIndexed(cmdbuffers[i], currentIndexBuffer->GetCount(), 1, 0, 0, 0);
-	}
-}
-
-void Context::Present() {
+void Context::Present(const CommandBufferArray* const commandBuffer) {
 	uint32 imageIndex;
 
 	VK(vkAcquireNextImageKHR(device, swapChain, ~0L, imageSemaphore, nullptr, &imageIndex));
 
-	submitInfo.pCommandBuffers = &cmdbuffers[imageIndex];
+	submitInfo.pCommandBuffers = &commandBuffer->GetCommandBuffer(imageIndex);
 
 	VK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr));
 

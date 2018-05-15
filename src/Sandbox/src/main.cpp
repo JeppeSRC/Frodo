@@ -15,6 +15,8 @@
 #include <graphics/texture/texture.h>
 #include <ctime>
 
+#include <core/app/application.h>
+
 using namespace fd;
 using namespace core;
 using namespace math;
@@ -26,6 +28,8 @@ using namespace pipeline;
 using namespace shader;
 using namespace buffer;
 using namespace texture;
+using namespace app;
+using namespace event;
 
 struct Vertex {
 	vec3 position;
@@ -33,139 +37,201 @@ struct Vertex {
 	vec2 texCoords;
 };
 
-int main() {
+class TestApp : public Application, public EventListener {
+public:
+	Pipeline* pipeline;
+	RenderPass* renderPass;
+	PipelineLayout* pipelineLayout;
+	DescriptorSetLayout* layout;
+	DescriptorSet* set;
+	DescriptorSet* set2;
+	VertexBuffer* vbo;
+	IndexBuffer* ibo;
+	CommandBufferArray* cmd;
+	CommandBufferArray* cmd2;
 
-	Log::AddDevice(new LogDeviceConsole());
+	Texture2D* texture;
+	Texture2D* texture2;
+	Sampler* sampler;
 
-	Factory::CreateFactory();
+	Shader* shader;
 
-	WindowCreateInfo winfo;
+	uint32 fps;
 
-	winfo.graphicsAdapter = Factory::GetAdapters()[0];
-	winfo.outputWindow = nullptr;
-	winfo.width = 1280;
-	winfo.height = 720;
-	winfo.refreshRate = 60;
-	winfo.title = "Dank Title";
+	TestApp() : Application("TestApp"), EventListener(EventMouse) { }
 
-	Window* window = Window::Create(&winfo);
+	~TestApp() {
+		delete shader;
+		delete texture;
+		delete texture2;
+		delete sampler;
+		delete ibo;
+		delete vbo;
+		delete layout;
+		delete pipelineLayout;
+		delete renderPass;
+		delete pipeline;
+	}
 
-	ViewportInfo viewInfo = { 0, 0, winfo.width, winfo.height, 0.0f, 1.0f };
-	ScissorInfo scissorInfo = { 0, 0, viewInfo.width, viewInfo.height };
-	BlendInfo blendInfo = { false, BlendFactor::One, BlendFactor::One, BlendOp::Add, BlendFactor::One, BlendFactor::One, BlendOp::Add, ColorComponentFlag::All };
-	DepthStencilInfo depthInfo = { };
-	Shader shader("./res/vert.spv", "./res/frag.spv", "");
+	void OnWindowCreate(WindowCreateInfo* const winfo) override {
+		winfo->graphicsAdapter = Factory::GetAdapters()[0];
+		winfo->outputWindow = nullptr;
+		winfo->width = 1280;
+		winfo->height = 720;
+		winfo->title = "Dank Title";
+	}
 
-	Texture2D texture("./res/cube.fdf");
-	Sampler sampler(SamplerFilter::Linear, SamplerFilter::Linear, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat, true, 16.0f, SamplerBorderColor::Black, true);
+	void OnInit() override {
+		BlendInfo blendInfo = { false, BlendFactor::One, BlendFactor::One, BlendOp::Add, BlendFactor::One, BlendFactor::One, BlendOp::Add, ColorComponentFlag::All };
+		DepthStencilInfo depthInfo = { true, true, ComparisonFunc::LessEqual, false };
+		//Shader shader(vs, ps, "", true);
+		shader = new Shader("./res/vert.spv", "./res/frag.spv", "");
 
-	BufferLayout inputLayout(0, BufferInputRate::PerVertex);
+		texture = new Texture2D("./res/cube.fdf");
+		texture2 = new Texture2D("./res/bricks.fdf");
 
-	inputLayout.Push<vec3>("POSITION");
-	inputLayout.Push<vec4>("COLOR"); 
-	inputLayout.Push<vec2>("TEXCOORDS");
+		sampler = new Sampler(SamplerFilter::Linear, SamplerFilter::Linear, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat, true, 16.0f, SamplerBorderColor::Black, true);
 
-	PipelineInfo info;
+		BufferLayout inputLayout(0, BufferInputRate::PerVertex);
 
-	info.cullMode = CullMode::Back;
-	info.frotFace = FrontFace::Clockwise;
-	info.topology = PrimitiveTopology::TriangleList;
-	info.polygonMode = PolygonMode::Fill;
-	info.numScissors = 1;
-	info.scissors = &scissorInfo;
-	info.numViewports = 1;
-	info.viewports = &viewInfo;
-	info.numBlends = 1;
-	info.blends = &blendInfo; 
-	info.shader = &shader;
-	info.numInputLayouts = 1;
-	info.shaderInputLayouts = &inputLayout; 
+		inputLayout.Push<vec3>("POSITION");
+		inputLayout.Push<vec4>("COLOR");
+		inputLayout.Push<vec2>("TEXCOORDS");
 
-	info.depthStencilInfo = depthInfo;
+		PipelineInfo info;
 
-	PipelineLayout layout;
+		info.cullMode = CullMode::Back;
+		info.frotFace = FrontFace::Clockwise;
+		info.topology = PrimitiveTopology::TriangleList;
+		info.polygonMode = PolygonMode::Fill;
+		info.numBlends = 1;
+		info.blends = &blendInfo;
+		info.shader = shader;
+		info.numInputLayouts = 1;
+		info.shaderInputLayouts = &inputLayout;
 
-	List<PipelineLayoutElement> elements;
+		info.depthStencilInfo = depthInfo;
 
-	elements.Push_back({ DescriptorType::Uniform, 0, sizeof(mat4), 1, ShaderTypeVertex });
-	elements.Push_back({ DescriptorType::TextureSampler, 1, 0, 1, ShaderTypePixel });
+		List<DescriptorSetBinding> elements;
 
-	layout.AddSet(elements);
+		elements.Push_back({ DescriptorType::Uniform, 0, sizeof(mat4) * 2, 1, ShaderTypeVertex });
+		elements.Push_back({ DescriptorType::TextureSampler, 1, 0, 1, ShaderTypePixel });
 
-	layout.CreateLayout();
+		layout = new DescriptorSetLayout(elements, 2);
+		pipelineLayout = new PipelineLayout(layout);
 
-	layout.SetTexture(0, 1, &texture, &sampler);
-	 
-	RenderSubPassInfo pass;
 
-	pass.colorAttachments[0] = FD_SWAPCHAIN_ATTACHMENT_INDEX;
-	pass.colorAttachments[1] = FD_NO_ATTACHMENT;
-	pass.depthStencilAttachment = FD_NO_ATTACHMENT;
-	pass.inputAttachments[0] = FD_NO_ATTACHMENT;
+		set = layout->AllocateDescriptorSet();
+		set2 = layout->AllocateDescriptorSet();
 
-	RenderPassInfo passInfo;
+		set->SetTexture(1, texture, sampler);
+		set2->SetTexture(1, texture2, sampler);
 
-	passInfo.subpasses.Push_back(pass);
+		renderPass = new RenderPass(Format::D32);
 
-	RenderPass renderPass(&passInfo);
+		pipeline = new Pipeline(&info, renderPass, 0, pipelineLayout);
 
-	Pipeline pipeline(&info, &renderPass, &layout);
+		Vertex vertices[3];
 
-	Vertex vertices[3];
-	
-	vertices[0].position = vec3(0, 1, 4);
-	vertices[0].color = vec4(1, 1, 1, 1);
-	vertices[0].texCoords = vec2(0.5f, 0.0f); 
-	
-	vertices[1].position = vec3(1, -1, 4);
-	vertices[1].color = vec4(1, 1, 1, 1); 
-	vertices[1].texCoords = vec2(1.0f, 1.0f);
-	
-	vertices[2].position = vec3(-1, -1, 4);
-	vertices[2].color = vec4(1, 1, 1, 1);
-	vertices[2].texCoords = vec2(0.0f, 1.0f);
+		vertices[0].position = vec3(0, 1, 0);
+		vertices[0].color = vec4(0, 1, 1, 1);
+		vertices[0].texCoords = vec2(0.5f, 0.0f);
 
-	uint32 indices[]{ 0, 1, 2 };
+		vertices[1].position = vec3(1, -1, 0);
+		vertices[1].color = vec4(1, 1, 0, 1);
+		vertices[1].texCoords = vec2(1.0f, 1.0f);
 
-	VertexBuffer vbo(vertices, sizeof(vertices));
-	IndexBuffer ibo(indices, 3); 
+		vertices[2].position = vec3(-1, -1, 0);
+		vertices[2].color = vec4(1, 0, 1, 1);
+		vertices[2].texCoords = vec2(0.0f, 1.0f);
 
-	Context::BeginCommandBuffers(FD_COMMAND_BUFFER_SIMULTANEOUS);
-	Context::BindPipeline(&pipeline);
-	Context::BindRenderPass(&renderPass);
-	Context::BindPipelineLayout(&layout);
-	 
-	Context::Bind(&vbo, 0);
-	Context::Bind(&ibo);
-	 
-	Context::DrawIndexed();
+		uint32 indices[]{ 0, 1, 2 };
+
+		vbo = new VertexBuffer(vertices, sizeof(vertices));
+		ibo = new IndexBuffer(indices, 3);
+
+		cmd = Context::GetPrimaryCommandBuffer();
 		
-	Context::EndCommandBuffers();
-	  
-	unsigned int shit2 = clock();
- 	unsigned int dankFps = 0;
-	float aa = 0; 
-	while (window->IsOpen()) {
-		aa += 0.005f;
+		/*cmd->Begin(CommandBufferUsage::Simultaneous);
+		cmd->BeginRenderPass(renderPass);
+		cmd->BindPipeline(pipeline);
+
+		cmd->Bind(vbo);
+		cmd->Bind(ibo);
+	
+		cmd->BindDescriptorSet(pipelineLayout, 0, set);
+		cmd->DrawIndexed(ibo->GetCount());
+
+		cmd->BindDescriptorSet(pipelineLayout, 0, set2);
+		cmd->DrawIndexed(ibo->GetCount());
+
+		cmd->EndRenderPass();
+		cmd->End();*/
+
+	}
+
+	float aa = 0;
+
+	vec3 position;
+
+	bool OnMouseEventMove(const math::vec2i& absolute, const math::vec2i& relative) override {
+		float posX = (((float)absolute.x / (float)window->GetWidth()) * 2.0f - 1.0f) * 3.5;
+		float posY = (((float)absolute.y / (float)window->GetHeight()) * 2.0f - 1.0f) * 2;
+
+		position.x = posX;
+		position.y = posY;
+		position.z = 2;
+
+		return true;
+	}
+
+	void OnUpdate(float delta) override {
+		aa += 50.0f * delta;
 
 		vec3 tmp(0, 0, aa);
 
-		mat4 m = mat4::Perspective(1280.0f / 720.0f, 85.0f, 0.01f, 100.0f) * mat4::Rotate(tmp);
+		mat4 projection = mat4::Perspective((float)window->GetWidth() / (float)window->GetHeight(), 85.0f, 0.01f, 100.0f);
 
-		layout.UpdateUniform(0, 0, &m, sizeof(mat4));
+		mat4 m = mat4::Translate(position) * mat4::Rotate(tmp);
+		mat4 m2 = mat4::Translate(vec3(2, 0, 2.001)) * mat4::Rotate(-tmp);
 
-		Context::Present();
+		set->UpdateUniform(0, &projection, sizeof(mat4));
+		set2->UpdateUniform(0, &projection, sizeof(mat4));
 
-		window->Update(); 
-
-		dankFps++;
-		
-		if (clock() - shit2 > 1000) {
-			shit2 = clock();
-			Log::Info("%u", dankFps);
-			dankFps = 0;
-		}
-	
+		set->UpdateUniform(0, &m2, sizeof(mat4), sizeof(mat4));
+		set2->UpdateUniform(0, &m, sizeof(mat4), sizeof(mat4));
 	}
 
+	void OnRender() override {
+		cmd->Begin(CommandBufferUsage::Simultaneous);
+		cmd->BeginRenderPass(renderPass);
+		cmd->BindPipeline(pipeline);
+		
+		cmd->Bind(vbo);
+		cmd->Bind(ibo);
+
+		cmd->BindDescriptorSet(pipelineLayout, 0, set);
+		cmd->DrawIndexed(ibo->GetCount());
+
+		cmd->BindDescriptorSet(pipelineLayout, 0, set2);
+		cmd->DrawIndexed(ibo->GetCount());
+
+		cmd->EndRenderPass();
+		cmd->End();
+
+		fps++;
+	}
+
+	void OnTick() {
+		Log::Info("FPS: %u", fps);
+		fps = 0;
+	}
+};
+
+int main() {
+	TestApp app;
+
+	app.Start();
+
+	return 0;
 }

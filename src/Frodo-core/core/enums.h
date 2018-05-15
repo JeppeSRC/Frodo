@@ -25,125 +25,7 @@ enum class LogDeviceType {
 	Custom
 };
 
-#ifdef FD_DX
-enum class PrimitiveTopology {
-	PointList = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
-	LineLize = D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
-	LineStrip = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP,
-	TriangleList= D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-	TriangleStrip = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP
-};
 
-enum class PolygonMode {
-	Line = D3D11_FILL_WIREFRAME,
-	Fill = D3D11_FILL_SOLID
-};
-
-enum class CullMode {
-	None = D3D11_CULL_NONE,
-	Back = D3D11_CULL_BACK,
-	Front = D3D11_CULL_FRONT
-};
-
-enum class FrontFace {
-	Clockwise,
-	CounterClockwise
-};
-
-enum class ComparisonFunc {
-	Never = D3D11_COMPARISON_NEVER,
-	Less = D3D11_COMPARISON_LESS,
-	Equal = D3D11_COMPARISON_EQUAL,
-	LessEqual = D3D11_COMPARISON_LESS_EQUAL,
-	Greater = D3D11_COMPARISON_GREATER,
-	NotEqual = D3D11_COMPARISON_NOT_EQUAL,
-	GreaterEqual = D3D11_COMPARISON_GREATER_EQUAL,
-	Always = D3D11_COMPARISON_ALWAYS
-};
-
-enum class StencilOp {
-	Kepp = D3D11_STENCIL_OP_KEEP,
-	Zero = D3D11_STENCIL_OP_ZERO,
-	Replace = D3D11_STENCIL_OP_REPLACE,
-	IncrementClamp= D3D11_STENCIL_OP_INCR_SAT,
-	DecrementClamp = D3D11_STENCIL_OP_DECR_SAT,
-	Invert = D3D11_STENCIL_OP_INVERT,
-	Increment= D3D11_STENCIL_OP_INCR,
-	Decrement = D3D11_STENCIL_OP_DECR
-};
-
-enum class BlendFactor {
-	Zero = D3D11_BLEND_ZERO,
-	One = D3D11_BLEND_ONE,
-	SrcColor = D3D11_BLEND_SRC_COLOR,
-	InvSrcColor = D3D11_BLEND_INV_SRC_COLOR,
-	SrcAlpha = D3D11_BLEND_SRC_ALPHA,
-	InvSrcAlpha = D3D11_BLEND_INV_SRC_ALPHA,
-	DestAlpha = D3D11_BLEND_DEST_ALPHA,
-	InvDestAlpha = D3D11_BLEND_INV_DEST_ALPHA,
-	DestColor = D3D11_BLEND_DEST_COLOR,
-	InvDestColor = D3D11_BLEND_INV_DEST_COLOR,
-	SrcAlphaClamp = D3D11_BLEND_SRC_ALPHA_SAT,
-	BlendFactor = D3D11_BLEND_BLEND_FACTOR,
-	InvBlendFactor = D3D11_BLEND_INV_BLEND_FACTOR,
-	Src1Color = D3D11_BLEND_SRC1_COLOR,
-	InvSrc1Color = D3D11_BLEND_INV_SRC1_COLOR,
-	Src1Alpha = D3D11_BLEND_SRC1_ALPHA,
-	InvSrc1Alpha = D3D11_BLEND_INV_SRC1_ALPHA
-};
-
-enum class BlendOp {
-	Add = D3D11_BLEND_OP_ADD,
-	Subtract = D3D11_BLEND_OP_SUBTRACT,
-	RevSubtract = D3D11_BLEND_OP_REV_SUBTRACT,
-	Min = D3D11_BLEND_OP_MIN,
-	Max = D3D11_BLEND_OP_MAX
-};
-
-enum ColorComponentFlag {
-	Red = D3D11_COLOR_WRITE_ENABLE_RED,
-	Green = D3D11_COLOR_WRITE_ENABLE_GREEN,
-	Blue = D3D11_COLOR_WRITE_ENABLE_BLUE,
-	Alpha = D3D11_COLOR_WRITE_ENABLE_ALPHA,
-	All = D3D11_COLOR_WRITE_ENABLE_ALL
-};
-
-enum ShaderType {
-	Vertex, 
-	Pixel,
-	Geometry,
-	Compute,
-};
-
-enum class BufferInputRate {
-	PerVertex =D3D11_INPUT_PER_VERTEX_DATA,
-	PerInstance = D3D11_INPUT_PER_INSTANCE_DATA
-};
-
-enum class BufferLayoutAttribType {
-	Float = DXGI_FORMAT_R32_FLOAT,
-	Vec2 = DXGI_FORMAT_R32G32_FLOAT,
-	Vec3 = DXGI_FORMAT_R32G32B32_FLOAT,
-	Vec4 = DXGI_FORMAT_R32G32B32A32_FLOAT,
-	Mat4
-};
-
-enum class DescriptorType {
-	Uniform,
-	Sampler,
-	Texture
-};
-
-enum class IndexBufferFormat {
-	Uint16 = DXGI_FORMAT_R16_UINT,
-	Uint32 = DXGI_FORMAT_R32_UINT
-};
-
-enum class Filter {
-
-};
-
-#else
 
 enum class PrimitiveTopology {
 	PointList = VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
@@ -297,6 +179,15 @@ enum class Format {
 	D32S8 = VK_FORMAT_D32_SFLOAT_S8_UINT
 };
 
-#endif
+enum class CommandBufferType {
+	Unknown = ~0,
+	Primary = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+	Secondary = VK_COMMAND_BUFFER_LEVEL_SECONDARY
+};
+
+enum class CommandBufferUsage {
+	Simultaneous = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,
+	OneTime = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+};
 
 }

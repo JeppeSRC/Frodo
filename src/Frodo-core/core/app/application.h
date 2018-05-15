@@ -12,11 +12,11 @@ private:
 	void OnInitInternal();
 protected:
 	virtual void OnWindowCreate(video::WindowCreateInfo* info) = 0;
-	virtual void OnInit() = 0;
-	virtual void OnTick() = 0;
-	virtual void OnUpdate(float delta) = 0;
+	virtual void OnInit() { }
+	virtual void OnTick() { }
+	virtual void OnUpdate(float delta) { }
 	virtual void OnRender() = 0;
-	virtual void OnExit() = 0;
+	virtual void OnExit() {}
 	
 
 	utils::String appName;

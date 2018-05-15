@@ -8,10 +8,6 @@ namespace fd {
 namespace graphics {
 namespace buffer {
 
-#ifdef FD_DX
-
-#else
-
 class Buffer {
 protected:
 	VkBuffer buf;
@@ -35,8 +31,6 @@ public:
 
 uint32 FindMemoryType(const VkPhysicalDeviceMemoryProperties mem, uint32 type, uint32 prop);
 uint8  GetFormatSize(VkFormat format);
-
-#endif
 
 }
 }

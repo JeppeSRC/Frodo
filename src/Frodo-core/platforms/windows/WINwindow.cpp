@@ -1,23 +1,47 @@
 #include <core/video/window.h>
 #include <core/video/context.h>
 #include <core/log/log.h>
+#include <core/event/eventdispatcher.h>
 
 namespace fd {
 namespace core {
 namespace video {
 
 using namespace log;
+using namespace event;
+using namespace math;
 
 std::unordered_map<HWND, WINWindow*> WINWindow::windowHandles;
 
 LRESULT WINWindow::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
 	WINWindow* window = windowHandles[hwnd];
 
+	if (!window) goto end;
+
 	switch (msg) {
 		case WM_CLOSE:
 			window->open = false;
 			break;
+		case WM_MOVE: {
+			WindowEvent e(EventAction::Move, vec2i(window->GetWidth(), window->GetHeight()), vec2i(LOWORD(l), HIWORD(l)), false, false);
+			EventDispatcher::DispatchEvent(&e);
+			}
+			break;
+		case WM_SIZE: {
+			WindowEvent e(EventAction::Resize, vec2i(LOWORD(l), HIWORD(l)), vec2i(), false, false);
+			window->info.width = e.size.x;
+			window->info.height = e.size.y;
+			EventDispatcher::DispatchEvent(&e);
+			}
+			break;
+		case WM_MOUSEMOVE: {
+			MouseEvent e(EventAction::Move, vec2i(LOWORD(l), HIWORD(l)), vec2i(), 0);
+			EventDispatcher::DispatchEvent(&e);
+		}
+
 	}
+
+	end:
 
 	return DefWindowProc(hwnd, msg, w, l);
 }
@@ -91,6 +115,12 @@ WINWindow::WINWindow(WindowCreateInfo* info) : Window(info) {
 	windowHandles[hwnd] = this;
 }
 
+WINWindow::~WINWindow() {
+	Context::Dispose();
+
+	DestroyWindow(hwnd);
+}
+
 void WINWindow::Update() const {
 
 	MSG msg;
@@ -104,6 +134,15 @@ void WINWindow::Update() const {
 
 void WINWindow::SetVisible(bool state) {
 	ShowWindow(hwnd, state ? SW_SHOW : SW_HIDE);
+}
+
+void WINWindow::Resize(const WindowCreateInfo* const newInfo) {
+	info = *newInfo;
+	RECT r = { 0, 0, (LONG)info.width, (LONG)info.height };
+
+	AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, FALSE);
+
+	SetWindowPos(hwnd, HWND_TOP, 0, 0, r.right - r.left, r.bottom - r.top, SWP_NOMOVE | SWP_SHOWWINDOW);
 }
 
 }

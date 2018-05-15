@@ -34,13 +34,19 @@ if (vk_path == nil) then
 
     callingconvention "FastCall"
 
+    flags {
+        "MultiProcessorCompile"
+    }
+
     filter {"Release"}
         optimize "Speed"
         inlining "Auto"
+        defines "FD_RELEASE"
 
     filter {"Debug"}
         optimize "Off"
-        inlining "Disabled"       
+        inlining "Disabled"
+        defines "FD_DEBUG"
 
     -- Windows Specific
     filter("system:windows")
@@ -53,10 +59,13 @@ if (vk_path == nil) then
     filter {"system:windows", "Release"}
         buildoptions {
             "/GL",
-            "/sdl-",
             "/Ot",
-            "/GS-",
+            --"/GS-",
             "/arch:AVX2"
+        }
+
+        flags {
+            "NoBufferSecurityCheck"
         }
 
         linkoptions {
@@ -93,12 +102,12 @@ if (vk_path == nil) then
 
     filter ""
 
-    targetdir "../bin/%{cfg.buildcfg}/%{cfg.platform}/"
-    objdir "../bin/%{cfg.buildcfg}/%{cfg.platform}/intermediates"
-
 project("Frodo-core")
     kind "StaticLib"
     location "../solution/Frodo-core/"
+
+    targetdir "%{sln.location}/../bin/%{cfg.buildcfg}/Frodo-core/"
+    objdir "%{sln.location}/../bin/%{cfg.buildcfg}/intermediates/Frodo-core/"
 
     files {
         "Frodo-core/**.cpp",
@@ -122,6 +131,9 @@ project("Sandbox")
     kind "ConsoleApp"
     location "../solution/Sandbox"
     dependson "Frodo-core"
+
+    targetdir "%{sln.location}/../bin/%{cfg.buildcfg}/Sandbox/"
+    objdir "%{sln.location}/../bin/%{cfg.buildcfg}/intermediates/Sandbox/"
 
     files {
         "Sandbox/**.cpp",

@@ -5,56 +5,12 @@
 #include <graphics/pipeline/pipeline.h>
 #include <graphics/buffer/indexbuffer.h>
 #include <graphics/buffer/vertexbuffer.h>
+#include <graphics/pipeline/commandbuffer.h>
 #include "adapter.h"
-
-#ifdef FD_VK
-#define FD_COMMAND_BUFFER_ONE_TIME VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
-#define FD_COMMAND_BUFFER_SIMULTANEOUS VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
-#else
-#define FD_COMMAND_BUFFER_ONE_TIME 0x01
-#define FD_COMMAND_BUFFER_SIMULTANEOUS 0x02
-#endif
 
 namespace fd {
 namespace core {
 namespace video {
-
-#ifdef FD_DX
-
-class Context {
-private:
-	friend class Window;
-	friend struct PipelineInfo;
-
-private:
-	static ID3D11Device* device;
-	static ID3D11DeviceContext* deviceContext;
-	static ID3D11RenderTargetView* targetView;
-	static ID3D11DepthStencilView* depthView;
-	static IDXGISwapChain* swapChain;
-
-	static Window* window;
-	static Adapter* adapter;
-	static Output* output;
-
-public:
-	static bool Init(Window* window);
-	static void InitPipeline(PipelineInfo* pipeInfo, uint32 num);
-	static void Dispose();
-
-	static void SetFullscreen(bool state);
-	static void Present(uint32 syncInterval, uint32 flags);
-	static void Clear();
-
-	__forceinline static ID3D11Device* GetDevice() { return device; }
-	__forceinline static ID3D11DeviceContext* GetDeviceContext() { return deviceContext; }
-	
-	__forceinline static Window* GetWindow() { return window; }
-	__forceinline static Adapter* GetAdapter() { return adapter; }
-	__forceinline static Output* GetOutput() { return output; }
-};
-
-#else
 
 #ifdef FD_DEBUG
 #define VK(dankFunction) VkFunctionLogBullshit(dankFunction, __FILE__, #dankFunction, __FUNCTION__, __LINE__)
@@ -100,44 +56,33 @@ private:
 
 	static utils::List<VkImage> swapchainImages;
 	static utils::List<VkImageView> swapchainViews;
-	static utils::List<VkCommandBuffer> cmdbuffers;
 	
 	static Window* window;
 	static Adapter* adapter;
 	static Output* output;
 
 private:
-	static bool renderPassActive;
-	static const graphics::buffer::IndexBuffer* currentIndexBuffer;
 
 	static VkSubmitInfo submitInfo;
 	static VkPresentInfoKHR presentInfo;
 
+	static VkSwapchainCreateInfoKHR sinfo;
+
+	static graphics::pipeline::CommandBufferArray* mainCommandBuffer;
 public:
 	static void CopyBuffers(VkBuffer* dst, VkBuffer* src, uint64* size, uint64 num);
 	static void TransitionImage(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 	static void CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBuffer buffer);
 
 public:
-	//These method will also exist in the D3D implementation
-	static void BeginCommandBuffers(uint32 usage);
-	static void EndCommandBuffers();
+	static graphics::pipeline::CommandBufferArray* GetPrimaryCommandBuffer();
+	static graphics::pipeline::CommandBufferArray* AllocateCommandBuffer();
 
-	static void BindRenderPass(const graphics::pipeline::RenderPass* const pipeline);
-	static void EndRenderPass();
-
-	static void BindPipeline(const graphics::pipeline::Pipeline* const pipeline);
-	static void BindPipelineLayout(const graphics::pipeline::PipelineLayout* const layout);
-
-	static void Bind(const graphics::buffer::VertexBuffer* const buffer, uint32 slot);
-	static void Bind(const graphics::buffer::IndexBuffer* const buffer);
-
-	static void DrawIndexed();
-
-	static void Present();
+	static void Present(const graphics::pipeline::CommandBufferArray* const commandBuffer);
 
 public:
 	static bool Init(Window* const window);
+	static bool Resize(uint32 width, uint32 height);
 	static void Dispose();
 
 	inline static const VkSwapchainKHR& GetSwapchain() { return swapChain; }
@@ -153,17 +98,16 @@ public:
 	inline static VkQueue GetGraphicsQueue() { return graphicsQueue; }
 	inline static VkQueue GetPresentQueue() { return presentQueue; }
 
+	inline static VkCommandPool GetCommandPool() { return cmdPool; }
+
 	inline static const VkSemaphore& GetImageSemaphore() { return imageSemaphore; }
 	inline static const VkSemaphore& GetRenderSemaphore() { return renderSemaphore; }
 
 	inline static const utils::List<VkImageView>& GetSwapchainImageViews() { return swapchainViews; }
-	inline static const utils::List<VkCommandBuffer>& GetCmdBuffers() { return cmdbuffers; }
 
 	inline static Window* GetWindow() { return window; }
 	inline static Adapter* GetAdapter() { return adapter; }
 	inline static Output* GetOutputs() { return output; }
 };
-
-#endif
 
 } } }

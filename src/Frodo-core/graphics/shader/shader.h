@@ -7,9 +7,6 @@ namespace fd {
 namespace graphics {
 namespace shader {
 
-#ifdef FD_DX 
-
-#else
 
 class Shader {
 private:
@@ -18,7 +15,7 @@ private:
 	VkShaderModule geometryShader;
 
 public:
-	Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, const utils::String& geometrySrc);
+	Shader(const utils::String& vertexSrc, const utils::String& pixelSrc, const utils::String& geometrySrc, bool src = false);
 	~Shader();
 
 	inline VkShaderModule GetVertexShader() const { return vertexShader; }
@@ -26,6 +23,5 @@ public:
 	inline VkShaderModule GetGeometryShader() const { return geometryShader; }
 };
 
-#endif
 
 } } }

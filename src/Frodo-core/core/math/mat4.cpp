@@ -45,9 +45,9 @@ mat4 mat4::Scale(const vec3& v) {
 mat4 mat4::Translate(const vec3& v) {
 	mat4 m(1);
 
-	m.m[3 + 0 * 4] = v.x;
-	m.m[3 + 1 * 4] = v.y;
-	m.m[3 + 2 * 4] = v.z;
+	m.m[0 + 3 * 4] = v.x;
+	m.m[1 + 3 * 4] = v.y;
+	m.m[2 + 3 * 4] = v.z;
 
 	return m;
 }

@@ -12,6 +12,7 @@ using namespace core;
 using namespace video;
 using namespace log;
 using namespace texture;
+using namespace event;
 
 VkVertexInputBindingDescription* GetBindingDescriptors(const BufferLayout* layouts, uint32 num) {
 	VkVertexInputBindingDescription* binding = new VkVertexInputBindingDescription[num];
@@ -62,7 +63,7 @@ VkVertexInputAttributeDescription* GetAttributeDescriptors(const BufferLayout* l
 
 bool VerifyPipelineInfo(PipelineInfo* const info) {
 
-	if (info->numViewports == 0 || info->viewports == nullptr) {
+	/*if (info->numViewports == 0 || info->viewports == nullptr) {
 		FD_FATAL("[Pipeline] No viewport(s) specified");
 		return false;
 	}
@@ -71,7 +72,7 @@ bool VerifyPipelineInfo(PipelineInfo* const info) {
 		FD_FATAL("[Pipeline] No scissor(s) specified");
 		return false;
 	}
-
+	*/
 	switch (info->topology) {
 		case PrimitiveTopology::PointList:
 			break;
@@ -120,7 +121,7 @@ bool VerifyPipelineInfo(PipelineInfo* const info) {
 }
 
 
-Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* pipelineLayout) : info(info), renderPass(renderPass), pipelineLayout(pipelineLayout) {
+Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint32 subpassIndex, const PipelineLayout* const pipelineLayout, const Pipeline* const derivativePipeline) : info(info) {
 
 	if (!VerifyPipelineInfo(info)) {
 		FD_FATAL("[Pipeline] Pipeline creation failed");
@@ -171,7 +172,7 @@ Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* p
 	inputInfo.primitiveRestartEnable = VK_FALSE;
 	inputInfo.topology = (VkPrimitiveTopology)info->topology;
 
-	VkViewport* viewports = new VkViewport[info->numViewports];
+/*	viewports = new VkViewport[info->numViewports];
 
 	for (uint32 i = 0; i < info->numViewports; i++) {
 		VkViewport& v = viewports[i];
@@ -185,7 +186,7 @@ Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* p
 		v.maxDepth = vi.maxDepth;
 	}
 
-	VkRect2D* scissors = new VkRect2D[info->numScissors];
+	scissors = new VkRect2D[info->numScissors];
 
 	for (uint32 i = 0; i < info->numScissors; i++) {
 		VkRect2D& s = scissors[i];
@@ -195,17 +196,17 @@ Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* p
 		s.offset.y = si.y;
 		s.extent.width = si.width;
 		s.extent.height = si.height;
-	}
+	}*/
 	
 	VkPipelineViewportStateCreateInfo viewInfo;
 
 	viewInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	viewInfo.pNext = nullptr;
 	viewInfo.flags = 0;
-	viewInfo.viewportCount = info->numViewports;
-	viewInfo.pViewports = viewports;
-	viewInfo.scissorCount = info->numScissors;
-	viewInfo.pScissors = scissors;
+	viewInfo.viewportCount = 0;// info->numViewports;
+	viewInfo.pViewports = nullptr;// viewports;
+	viewInfo.scissorCount = 0;// info->numScissors;
+	viewInfo.pScissors = nullptr;//scissors;
 
 	VkPipelineRasterizationStateCreateInfo rasterInfo;
 	
@@ -236,11 +237,11 @@ Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* p
 	multisampleInfo.alphaToCoverageEnable = VK_FALSE;
 
 	VkPipelineDepthStencilStateCreateInfo depthInfo;
-
 	depthInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	depthInfo.pNext = nullptr;
 	depthInfo.flags = 0;
 	depthInfo.depthTestEnable = info->depthStencilInfo.depthEnable;
+	depthInfo.depthWriteEnable = info->depthStencilInfo.depthWrite;
 	depthInfo.depthCompareOp = (VkCompareOp)info->depthStencilInfo.depthFunc;
 	depthInfo.stencilTestEnable = info->depthStencilInfo.stencilEnable;
 	depthInfo.front.compareOp = (VkCompareOp)info->depthStencilInfo.frontFace.compare;
@@ -281,6 +282,16 @@ Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* p
 	blendInfo.attachmentCount = info->numBlends;
 	blendInfo.pAttachments = blends;
 
+	VkPipelineDynamicStateCreateInfo dinfo;
+
+	VkDynamicState state[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+
+	dinfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dinfo.pNext = nullptr;
+	dinfo.flags = 0;
+	dinfo.dynamicStateCount = 2;
+	dinfo.pDynamicStates = state;
+
 	VkGraphicsPipelineCreateInfo pipeInfo;
 	
 	pipeInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -296,11 +307,11 @@ Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* p
 	pipeInfo.pMultisampleState = &multisampleInfo;
 	pipeInfo.pDepthStencilState = &depthInfo;
 	pipeInfo.pColorBlendState = &blendInfo;
-	pipeInfo.pDynamicState = nullptr;
+	pipeInfo.pDynamicState = &dinfo;
 	pipeInfo.layout = pipelineLayout->GetPipelineLayout();
 	pipeInfo.renderPass = renderPass->GetRenderPass();
-	pipeInfo.subpass = 0;
-	pipeInfo.basePipelineHandle = nullptr;
+	pipeInfo.subpass = subpassIndex;
+	pipeInfo.basePipelineHandle = derivativePipeline ? derivativePipeline->GetPipeline() : nullptr;
 	pipeInfo.basePipelineIndex = -1;
 	
 	VK(vkCreateGraphicsPipelines(Context::GetDevice(), nullptr, 1, &pipeInfo, nullptr, &pipeline));
@@ -309,8 +320,6 @@ Pipeline::Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* p
 Pipeline::~Pipeline() {
 	vkDestroyPipeline(Context::GetDevice(), pipeline, nullptr);
 }
-
-
 
 }
 }

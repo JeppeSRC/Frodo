@@ -14,12 +14,10 @@ using namespace buffer;
 Texture::Texture(uint32 width, uint32 height, VkImage image, VkDeviceMemory memory, VkImageView imageView) : width(width), height(height), image(image), imageMemory(memory), imageView(imageView) { }
 
 void Texture::CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags, VkImageType imageType, VkFormat format, VkImageUsageFlags usage, VkMemoryPropertyFlags memoryFlags, VkImageLayout initialLayout) {
-	VkImageCreateInfo iinfo;
-
-	VkImageFormatProperties prop;
+	this->memoryFlags = memoryFlags;
 
 	bool formatSupported = Context::GetAdapter()->CheckImageFormat(format, imageType, VK_IMAGE_TILING_OPTIMAL, usage, flags, &prop);
-
+	
 	if (!formatSupported) {
 		formatSupported = Context::GetAdapter()->CheckImageFormat(format, imageType, VK_IMAGE_TILING_LINEAR, usage, flags, &prop);
 		if (formatSupported) {
@@ -70,6 +68,41 @@ void Texture::CreateImage(uint32 width, uint32 height, VkImageCreateFlags flags,
 
 	VK(vkBindImageMemory(Context::GetDevice(), image, imageMemory, 0));
 
+}
+
+void Texture::RecreateImage(uint32 width, uint32 height) {
+
+	vkDestroyImageView(Context::GetDevice(), imageView, nullptr);
+	vkDestroyImage(Context::GetDevice(), image, nullptr);
+	vkFreeMemory(Context::GetDevice(), imageMemory, nullptr);
+
+	if (width > prop.maxExtent.width || height > prop.maxExtent.height) {
+		FD_FATAL("[Texture] To large image %ux%u. Max %ux%u", width, height, prop.maxExtent.width, prop.maxExtent.height);
+		return;
+	}
+
+	iinfo.extent = { width, height, 1 };
+
+	VK(vkCreateImage(Context::GetDevice(), &iinfo, nullptr, &image));
+
+	VkMemoryRequirements req;
+	vkGetImageMemoryRequirements(Context::GetDevice(), image, &req);
+
+	uint32 memIndex = FindMemoryType(Context::GetAdapter()->GetMemoryProperties(), req.memoryTypeBits, memoryFlags);
+
+	VkMemoryAllocateInfo allocInfo;
+
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.pNext = nullptr;
+	allocInfo.memoryTypeIndex = memIndex;
+	allocInfo.allocationSize = req.size;
+
+	VK(vkAllocateMemory(Context::GetDevice(), &allocInfo, nullptr, &imageMemory));
+
+	VK(vkBindImageMemory(Context::GetDevice(), image, imageMemory, 0));
+
+	this->width = width;
+	this->height = height;
 }
 
 Texture::~Texture() {

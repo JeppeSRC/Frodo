@@ -8,6 +8,7 @@
 #include <graphics/pipeline/layout.h>
 #include <core/types.h>
 #include <core/enums.h>
+#include <core/event/eventlistener.h>
 
 namespace fd {
 namespace graphics {
@@ -59,11 +60,11 @@ struct BlendInfo {
 };
 
 struct PipelineInfo {
-	uint32 numViewports;
+	/*uint32 numViewports;
 	ViewportInfo* viewports;
 
 	uint32 numScissors;
-	ScissorInfo* scissors;
+	ScissorInfo* scissors;*/
 
 	PrimitiveTopology topology;
 	PolygonMode polygonMode;
@@ -82,33 +83,20 @@ struct PipelineInfo {
 	FrontFace frotFace;
 };
 
-#ifdef FD_DX
-
-class Pipeline {
-private:
-};
-
-#else 
-
 class Pipeline {
 private:
 	PipelineInfo* info;
 
 	VkPipeline pipeline;
-
-	RenderPass* renderPass;
-	PipelineLayout* pipelineLayout;
-
 public:
-	Pipeline(PipelineInfo* info, RenderPass* renderPass, PipelineLayout* pipelineLayout);
+	Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint32 subpassIndex, const PipelineLayout* const pipelineLayout, const Pipeline* const derivativePipeline = nullptr);
 	~Pipeline();
 
 
 	inline VkPipeline GetPipeline() const { return pipeline; }
-	inline RenderPass* GetRenderPass() const { return renderPass; }
-	inline PipelineLayout* GetPipelineLayout() const { return pipelineLayout; }
-};
 
-#endif
+	inline const PipelineInfo* GetPipelineInfo() const { return info; }
+
+};
 
 } } }
