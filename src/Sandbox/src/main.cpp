@@ -48,6 +48,7 @@ public:
 	VertexBuffer* vbo;
 	IndexBuffer* ibo;
 	CommandBufferArray* cmd;
+	CommandBufferArray* cmd2;
 
 	Texture2D* texture;
 	Texture2D* texture2;
@@ -149,7 +150,24 @@ public:
 		vbo = new VertexBuffer(vertices, sizeof(vertices));
 		ibo = new IndexBuffer(indices, 3);
 
-		cmd = Context::GetCommandBuffers();
+		cmd = Context::GetPrimaryCommandBuffer();
+		
+		/*cmd->Begin(CommandBufferUsage::Simultaneous);
+		cmd->BeginRenderPass(renderPass);
+		cmd->BindPipeline(pipeline);
+
+		cmd->Bind(vbo);
+		cmd->Bind(ibo);
+	
+		cmd->BindDescriptorSet(pipelineLayout, 0, set);
+		cmd->DrawIndexed(ibo->GetCount());
+
+		cmd->BindDescriptorSet(pipelineLayout, 0, set2);
+		cmd->DrawIndexed(ibo->GetCount());
+
+		cmd->EndRenderPass();
+		cmd->End();*/
+
 	}
 
 	float aa = 0;
@@ -186,9 +204,9 @@ public:
 
 	void OnRender() override {
 		cmd->Begin(CommandBufferUsage::Simultaneous);
-		cmd->BindPipeline(pipeline);
 		cmd->BeginRenderPass(renderPass);
-
+		cmd->BindPipeline(pipeline);
+		
 		cmd->Bind(vbo);
 		cmd->Bind(ibo);
 
@@ -198,6 +216,7 @@ public:
 		cmd->BindDescriptorSet(pipelineLayout, 0, set2);
 		cmd->DrawIndexed(ibo->GetCount());
 
+		cmd->EndRenderPass();
 		cmd->End();
 
 		fps++;

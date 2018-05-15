@@ -36,22 +36,28 @@ void CommandBuffer::Begin(CommandBufferUsage usage, const RenderPass* const rend
 
 	VkCommandBufferInheritanceInfo hInfo;
 
-	if (usage == CommandBufferUsage::RenderPassContinue) {
-		hInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-		hInfo.pNext = nullptr;
-		hInfo.subpass = 0; //TODO: handle subpasses
-		hInfo.occlusionQueryEnable = false;
-		hInfo.queryFlags = 0;
-		hInfo.pipelineStatistics = 0;
+	hInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+	hInfo.pNext = nullptr;
+	hInfo.subpass = 0; //TODO: handle subpasses
+	hInfo.occlusionQueryEnable = false;
+	hInfo.queryFlags = 0;
+	hInfo.pipelineStatistics = 0;
+	hInfo.renderPass = nullptr;
+	hInfo.framebuffer = 0;
+
+	info.flags = (VkCommandBufferUsageFlags)usage;
+
+	if (renderPass) {
 		hInfo.renderPass = renderPass->GetRenderPass();
 		hInfo.framebuffer = renderPass->GetFramebuffer(framebufferIndex);
+
+		info.flags |= VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 	}
 	
 
 	info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	info.pNext = nullptr;
 	info.pInheritanceInfo = &hInfo;
-	info.flags = (VkCommandBufferUsageFlags)usage;
 
 	VK(vkBeginCommandBuffer(commandBuffer, &info));
 }

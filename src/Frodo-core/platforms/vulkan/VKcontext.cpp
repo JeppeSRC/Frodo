@@ -517,11 +517,15 @@ void Context::CopyBufferToImage(VkImage image, uint32 width, uint32 height, VkBu
 	VK(vkQueueWaitIdle(graphicsQueue));
 }
 
-CommandBufferArray* Context::GetCommandBuffers() {
+CommandBufferArray* Context::GetPrimaryCommandBuffer() {
 	if (!mainCommandBuffer) 
 		mainCommandBuffer = new CommandBufferArray(cmdPool, CommandBufferType::Primary, swapchainImages.GetSize());
 
 	return mainCommandBuffer; 
+}
+
+CommandBufferArray* Context::AllocateCommandBuffer() {
+	return new CommandBufferArray(cmdPool, CommandBufferType::Secondary, swapchainImages.GetSize());;
 }
 
 void Context::Present(const CommandBufferArray* const commandBuffer) {
