@@ -75,17 +75,6 @@ WINWindow::WINWindow(WindowCreateInfo* info) : Window(info) {
 
 	RECT coord = { 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
 
-#ifdef FD_DX
-	DXGI_MODE_DESC mode = info->outputWindow->FindBestMatchingMode(info->width, info->height, info->refreshRate);
-	info->outputWindow->SetMode(mode);
-
-	info->width = mode.Width;
-	info->height = mode.Height;
-	info->refreshRate = (uint32)((float32)mode.RefreshRate.Numerator / mode.RefreshRate.Denominator);
-	
-	coord = info->outputWindow->GetDesktopCoordinates();
-#endif
-
 	uint32 monitorWidth = coord.right - coord.left;
 	uint32 monitorHeight = coord.bottom - coord.top;
 

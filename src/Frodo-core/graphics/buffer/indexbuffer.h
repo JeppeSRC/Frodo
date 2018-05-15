@@ -7,10 +7,6 @@ namespace fd {
 namespace graphics {
 namespace buffer {
 
-#ifdef FD_DX
-
-#else
-
 class IndexBuffer : public Buffer {
 private:
 	IndexBufferFormat format;
@@ -27,8 +23,6 @@ public:
 
 	inline VkIndexType GetFormat() const { return (VkIndexType)format; }
 };
-
-#endif
 
 }
 }

@@ -9,43 +9,6 @@ namespace fd {
 namespace core {
 namespace video {
 
-#ifdef FD_DX
-
-class Output {
-private:
-	IDXGIOutput* output;
-
-	utils::String name;
-
-	utils::List<DXGI_MODE_DESC> modes;
-	DXGI_MODE_DESC currentMode;
-	
-	bool attachedToDesktop;
-	MonitorOrientation orientation;
-	RECT desktopCoordinates;
-	HMONITOR monitor;
-
-public:
-	Output(IDXGIOutput* output);
-	~Output();
-
-	DXGI_MODE_DESC FindBestMatchingMode(uint32 width, uint32 height, uint32 refreshRate) const;
-
-	inline IDXGIOutput* GetOutput() const { return output; }
-	inline utils::String GetName() const { return name; }
-	inline DXGI_MODE_DESC GetBestMode() const { return modes[modes.GetSize() - 1]; }
-	inline const utils::List<DXGI_MODE_DESC>& GetModes() const { return modes; }
-	inline DXGI_MODE_DESC GetCurrentMode() const { return currentMode; }
-	inline bool IsAttachedToDesktop() const { return attachedToDesktop; }
-	inline MonitorOrientation GetOrientation() const { return orientation; }
-	inline RECT GetDesktopCoordinates() const { return desktopCoordinates; }
-	inline HMONITOR GetHMONITOR() const { return monitor; }
-
-	inline void SetMode(DXGI_MODE_DESC desc) { this->currentMode = desc; }
-};
-
-#else
-
 class Adapter;
 
 class Output {
@@ -62,8 +25,6 @@ public:
 	inline VkDisplayKHR GetDisplay() const { return prop.display; }
 	inline utils::String GetName() const { return utils::String(prop.displayName); }
 };
-
-#endif
 
 }
 }
