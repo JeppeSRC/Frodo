@@ -50,8 +50,8 @@ public:
 	CommandBufferArray* cmd;
 	CommandBufferArray* cmd2;
 
-	Texture2D* texture;
-	Texture2D* texture2;
+	//Texture2D* texture;
+	//Texture2D* texture2;
 	Sampler* sampler;
 
 	Shader* shader;
@@ -62,8 +62,8 @@ public:
 
 	~TestApp() {
 		delete shader;
-		delete texture;
-		delete texture2;
+		//delete texture;
+		//delete texture2;
 		delete sampler;
 		delete ibo;
 		delete vbo;
@@ -84,11 +84,7 @@ public:
 	void OnInit() override {
 		BlendInfo blendInfo = { false, BlendFactor::One, BlendFactor::One, BlendOp::Add, BlendFactor::One, BlendFactor::One, BlendOp::Add, ColorComponentFlag::All };
 		DepthStencilInfo depthInfo = { true, true, ComparisonFunc::LessEqual, false };
-		//Shader shader(vs, ps, "", true);
 		shader = new Shader("./res/vert.spv", "./res/frag.spv", "");
-
-		texture = new Texture2D("./res/cube.fdf");
-		texture2 = new Texture2D("./res/bricks.fdf");
 
 		sampler = new Sampler(SamplerFilter::Linear, SamplerFilter::Linear, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat, true, 16.0f, SamplerBorderColor::Black, true);
 
@@ -120,12 +116,8 @@ public:
 		layout = new DescriptorSetLayout(elements, 2);
 		pipelineLayout = new PipelineLayout(layout);
 
-
 		set = layout->AllocateDescriptorSet();
 		set2 = layout->AllocateDescriptorSet();
-
-		set->SetTexture(1, texture, sampler);
-		set2->SetTexture(1, texture2, sampler);
 
 		renderPass = new RenderPass(Format::D32);
 
@@ -149,6 +141,11 @@ public:
 
 		vbo = new VertexBuffer(vertices, sizeof(vertices));
 		ibo = new IndexBuffer(indices, 3);
+
+		mat4 projection = mat4::Perspective((float)window->GetWidth() / (float)window->GetHeight(), 85.0f, 0.01f, 100.0f);
+
+		set->UpdateUniform(0, &projection, sizeof(mat4));
+		set2->UpdateUniform(0, &projection, sizeof(mat4));
 
 		cmd = Context::GetPrimaryCommandBuffer();
 		
@@ -192,11 +189,13 @@ public:
 
 		mat4 projection = mat4::Perspective((float)window->GetWidth() / (float)window->GetHeight(), 85.0f, 0.01f, 100.0f);
 
+		
+
 		mat4 m = mat4::Translate(position) * mat4::Rotate(tmp);
 		mat4 m2 = mat4::Translate(vec3(2, 0, 2.001)) * mat4::Rotate(-tmp);
 
-		set->UpdateUniform(0, &projection, sizeof(mat4));
-		set2->UpdateUniform(0, &projection, sizeof(mat4));
+		/*set->UpdateUniform(0, &projection, sizeof(mat4));
+		set2->UpdateUniform(0, &projection, sizeof(mat4));*/
 
 		set->UpdateUniform(0, &m2, sizeof(mat4), sizeof(mat4));
 		set2->UpdateUniform(0, &m, sizeof(mat4), sizeof(mat4));
