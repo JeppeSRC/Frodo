@@ -31,7 +31,7 @@ CommandBuffer::~CommandBuffer() {
 
 }
 
-void CommandBuffer::Begin(CommandBufferUsage usage, const RenderPass* const renderPass, uint32 framebufferIndex) {
+void CommandBuffer::Begin(CommandBufferUsage usage, bool waitForFence, const RenderPass* const renderPass, uint32 framebufferIndex) {
 	VkCommandBufferBeginInfo info;
 
 	VkCommandBufferInheritanceInfo hInfo;
@@ -58,6 +58,11 @@ void CommandBuffer::Begin(CommandBufferUsage usage, const RenderPass* const rend
 	info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	info.pNext = nullptr;
 	info.pInheritanceInfo = &hInfo;
+
+	if (waitForFence) {
+		VkFence f = Context::GetCommandBufferFence();
+		VK(vkWaitForFences(Context::GetDevice(), 1, &f, 1, ~0L));
+	}
 
 	VK(vkBeginCommandBuffer(commandBuffer, &info));
 }

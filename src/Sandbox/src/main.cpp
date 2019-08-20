@@ -174,7 +174,7 @@ public:
 	}
 
 	void OnRender() override {
-		cmd->Begin(CommandBufferUsage::Simultaneous);
+		cmd->Begin(CommandBufferUsage::Simultaneous, true);
 		cmd->BeginRenderPass(renderPass);
 		cmd->BindPipeline(pipeline);
 		

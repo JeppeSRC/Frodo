@@ -46,6 +46,7 @@ VkCommandBuffer Context::auxCommandBuffer;
 
 VkSemaphore Context::imageSemaphore;
 VkSemaphore Context::renderSemaphore;
+VkFence Context::commandBufferFence;
 
 List<VkImage> Context::swapchainImages;
 List<VkImageView> Context::swapchainViews;
@@ -294,6 +295,14 @@ bool Context::Init(Window* const window) {
 	VK(vkCreateSemaphore(Context::GetDevice(), &semInfo, nullptr, &imageSemaphore));
 	VK(vkCreateSemaphore(Context::GetDevice(), &semInfo, nullptr, &renderSemaphore));
 
+	VkFenceCreateInfo fenceInfo;
+
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.pNext = nullptr;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	VK(vkCreateFence(Context::GetDevice(), &fenceInfo, nullptr, &commandBufferFence));
+
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.pNext = nullptr;
 	submitInfo.waitSemaphoreCount = 1;
@@ -371,6 +380,8 @@ bool Context::Resize(uint32 width, uint32 height) {
 }
 
 void Context::Dispose() {
+	vkDestroyFence(Context::GetDevice(), commandBufferFence, nullptr);
+
 	vkDestroySemaphore(Context::GetDevice(), imageSemaphore, nullptr);
 	vkDestroySemaphore(Context::GetDevice(), renderSemaphore, nullptr);
 
@@ -560,7 +571,9 @@ void Context::Present(const CommandBufferArray* const commandBuffer) {
 	VK(vkAcquireNextImageKHR(device, swapChain, ~0L, imageSemaphore, nullptr, &imageIndex));
 
 	submitInfo.pCommandBuffers = &commandBuffer->GetCommandBuffer(imageIndex);
-	VK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr));
+
+	VK(vkResetFences(Context::GetDevice(), 1, &commandBufferFence));
+	VK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, commandBufferFence));
 
 	presentInfo.pImageIndices = &imageIndex;
 	

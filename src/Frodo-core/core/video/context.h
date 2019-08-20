@@ -53,6 +53,7 @@ private:
 
 	static VkSemaphore imageSemaphore;
 	static VkSemaphore renderSemaphore;
+	static VkFence commandBufferFence;
 
 	static utils::List<VkImage> swapchainImages;
 	static utils::List<VkImageView> swapchainViews;
@@ -102,6 +103,7 @@ public:
 
 	inline static const VkSemaphore& GetImageSemaphore() { return imageSemaphore; }
 	inline static const VkSemaphore& GetRenderSemaphore() { return renderSemaphore; }
+	inline static VkFence GetCommandBufferFence() { return commandBufferFence; }
 
 	inline static const utils::List<VkImageView>& GetSwapchainImageViews() { return swapchainViews; }
 

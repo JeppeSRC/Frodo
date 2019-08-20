@@ -24,9 +24,9 @@ CommandBufferArray::~CommandBufferArray() {
 }
 
 
-void CommandBufferArray::Begin(CommandBufferUsage usage, const RenderPass* const renderPass) {
+void CommandBufferArray::Begin(CommandBufferUsage usage, bool waitForFence, const RenderPass* const renderPass) {
 	for (uint32 i = 0; i < count; i++) {
-		commandBuffers[i].Begin(usage, renderPass, i);
+		commandBuffers[i].Begin(usage, waitForFence, renderPass, i);
 	}
 }
 
