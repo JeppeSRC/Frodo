@@ -17,7 +17,7 @@ Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bo
 	info.pNext = nullptr;
 	info.flags = 0;
 	info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	info.usage = usage;
+	info.usage = dynamic ? usage : VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 	info.size = size;
 	info.queueFamilyIndexCount = 0;
 	info.pQueueFamilyIndices = nullptr;
@@ -72,8 +72,8 @@ Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bo
 
 		Context::CopyBuffers(&buf, &tmpBuf, &size, 1);
 
-		vkFreeMemory(Context::GetDevice(), tmpMemory, nullptr);
 		vkDestroyBuffer(Context::GetDevice(), tmpBuf, nullptr);
+		vkFreeMemory(Context::GetDevice(), tmpMemory, nullptr);
 	}
 }
 
