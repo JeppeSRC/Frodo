@@ -140,6 +140,7 @@ VkSurfaceKHR Adapter::CreateSurface(const Window* window) {
 
 	info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	info.pNext = nullptr;
+	info.flags = 0;
 	info.instance = 0;
 	info.hwnd = ((WINWindow*)window)->GetHandle();
 

@@ -84,12 +84,16 @@ bool Context::Init(Window* const window) {
 
 	VkDeviceQueueCreateInfo qinfo[2];
 
-	float32 prio = 1.0f;
+	List<float32> prios(queueProperties.queueCount);
+
+	for (uint_t i = 0; i < prios.GetSize(); i++) {
+		prios[i] = 1.0f;
+	}
 
 	qinfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 	qinfo[0].pNext = nullptr;
 	qinfo[0].flags = 0;
-	qinfo[0].pQueuePriorities = &prio;
+	qinfo[0].pQueuePriorities = prios.GetData();
 	qinfo[0].queueCount = queueProperties.queueCount;
 	qinfo[0].queueFamilyIndex = graphicsQueueIndex;
 
@@ -99,7 +103,7 @@ bool Context::Init(Window* const window) {
 		qinfo[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		qinfo[1].pNext = nullptr;
 		qinfo[1].flags = 0;
-		qinfo[1].pQueuePriorities = &prio;
+		qinfo[1].pQueuePriorities = prios.GetData();
 		qinfo[1].queueCount = queueProperties.queueCount;
 		qinfo[1].queueFamilyIndex = presentQueueIndex;
 	}
@@ -127,14 +131,22 @@ bool Context::Init(Window* const window) {
 		return false;
 	}
 
-	surface = adapter->CreateSurface(window);
-
 	vkGetDeviceQueue(device, graphicsQueueIndex, 0, &graphicsQueue);
 
 	if (presentQueueIndex != ~0) {
 		vkGetDeviceQueue(device, presentQueueIndex, 0, &presentQueue);
 	} else {
 		presentQueue = graphicsQueue;
+	}
+
+	surface = adapter->CreateSurface(window);
+
+	VkBool32 supported = false;
+
+	VK(vkGetPhysicalDeviceSurfaceSupportKHR(adapter->GetPhysicalDevice(), presentQueue == graphicsQueue ? graphicsQueueIndex : presentQueueIndex, surface, &supported));
+
+	if (supported == VK_FALSE) {
+		Log::Fatal("[Swapchain] Surface not supported on device");
 	}
 
 	const List<VkSurfaceFormatKHR>& surfaceFormats = adapter->GetSurfaceFormats();
@@ -257,7 +269,7 @@ bool Context::Init(Window* const window) {
 
 	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	poolInfo.pNext = nullptr;
-	poolInfo.flags = 0;
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 	poolInfo.queueFamilyIndex = graphicsQueueIndex;
 	
 	VK(vkCreateCommandPool(device, &poolInfo, nullptr, &cmdPool));
@@ -530,11 +542,10 @@ CommandBufferArray* Context::AllocateSecondaryCommandBuffer() {
 
 void Context::Present(const CommandBufferArray* const commandBuffer) {
 	uint32 imageIndex;
-
+	
 	VK(vkAcquireNextImageKHR(device, swapChain, ~0L, imageSemaphore, nullptr, &imageIndex));
 
 	submitInfo.pCommandBuffers = &commandBuffer->GetCommandBuffer(imageIndex);
-
 	VK(vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr));
 
 	presentInfo.pImageIndices = &imageIndex;
