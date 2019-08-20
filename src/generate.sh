@@ -7,7 +7,7 @@ fi
 action="$1"
 
 if [ "$action" == "" ]; then
-    action="vs2017"
+    action="vs2019"
 fi
 
 
