@@ -22,8 +22,8 @@ Application::~Application() {
 }
 
 void Application::OnInitInternal() {
-	Factory::CreateFactory();
 	Log::AddDevice(new LogDeviceConsole);
+	Factory::CreateFactory();
 }
 
 void Application::Start() {
