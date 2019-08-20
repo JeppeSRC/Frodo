@@ -524,7 +524,7 @@ CommandBufferArray* Context::GetPrimaryCommandBuffer() {
 	return mainCommandBuffer; 
 }
 
-CommandBufferArray* Context::AllocateCommandBuffer() {
+CommandBufferArray* Context::AllocateSecondaryCommandBuffer() {
 	return new CommandBufferArray(cmdPool, CommandBufferType::Secondary, swapchainImages.GetSize());;
 }
 

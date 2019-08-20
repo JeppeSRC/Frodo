@@ -76,7 +76,7 @@ public:
 
 public:
 	static graphics::pipeline::CommandBufferArray* GetPrimaryCommandBuffer();
-	static graphics::pipeline::CommandBufferArray* AllocateCommandBuffer();
+	static graphics::pipeline::CommandBufferArray* AllocateSecondaryCommandBuffer();
 
 	static void Present(const graphics::pipeline::CommandBufferArray* const commandBuffer);
 
