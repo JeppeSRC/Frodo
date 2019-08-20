@@ -17,6 +17,7 @@ VkInstance Factory::instance = nullptr;
 List<Adapter*> Factory::adapters;
 List<Output*> Factory::outputs;
 List<const char*> Factory::instanceExtensions;
+List<const char*> Factory::instanceLayers;
 VkDebugReportCallbackEXT Factory::debug = nullptr;
 PFN_vkCreateDebugReportCallbackEXT Factory::vkCreateDebugReportCallbackEXT = nullptr;
 PFN_vkDestroyDebugReportCallbackEXT Factory::vkDestroyDebugReportCallbackEXT = nullptr;
@@ -75,17 +76,53 @@ void Factory::CreateFactory() {
 #endif
 	};
 
-	if (IsExtensionsSupported(requiredExtensions, 2) != ~0) {
-		FD_FATAL("[Factory] Required extensions are not supported. (VK_KHR_surface, %s)", requiredExtensions[1]);
+	uint32 tmpRet = 0;
+
+	if ((tmpRet = IsExtensionsSupported(requiredExtensions, 2)) != ~0) {
+		FD_FATAL("[Factory] Required extensions are not supported. (VK_KHR_surface, %s)", requiredExtensions[tmpRet]);
+	}
+
+	uint32 numLayers = 0;
+
+	VK(vkEnumerateInstanceLayerProperties(&numLayers, nullptr));
+
+	List<VkLayerProperties> layers(numLayers);
+
+	VK(vkEnumerateInstanceLayerProperties(&numLayers, layers.GetData()));
+
+	instanceExtensions.Reserve(numExtensions);
+
+	for (uint_t i = 0; i < numLayers; i++) {
+		uint_t len = strlen(layers[i].layerName);
+		char* str = new char[len + 1];
+		memcpy(str, layers[i].layerName, len + 1);
+
+		instanceLayers.Push_back(str);
 	}
 
 	VkInstanceCreateInfo instanceInfo;
+
+	instanceInfo.enabledLayerCount = 0;
+	instanceInfo.ppEnabledLayerNames = nullptr;
+
+#ifdef FD_DEBUG
+
+	const char* requiredLayers[]{
+		"VK_LAYER_KHRONOS_validation"
+	};
+
+	if ((tmpRet = IsLayersSupported(requiredLayers, 1)) != ~0) {
+		Log::Warning("[Factory] Validation layers not available", requiredLayers[tmpRet]);
+	} else {
+		instanceInfo.enabledLayerCount = 1;
+		instanceInfo.ppEnabledLayerNames = requiredLayers;
+	}
+	
+#endif
 	
 	instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceInfo.enabledExtensionCount = numExtensions;
 	instanceInfo.ppEnabledExtensionNames = instanceExtensions.GetData();
-	instanceInfo.enabledLayerCount = 0;
-	instanceInfo.ppEnabledLayerNames = nullptr;
 	instanceInfo.pApplicationInfo = &appInfo;
 	instanceInfo.flags = 0;
 	instanceInfo.pNext = nullptr;
@@ -159,6 +196,24 @@ bool Factory::IsExtensionSupported(const char* name) {
 uint32 Factory::IsExtensionsSupported(const char** names, uint32 num) {
 	for (uint32 i = 0; i < num; i++) {
 		if (!IsExtensionSupported(names[i])) return i;
+	}
+
+	return ~0;
+}
+
+bool Factory::IsLayerSupported(const char* name) {
+	for (uint_t i = 0; i < instanceLayers.GetSize(); i++) {
+		if (strcmp(name, instanceLayers[i]) == 0) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+uint32 Factory::IsLayersSupported(const char** names, uint32 num) {
+	for (uint32 i = 0; i < num; i++) {
+		if (!IsLayerSupported(names[i])) return i;
 	}
 
 	return ~0;

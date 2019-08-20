@@ -14,6 +14,7 @@ private:
 	static VkInstance instance;
 
 	static utils::List<const char*> instanceExtensions;
+	static utils::List<const char*> instanceLayers;
 	
 	static utils::List<Adapter*> adapters;
 	static utils::List<Output*> outputs;
@@ -28,6 +29,8 @@ public:
 
 	static bool IsExtensionSupported(const char* name);
 	static uint32 IsExtensionsSupported(const char** names, uint32 num);
+	static bool IsLayerSupported(const char* name);
+	static uint32 IsLayersSupported(const char** names, uint32 num);
 
 	static inline VkInstance GetInstance() { return instance; }
 	static inline const utils::List<Adapter*> GetAdapters() { return adapters; }
