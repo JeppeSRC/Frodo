@@ -55,7 +55,7 @@ Buffer::Buffer(VkBufferUsageFlags usage, const void* const data, uint64 size, bo
 		buf = tmpBuf;
 		deviceMemory = tmpMemory;
 	}else {
-		info.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		info.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT | usage;
 
 		VK(vkCreateBuffer(Context::GetDevice(), &info, nullptr, &buf));
 
