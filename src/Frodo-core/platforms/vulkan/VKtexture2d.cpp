@@ -15,14 +15,22 @@ using namespace log;
 
 Texture2D::Texture2D(uint32 width, uint32 height, VkFormat format, VkImageUsageFlags usage, VkImageLayout layout) : Texture(width, height), format(format), resizable(true) {
 
-	CreateImage(width, height, 0, VK_IMAGE_TYPE_2D, format, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, layout);
+	CreateImage(width, height, 0, VK_IMAGE_TYPE_2D, format, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_LAYOUT_UNDEFINED);
+
+	Context::TransitionImage(image, format, VK_IMAGE_LAYOUT_UNDEFINED, layout);
 
 	VkImageAspectFlags aspect = 0;
 
 	if (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) {
 		aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 	} else if (usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-		aspect = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+		aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+
+		switch (format) {
+			case VK_FORMAT_D24_UNORM_S8_UINT:
+			case VK_FORMAT_D32_SFLOAT_S8_UINT:
+				aspect |= VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
 	}
 
 	vinfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
