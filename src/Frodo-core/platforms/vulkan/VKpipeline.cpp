@@ -197,16 +197,32 @@ Pipeline::Pipeline(PipelineInfo* info, const RenderPass* const renderPass, uint3
 		s.extent.width = si.width;
 		s.extent.height = si.height;
 	}*/
+
+	VkViewport viewPort;
+	
+	viewPort.x = 0;
+	viewPort.y = 0;
+	viewPort.minDepth = 0;
+	viewPort.maxDepth = 1000;
+	viewPort.width = 1280;
+	viewPort.height= 720;
+
+	VkRect2D scissor;
+
+	scissor.offset.x = 0;
+	scissor.offset.y = 0;
+	scissor.extent.width = 1280;
+	scissor.extent.height = 720;
 	
 	VkPipelineViewportStateCreateInfo viewInfo;
 
 	viewInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	viewInfo.pNext = nullptr;
 	viewInfo.flags = 0;
-	viewInfo.viewportCount = 0;// info->numViewports;
-	viewInfo.pViewports = nullptr;// viewports;
-	viewInfo.scissorCount = 0;// info->numScissors;
-	viewInfo.pScissors = nullptr;//scissors;
+	viewInfo.viewportCount = 1;// info->numViewports;
+	viewInfo.pViewports = &viewPort;// viewports;
+	viewInfo.scissorCount = 1;// info->numScissors;
+	viewInfo.pScissors = &scissor;//scissors;
 
 	VkPipelineRasterizationStateCreateInfo rasterInfo;
 	
