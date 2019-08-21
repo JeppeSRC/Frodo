@@ -110,7 +110,23 @@ public:
 		set = layout->AllocateDescriptorSet();
 		set2 = layout->AllocateDescriptorSet();
 
-		renderPass = new RenderPass(Format::D32);
+		RenderSubPassInfo subInfo;
+
+		subInfo.colorAttachments[0] = FD_SWAPCHAIN_ATTACHMENT_INDEX;
+		subInfo.colorAttachments[1] = FD_NO_ATTACHMENT;
+		subInfo.inputAttachments[0] = FD_NO_ATTACHMENT;
+
+		VkExtent2D e = Context::GetSwapchainExtent();
+
+		RenderPassInfo rInfo;
+
+		rInfo.clearColor = vec4(0.12f, 0.0f, 1.0f, 1.0f);
+		rInfo.depthClearValue = 1.0f;
+		rInfo.subpasses.Push_back(subInfo);
+		rInfo.depthAttachment = 0;
+		rInfo.framebuffers.Push_back(new Depthbuffer(e.width, e.height, Format::D32));
+
+		renderPass = new RenderPass(&rInfo);
 
 		pipeline = new Pipeline(&info, renderPass, 0, pipelineLayout);
 
