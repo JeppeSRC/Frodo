@@ -153,3 +153,19 @@ project("Sandbox")
         postbuildcommands { "call \"$(SolutionDir)../src/post.bat\" \"$(SolutionDir)../src/Sandbox/res\"" }
 
     filter ""
+
+project("fdcon")
+    kind "ConsoleApp"
+    location "../solution/fdcon"
+
+    targetdir "%{sln.location}/../bin/%{cfg.buildcfg}/fdcon/"
+    objdir "%{sln.location}/../bin/%{cfg.buildcfg}/intermediates/fdcon/"
+
+    files {
+        "fdcon/**.cpp",
+        "fdcon/**.h"
+    }
+
+    includedirs {
+        "fdcon/"
+    }
