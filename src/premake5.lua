@@ -151,3 +151,5 @@ project("Sandbox")
 
     filter {"system:windows"}
         postbuildcommands { "call \"$(SolutionDir)../src/post.bat\" \"$(SolutionDir)../src/Sandbox/res\"" }
+
+    filter ""
