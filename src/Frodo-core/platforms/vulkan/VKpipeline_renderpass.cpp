@@ -179,7 +179,7 @@ RenderPass::RenderPass(const RenderPassInfo* info) : EventListener(EventWindow, 
 
 		desc.flags = 0;
 		desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		desc.finalLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		desc.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		desc.format = info->framebuffers[i]->GetFormat();
 		desc.samples = VK_SAMPLE_COUNT_1_BIT;
 		desc.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -202,6 +202,8 @@ RenderPass::RenderPass(const RenderPassInfo* info) : EventListener(EventWindow, 
 		ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 		attachmentReferences.Push_back(ref);
+
+		attachments[info->depthAttachment].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	}
 
 	for (uint_t i = 0; i < info->subpasses.GetSize(); i++) {
