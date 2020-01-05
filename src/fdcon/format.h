@@ -26,6 +26,10 @@ struct FDFTextureHeader {
 	uint16 height;
 };
 
-
+struct FDFModelHeader {
+	uint64 vertexDataSize;
+	uint64 indexDataSize;
+	uint8 indexSize;
+};
 
 }}
