@@ -52,6 +52,9 @@ public:
 
 	Shader* shader;
 
+	Texture* texture;
+	Sampler* sampler;
+
 	uint32 fps;
 
 	TestApp() : Application("TestApp"), EventListener(EventMouse) { }
@@ -78,6 +81,9 @@ public:
 		BlendInfo blendInfo = { false, BlendFactor::One, BlendFactor::One, BlendOp::Add, BlendFactor::One, BlendFactor::One, BlendOp::Add, ColorComponentFlag::All };
 		DepthStencilInfo depthInfo = { true, true, ComparisonFunc::LessEqual, false };
 		shader = new Shader("./res/vert.spv", "./res/frag.spv", "");
+
+		texture = new Texture2D("./res/bricks.jpg");
+		sampler = new Sampler(SamplerFilter::Linear, SamplerFilter::Linear, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat, SamplerAddressMode::Repeat, false, 16, SamplerBorderColor::White);
 
 		BufferLayout inputLayout(0, BufferInputRate::PerVertex);
 
@@ -153,6 +159,9 @@ public:
 
 		set->UpdateUniform(0, &projection, sizeof(mat4));
 		set2->UpdateUniform(0, &projection, sizeof(mat4));
+
+		set->SetTexture(1, texture, sampler);
+		set2->SetTexture(1, texture, sampler);
 
 		cmd = Context::GetPrimaryCommandBuffer();
 	}
