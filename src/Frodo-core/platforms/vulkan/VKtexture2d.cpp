@@ -73,10 +73,16 @@ Texture2D::Texture2D(const String& filename) : resizable(false) {
 	switch (texHeader.pixelLayout) {
 		case TextureChannel::R:
 			format = VK_FORMAT_R8_UNORM;
+			break;
 		case TextureChannel::RG:
 			format = VK_FORMAT_R8G8_UNORM;
+			break;
+		case TextureChannel::RGB:
+			format = VK_FORMAT_R8G8B8_UNORM;
+			break;
 		case TextureChannel::RGBA:
 			format = VK_FORMAT_R8G8B8A8_UNORM;
+			break;
 	}
 
 	CreateImage(width, height, 0, VK_IMAGE_TYPE_2D, format, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -104,6 +110,8 @@ Texture2D::Texture2D(const String& filename) : resizable(false) {
 	vinfo.subresourceRange.levelCount = 1;
 
 	VK(vkCreateImageView(Context::GetDevice(), &vinfo, nullptr, &imageView));
+
+	free(pixels);
 }
 
 void Texture2D::Resize(uint32 width, uint32 height) {
