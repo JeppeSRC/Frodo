@@ -19,7 +19,7 @@ Sampler::Sampler(SamplerFilter magFilter, SamplerFilter minFilter, SamplerAddres
 	info.addressModeV = (VkSamplerAddressMode)addressV;
 	info.addressModeW = (VkSamplerAddressMode)addressW;
 	info.mipLodBias = 0.0f;
-	info.anisotropyEnable = anisotropy;
+	info.anisotropyEnable =  anisotropy ? VK_TRUE : VK_FALSE;
 	info.maxAnisotropy = maxAnisotropy;
 	info.compareEnable = false;
 	info.compareOp = VK_COMPARE_OP_ALWAYS;
