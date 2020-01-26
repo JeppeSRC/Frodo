@@ -40,6 +40,9 @@ public:
 	inline void operator=(const std::string& string) { std::string::operator=(string); }
 	inline void operator=(const String& string) { std::string::operator=(string); }
 
+	inline bool operator==(const String& string) const { return this->_Equal(string); }
+	inline bool operator!=(const String& string) const { return !operator==(string); }
+
 	String& RemoveChars(const char* const chars, bool iterate);
 	String& RemoveChars(const char* const chars, uint_t length, bool iterate);
 	String& RemoveChars(const std::string& chars, bool iterate);
