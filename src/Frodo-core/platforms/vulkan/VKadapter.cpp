@@ -78,6 +78,19 @@ Adapter::Adapter(VkPhysicalDevice device) : device(device) {
 		char* str = new char[len+1];
 		memcpy(str, extensions[i].extensionName, len+1);
 
+#ifdef FD_DEBUG
+		List<String> ext;
+
+		ext.Push_back("VK_KHR_pipeline_executable_properties");
+		ext.Push_back("VK_KHR_timeline_semaphore");
+		ext.Push_back("VK_EXT_index_type_uint8");
+		ext.Push_back("VK_EXT_line_rasterization");
+		ext.Push_back("VK_EXT_subgroup_size_control");
+
+		if (ext.Find(str) != ~0) continue;
+
+#endif
+
 		deviceExtensions.Push_back(str);
 	}
 
