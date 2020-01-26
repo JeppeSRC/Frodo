@@ -186,16 +186,18 @@ public:
 
 		vec3 tmp(0, 0, aa);
 
-		mat4 projection = mat4::Perspective((float)window->GetWidth() / (float)window->GetHeight(), 85.0f, 0.01f, 100.0f);
+		struct {
+			mat4 projection;
+			mat4 model;
+		} mvp, mvp2;
 
-		mat4 m = mat4::Translate(position) * mat4::Rotate(tmp);
-		mat4 m2 = mat4::Translate(vec3(2, 0, 2.001)) * mat4::Rotate(-tmp);
+		mvp.projection = mvp2.projection = mat4::Perspective((float)window->GetWidth() / (float)window->GetHeight(), 85.0f, 0.01f, 100.0f);
 
-		set->UpdateUniform(0, &projection, sizeof(mat4));
-		set2->UpdateUniform(0, &projection, sizeof(mat4));
+		mvp.model = mat4::Translate(position) * mat4::Rotate(tmp);
+		mvp2.model = mat4::Translate(vec3(2, 0, 2.001)) * mat4::Rotate(-tmp);
 
-		set->UpdateUniform(0, &m2, sizeof(mat4), sizeof(mat4));
-		set2->UpdateUniform(0, &m, sizeof(mat4), sizeof(mat4));
+		set->UpdateUniform(0, &mvp, sizeof(mvp));
+		set2->UpdateUniform(0, &mvp2, sizeof(mvp2));
 	}
 
 	void OnRender() override {
